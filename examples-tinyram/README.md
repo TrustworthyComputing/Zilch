@@ -2,16 +2,15 @@
 
 ### Knowledge of factorization
 ```
-MOV r1 r0 3         ; r1 = 3
-MOV r2 r0 5         ; r2 = 5
-MOV r11 r0 0        ; r11 = 0
+SECREAD r1          ; r1 is filled with a private value from auxiliary tape (e.g. 3)
+SECREAD r2          ; r2 is filled with a private value from auxiliary tape (e.g. 5)
+MOV r11 r0 1        ; r11 = 1
 MULL r3 r1 r2       ; r3 = r1 * r2
 CMPE r3 r0 15       ; flag = (r3 == 15)
-CJMP r0 r0 9        ; if (flag) then PC = 9
-MOV r11 r0 1        ; r11 = 1
+CJMP r0 r0 7        ; if (flag) then PC = 7
+MOV r11 r0 0        ; r11 = 0
 ANSWER r0 r0 r11    ; return r11 // return (r1 * r2 == 15)
 ```
-
 
 ### Knowledge of RSA private key
 ```
