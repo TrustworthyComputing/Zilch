@@ -3,7 +3,7 @@ SECREAD r1
 SUB r3 r0 1
 SUB r4 r1 1
 MULL r5 r3 r4
-MOV r7 r7 23
+SECREAD r7
 MOV r8 r8 7
 MULL r9 r7 r8
 UMOD r11 r9 r5
