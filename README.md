@@ -1,4 +1,4 @@
-# IndigoZK
+# IndigoZK [![License MIT][badge-license]](LICENSE)
 ## An extension of libSTARK's TinyRAM implementation.
 
 ### Overview
@@ -87,3 +87,5 @@ Execution:
 1. Scalable (poly-logarithmic) verification of computations [[BFLS](https://dl.acm.org/citation.cfm?doid=103418.103428),
 [BGHSV](http://ieeexplore.ieee.org/document/1443079/)].
 1. Interactive and ZK proof systems [[BM](https://www.sciencedirect.com/science/article/pii/0022000088900281?via%3Dihub), [GMR](https://dl.acm.org/citation.cfm?doid=22145.22178), [BFL](https://link.springer.com/article/10.1007%2FBF01200056)].
+
+[badge-license]: https://img.shields.io/badge/license-MIT-green.svg?style=flat-square
