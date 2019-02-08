@@ -1,2 +1,3 @@
 bin/
 /stark-tinyram
+*.out
