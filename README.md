@@ -32,7 +32,7 @@ https://github.com/elibensasson/libSTARK/issues/2
 * OpenMP (https://en.wikipedia.org/wiki/OpenMP) for parallelization.
 * googletest (https://github.com/google/googletest) for **unit-tests compilation only**
 
-### How to run the code
+## How to run the code
 #### Compilation:
 ```
 git clone https://github.com/elibensasson/libSTARK.git
@@ -40,28 +40,92 @@ cd libSTARK
 make -j8
 ```
 
-#### STARK for TinyRAM programs
-Arguments format:
+## STARK for TinyRAM programs
+#### Arguments format:
 ```
-./stark-tinyram <TinyRAM assembly file path> -t<trace length log_2> [-s<security parameter]>
+./stark-tinyram <TinyRAM assembly file path> -t<trace length log_2> [-s<security parameter]> [-p<0,1>] [-T<tapeFile>]
 ```
-for example:
+#### Prefixes
+```
+-t : Time steps ((2^t)-1)
+-s : Security (2^-s)
+-p : No-Prover (0 or 1)
+-A : Auxiliary-tape (file path containing private inputs)
+```
+see examples below on how to use the prefixes.
+
+### Example (Collatz Conjecture):
 ```
 ./stark-tinyram examples-tinyram/collatz.asm -t10 -s120
 ```
 The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2<sup>10</sup>-1) machine steps, and soundness error at most 2<sup>-120</sup>.
 
-A more interesting example would be to prove the knowledge of a big number without disclosing the factors.
+
+### A more interesting example (Knowledge of Factorization):
+A more interesting example would be to prove the knowledge of the factors of a number (e.g. 15) without disclosing them to the verifier.
+As we already mentioned, all the private inputs (i.e. the inputs that only the prover has knowledge of) are placed in the auxiliary tape.
 ```
 ./stark-tinyram examples-tinyram/knowledge_of_factorization.asm -t10 -s120 -T./examples-tinyram/knowledge_of_factorization_auxtape.txt
 ```
-More examples [here](https://github.com/TrustworthyComputing/IndigoZK/tree/master/examples-tinyram).
 
-#### Execution results
+#### TinyRAM code for the Knowledge of Factorization example:
+```
+SECREAD r1          ; r1 is filled with a private value from auxiliary tape (e.g. 3)
+SECREAD r2          ; r2 is filled with a private value from auxiliary tape (e.g. 5)
+MOV r11 r0 1        ; r11 = 1
+MULL r3 r1 r2       ; r3 = r1 * r2
+CMPE r3 r0 15       ; flag = (r3 == 15)
+CJMP r0 r0 7        ; if (flag) then PC = 7
+MOV r11 r0 0        ; r11 = 0
+ANSWER r0 r0 r11    ; return r11 // return (r1 * r2 == 15)
+```
+
+
+### Another interesting example (Knowledge of RSA Private Key):
+Prover claims he/she posseses the private RSA key of a verifier-chosen public key without revealing anything about the key to the verifier.
+```
+./stark-tinyram examples-tinyram/knowledge_of_RSA_private_key.asm -t10 -s120 -A./examples-tinyram/knowledge_of_RSA_private_key_auxtape.txt
+```
+
+
+RSA example:
+```
+p = 17, q = 11
+n = p * q = 187
+phi(187) = (p-1)*(q-1) = 160
+choose random e, 1 < e < 160. ie. e = 7
+d * e mod(phi(n)) = 1
+d = 23
+
+Public-key:
+    n = 187, e = 17
+Private-key:
+    d = 23, p = 17, q = 11, and thus phi(n) = 160
+
+Proof of correctness:
+    d * e mod(phi(n)) = 1
+    (23 * 7) mod 160 = 1 ==> 161 mod 160 = 1
+```
+
+#### TinyRAM code for the knowledge of RSA private key example:
+```
+SECREAD r0          ; r0 is filled with a private value from auxiliary tape (e.g. p = 17)
+SECREAD r1          ; r1 is filled with a private value from auxiliary tape (e.g. q = 11)
+SUB r3 r0 1         ; p - 1 = 16
+SUB r4 r1 1         ; q - 1 = 10
+MULL r5 r3 r4       ; phi(n) = (p - 1) * (q - 1) = 160
+SECREAD r7          ; r7 is filled with a private value from auxiliary tape (e.g. d = 23)
+MOV r8 r8 7         ; public e = 7
+MULL r9 r7 r8       ; compute d * e
+UMOD r11 r9 r5      ; compute (d * e) mod phi(n)
+ANSWER r0 r0 r11    ; Answer should be 1
+```
+
+## Execution results
 In the simulation the Prover and Verifier interact, the Prover generates a proof and the Verifier verifies it.
 During the executions the specifications of generated BAIR and APR, measurements, and Verifier's decision, are printed to the standard output.
 
-#### Unit-tests
+## Unit-tests
 To use the unit-test the gtest development package should be installed: `apt install libgtest-dev`.
 
 Compilation:

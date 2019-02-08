@@ -17,7 +17,7 @@ using std::move;
 const string timePrefix = "-t";
 const string securityPrefix = "-s";
 const string noProverPrefix = "-p";
-const string tapePrefix = "-T";
+const string tapePrefix = "-A";
 
 void printHelp(const string exeName){
     cout<<"Usage:"<<endl;
@@ -64,21 +64,21 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const unsigne
 
 void execute(const string assemblyFile, const string tapeFile, const unsigned int t, const unsigned int securityParameter, const bool simulateOnly){
     cout<<"Executing simulation with assembly from " + assemblyFile + " over 2^" + to_string(t) +"-1 steps, and soundness error at most 2^-" +to_string(securityParameter)+" and private inputs from "+tapeFile<<endl<<endl;
-    
+
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
 	TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
     program.addInstructionsFromFile(assemblyFile, tapeFile);
 
-    
+
     //simulation only - no prover
     if(simulateOnly){
         const auto bairInstance = constructInstance(program,t);
         libstark::Protocols::simulateProtocol(bairInstance, securityParameter);
         return;
     }
-    
-    //full execution 
+
+    //full execution
     const auto bairWitness = constructWitness(program,t);
     const auto bairInstance = constructInstance(program,t);
     libstark::Protocols::executeProtocol(bairInstance,bairWitness,securityParameter,false,false,true);
