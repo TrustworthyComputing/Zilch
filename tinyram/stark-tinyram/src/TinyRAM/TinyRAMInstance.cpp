@@ -11,7 +11,7 @@
 		const size_t destIdx, const size_t arg1Idx, const size_t arg2IdxOrImmediate) :
 		opcode_(opcode), arg2isImmediate_(arg2isImmediate), destIdx_(destIdx), arg1Idx_(arg1Idx),
 		arg2IdxOrImmediate_(arg2IdxOrImmediate){}
-    
+
     std::string opcodeToString(const Opcode& op){
         switch(op){
             case Opcode::MEMORY: return "MEMORY";
@@ -54,7 +54,7 @@
                       throw("unfamiliar instruction");
         }
     }
-    
+
     Opcode opcodeFromString(const string op){
         if(op == "MEMORY") return Opcode::MEMORY;
         if(op == "NONE") return Opcode::NONE;
@@ -91,7 +91,7 @@
         if(op == "READ") return Opcode::READ;
         if(op == "ANSWER") return Opcode::ANSWER;
         if(op == "NUM_OPCODES") return Opcode::NUM_OPCODES;
-    
+
         std::cout<<"unfamiliar instruction";
         throw("unfamiliar instruction");
     }
@@ -99,7 +99,7 @@
     void MachineInstruction::print()const{
         std::cout<<opcodeToString(opcode_)<<" r"<<destIdx_<<" r"<<arg1Idx_<<(arg2isImmediate_?" ":" r")<<arg2IdxOrImmediate_<<std::endl;
     }
-    
+
     bool isReg(const string s){
         return (s.size()>1) && (s[0]=='r');
     }
@@ -139,13 +139,13 @@
             arg2IdxOrImmediate_ = getImmidiate(words[3]);
         }
     }
-    
+
     void TinyRAMProgram::print()const{
         for(const auto& line: code_){
             line.print();
         }
     }
-	
+
     vector<string> split(const string &s, char delim) {
         vector<string> result;
         stringstream ss (s);
@@ -164,7 +164,7 @@
         std::regex regex{R"([\n]+)"}; // split to lines
         std::sregex_token_iterator it{content.begin(), content.end(), regex, -1};
         std::vector<std::string> lines{it, {}};
-        
+
         // Read private inputs (tapeFile) to private_lines vector
         std::ifstream tapefs(tapeFile);
         std::string private_inputs((std::istreambuf_iterator<char>(tapefs)),std::istreambuf_iterator<char>());
@@ -174,16 +174,22 @@
         int secread_cnt = 0;
         for(const auto& l : lines){
             std::cout << l << std::endl; // print the current instruction
-            
-            vector<string> splitted_line = split(l, ' '); // tokenize the instruction
+
+            std::string delimiter = ";";
+            std::string token = l.substr(0, l.find(delimiter));
+            if (token.empty()) {
+                continue;
+            }
+
+            vector<string> splitted_line = split(token, ' '); // tokenize the instruction
             if (! splitted_line[0].compare("SECREAD") ) {  // if the instruction is SECREAD, replace it with a private MOV
                 int regnum = stoi( splitted_line[1].substr(1, splitted_line[1].length()) );
                 int immidiate = stoi( private_lines[secread_cnt++] );
                 MachineInstruction instruction(Opcode::MOV, true, regnum, 0, immidiate);
                 addInstruction(instruction);
             } else {
-                MachineInstruction instruction(l);
-                addInstruction(instruction);                
+                MachineInstruction instruction(token);
+                addInstruction(instruction);
             }
         }
     }
