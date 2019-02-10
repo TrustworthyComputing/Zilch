@@ -175,20 +175,20 @@
         for(const auto& l : lines){
             std::cout << l << std::endl; // print the current instruction
 
-            std::string delimiter = ";";
-            std::string token = l.substr(0, l.find(delimiter));
-            if (token.empty()) {
+            std::string delimiter = ";"; // split in comments
+            std::string instr_without_comment = l.substr(0, l.find(delimiter)); // keep only the instruction before comment
+            if (instr_without_comment.empty()) { // if instruction is empty, skip it
                 continue;
             }
 
-            vector<string> splitted_line = split(token, ' '); // tokenize the instruction
+            vector<string> splitted_line = split(instr_without_comment, ' '); // tokenize the instruction
             if (! splitted_line[0].compare("SECREAD") ) {  // if the instruction is SECREAD, replace it with a private MOV
                 int regnum = stoi( splitted_line[1].substr(1, splitted_line[1].length()) );
                 int immidiate = stoi( private_lines[secread_cnt++] );
                 MachineInstruction instruction(Opcode::MOV, true, regnum, 0, immidiate);
                 addInstruction(instruction);
             } else {
-                MachineInstruction instruction(token);
+                MachineInstruction instruction(instr_without_comment);
                 addInstruction(instruction);
             }
         }
