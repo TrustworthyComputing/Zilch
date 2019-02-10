@@ -14,6 +14,7 @@
 #define __RAM_INSTANCE_HPP
 
 #include <vector>
+#include <map>
 #include <string>
 #include <cstdint>
 #include "TinyRAM/TinyRAMDefinitions.hpp"
@@ -69,10 +70,15 @@ struct MachineInstruction {
 		const size_t arg1Idx,
 		const size_t arg2IdxOrImmediate);
 	
-    MachineInstruction(const std::string line);
+    MachineInstruction(
+		const std::string line,
+		const std::map<string, int> labels_map
+	);
 
     void print()const;
 };
+
+bool isLabel(const string &str);
 
 class TinyRAMProgram {
 public:
@@ -100,6 +106,7 @@ public:
 	const MachineInstruction& getInstructionAtPc(const size_t pc) const { return code_[pc]; }
 	void addInstruction(const MachineInstruction& instruction) { code_.emplace_back(instruction); }
 	void addInstructionsFromFile(const std::string filename, const std::string tapeFile);
+	std::map<string, int> buildLabelsMap(const std::string filename);
     unsigned int pcLength() const {
 		int codeSize = code_.size();
 		if (codeSize == 0){ _COMMON_FATAL("TinyRAMProgram : The code is not initialized"); };
