@@ -200,7 +200,7 @@ map<string, int> TinyRAMProgram::buildLabelsMap(const std::string filename){
         
         vector<string> splitted_line = split(instr_without_comment, ' '); // tokenize the instruction
         if (isLabel(splitted_line[0])) { // if label starts with prefix and ends with suffix then it's a valid label
-            std::cout << "found label: " << splitted_line[0] << " -> " << instructions_cnt<<"\n";
+            // std::cout << "found label: " << splitted_line[0] << " -> " << instructions_cnt<<"\n";
             if (labels_map.find(splitted_line[0]) != labels_map.end()) { // check if key is present
                 std::cerr << "\nLabel" << splitted_line[0] << " is already defined!\n";
                 exit(EXIT_FAILURE);
