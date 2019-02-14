@@ -3,61 +3,60 @@
 # RSA-100 = 37975227936943673922808872755445627854565536638199 * 40094690950920881030683735292761468389214899724061
 # RSA-100 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139
 
+BITS_PER_BLOCK = 8
+
 import math
 
-def bytes16of(num):
-    num_bits = int(math.floor(math.log(num, 2)) + 1)
-    num_bytes = int(math.floor(num_bits / 16) + 1)
-    return num_bytes
+def bytesof(x, bitsnum):
+    bits_of_x = int(math.floor(math.log(x, 2)) + 1)
+    return int(math.floor(bits_of_x / bitsnum) + 1)
     
-def split_to_array_of_16(num):
-    num_bytes = bytes16of(num)
-    print(str(num) + " has " + str(num_bytes) + " 16-bits")
-    num32 = [0] * num_bytes
-    for i in range(num_bytes):
-        j = num_bytes-1-i
-        num32[j] = (num >> (16 * i)) & 0xFFFF
+def split_to_array_of(num, bitsnum):
+    blocks = bytesof(num, bitsnum)
+    print(str(num) + " has " + str(blocks) + " " + str(BITS_PER_BLOCK) + "-bit blocks")
+    num32 = [0] * blocks
+    for i in range(blocks):
+        j = blocks-1-i
+        num32[j] = (num >> (bitsnum * i)) & ((1<<bitsnum) - 1)
         print("p[" + str(j) + "] = " + str(num32[j]))
     print
     return num32
     
-def recreate_bignum(num32):
-    num_bytes = len(num32)
-    num_ver = 0
-    for i in range(num_bytes):
-        num_ver = (num_ver << 16) + num32[i]
-    return num_ver
+def recreate_num(x_array, bitsnum):
+    blocks = len(x_array)
+    x = 0
+    for i in range(blocks):
+        x = (x << bitsnum) + x_array[i]
+    return x
         
 
 p = 37975227936943673922808872755445627854565536638199
-p16 = split_to_array_of_16(p)
-# print(p16)
+p_blocks = split_to_array_of(p, BITS_PER_BLOCK)
+# print(p_blocks)
 
 q = 40094690950920881030683735292761468389214899724061
-q16 = split_to_array_of_16(q)
-# print(q16)
+q_blocks = split_to_array_of(q, BITS_PER_BLOCK)
+# print(q_blocks)
 
 # Multiply blocks
-L1 = len(p16)
-print(L1, "L1")
-L2 = len(q16)
+l1 = len(p_blocks)
+l2 = len(q_blocks)
 
-num_ver = 0
-for ii in range(L1):
-    i = L1-1-ii
-    for jj in range(L2):
-        j = L2-1-jj
-        mult = p16[i] * q16[j]
-        print p16[i]
-        num_ver = num_ver + (mult << (16 * (ii + jj)))
+x_ver = 0
+for ii in range(l1):
+    i = l1-1-ii
+    for jj in range(l2):
+        j = l2-1-jj
+        mult = p_blocks[i] * q_blocks[j]
+        x_ver = x_ver + (mult << (BITS_PER_BLOCK * (ii + jj)))
         
 
-rsa1024 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139
-print(num_ver, num_ver == rsa1024)
-
 # Verify
-p_ver = recreate_bignum(p16)
+rsa1024 = 1522605027922533360535618378132637429718068114961380688657908494580122963258952897654000350692006139
+print(x_ver, x_ver == rsa1024)
+
+p_ver = recreate_num(p_blocks, BITS_PER_BLOCK)
 print(p_ver, p_ver == p)
 
-q_ver = recreate_bignum(q16)
+q_ver = recreate_num(q_blocks, BITS_PER_BLOCK)
 print(q_ver, q_ver == q)
