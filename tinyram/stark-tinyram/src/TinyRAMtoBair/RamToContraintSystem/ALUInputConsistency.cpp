@@ -75,9 +75,27 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 	Opcode opcode = program_.code()[i].opcode_;
 	if (Opcode::READ == opcode) {
 		unsigned int read_from_tape_result;
+
+
 		if (arg2 == 0) {
+			if (public_lines[0].empty()) { // check if tapefile is empty
+				std::cerr << "\nPrimary tapefile is empty or does not exist.\n";
+				exit(EXIT_FAILURE);
+			} else if (public_lines.size() <= pubread_cnt) { // check if there exists a word to consume
+				std::cerr << "\nPrimary tapefile has no other word to consume.\n";
+				exit(EXIT_FAILURE);
+			}
+			// read from tape
 			read_from_tape_result = stoi( public_lines[pubread_cnt++] );
 		} else if (arg2 == 1) {
+			if (private_lines[0].empty()) { // check if tapefile is empty
+				std::cerr << "\nAuxiliary tapefile is empty or does not exist.\n";
+				exit(EXIT_FAILURE);
+			} else if (private_lines.size() <= secread_cnt) { // check if there exists a word to consume
+				std::cerr << "\nAuxiliary tapefile has no other word to consume.\n";
+				exit(EXIT_FAILURE);
+			}
+			// read from tape
 			read_from_tape_result = stoi( private_lines[secread_cnt++] );
 		} else {
 			std::cerr << "\nMOVIFILE error: last argument should be either 0 for primary tape or 1 for auxiliary tape.\n";
