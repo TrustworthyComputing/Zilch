@@ -27,9 +27,7 @@ namespace gadgetlib {
 typedef Algebra::CircuitPolynomial Polynomial;
 
 
-bool Constraint::isSatisfied(const Algebra::VariableAssignment& assignment,
-							const PrintOptions& printOnFail){
-
+bool Constraint::isSatisfied(const Algebra::VariableAssignment& assignment, const PrintOptions& printOnFail) {
 	bool aEval = constraint_.isSatisfied(assignment);
 	if (aEval == false){
 		if (printOnFail == PrintOptions::DBG_PRINT_IF_NOT_SATISFIED) {
@@ -48,7 +46,7 @@ bool Constraint::isSatisfied(const Algebra::VariableAssignment& assignment,
 
 void ConstraintSystem::addConstraint(Polynomial c, std::string name) {
 	Constraint newConstraint(c, name);
-	constraintsPtrs_.emplace_back(newConstraint);
+	constraintsPtrs_.push_back(newConstraint);
 }
 
 bool ConstraintSystem::isSatisfied(const Algebra::VariableAssignment& assignment,
@@ -57,8 +55,8 @@ bool ConstraintSystem::isSatisfied(const Algebra::VariableAssignment& assignment
 		if (!(constraintsPtrs_[i].constraint().isSatisfied(assignment))){
 		#ifdef _DEBUG
 			std::cout << "Wrong: " << constraintsPtrs_[i].asString() << std::endl;
-//			std::cout << constraintsPtrs_[i].constraint().eval(assignment) << std::endl;
-//			std::cout << "Constraint: " << constraintsPtrs_[i].constraint().asString() << std::endl;
+			// std::cout << constraintsPtrs_[i].constraint().eval(assignment) << std::endl;
+			// std::cout << "Constraint: " << constraintsPtrs_[i].constraint().asString() << std::endl;
 		#endif
 			return false;
         }

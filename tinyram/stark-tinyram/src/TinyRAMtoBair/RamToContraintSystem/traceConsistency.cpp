@@ -1,7 +1,6 @@
 #include <algebraLib/variable_operators.hpp>
 #include "traceConsistency.hpp"
-
-
+#include <iostream>
 
 
 	TraceConsistency::TraceConsistency(ProtoboardPtr pb,
@@ -158,50 +157,55 @@
 				Opcode opcode = program_.code()[j].opcode_;
 				unsigned int dest = program_.code()[j].destIdx_;
 				if (dest == i){
-					switch (opcode)
-					{
-					case Opcode::ADD:
-					case Opcode::SUB:
-					case Opcode::AND:
-					case Opcode::OR:
-					case Opcode::XOR:
-					case Opcode::MOV:
-					case Opcode::CMOV:
-					case Opcode::SHL:
-					case Opcode::SHR:
-					case Opcode::SHAR:
-					case Opcode::MULL:
-					case Opcode::UMULH:
-					case Opcode::SMULH:
-					case Opcode::UDIV:
-					case Opcode::UMOD:
-					case Opcode::RESERVED_OPCODE_24:
-						selectorToConstraint[j] = 0;
-						//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
-						break;
-					case Opcode::JMP:
-					case Opcode::CJMP:
-					case Opcode::CNJMP:
-					case Opcode::CMPE:
-					case Opcode::CMPA:
-					case Opcode::CMPAE:
-					case Opcode::CMPG:
-					case Opcode::CMPGE:
-					case Opcode::STOREW:
-					case Opcode::ANSWER:
-						selectorToConstraint[j] = 1;
-						//constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
-						break;
-					case Opcode::LOADW:
-						selectorToConstraint[j] = 2;
-						//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.value_));
-						break;
-					default:
-						GADGETLIB_FATAL("Trace Consistency: No Such opcode exists");
-						break;
+					switch (opcode) {
+						case Opcode::MOVFILE:
+							// program_.arg2isImmediateToFalse(j);
+							selectorToConstraint[j] = 0;
+							//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
+							break;
+						case Opcode::ADD:
+						case Opcode::SUB:
+						case Opcode::AND:
+						case Opcode::OR:
+						case Opcode::XOR:
+						case Opcode::MOV:
+						case Opcode::CMOV:
+						case Opcode::SHL:
+						case Opcode::SHR:
+						case Opcode::SHAR:
+						case Opcode::MULL:
+						case Opcode::UMULH:
+						case Opcode::SMULH:
+						case Opcode::UDIV:
+						case Opcode::UMOD:
+						case Opcode::RESERVED_OPCODE_24:
+							selectorToConstraint[j] = 0;
+							//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
+							break;
+						case Opcode::JMP:
+						case Opcode::CJMP:
+						case Opcode::CNJMP:
+						case Opcode::CMPE:
+						case Opcode::CMPA:
+						case Opcode::CMPAE:
+						case Opcode::CMPG:
+						case Opcode::CMPGE:
+						case Opcode::STOREW:
+						case Opcode::READ:
+						case Opcode::ANSWER:
+							selectorToConstraint[j] = 1;
+							//constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
+							break;
+						case Opcode::LOADW:
+							selectorToConstraint[j] = 2;
+							//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.value_));
+							break;
+						default:
+							std::cout << "Trace Consistency: No Such opcode exists" << '\n';
+							GADGETLIB_FATAL("Trace Consistency: No Such opcode exists");
+							break;
 					}
-				}
-				else{
+				} else {
 					selectorToConstraint[j] = 1;
 					//constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
 				}
@@ -209,58 +213,6 @@
 			SelectorSum constraintPoly(constraints, selectorVariableVector, selectorToConstraint);
 			pb_->addGeneralConstraint(constraintPoly, "sum_{i=0}^{programLength} (selector(i) * (R'_j - R_j_OR_ALUres))", Opcode::NONE);
 		}
-
-		//unsigned int numRegistersTrace1 = followingTraceVariables_.first_.registers_.size();
-		//unsigned int numRegistersTrace2 = followingTraceVariables_.second_.registers_.size();
-		//GADGETLIB_ASSERT(numRegistersTrace1 == numRegistersTrace2, "TraceConsistency: number of registers should be the same");
-		//for (int i = 0; i < numRegistersTrace1; ++i){
-		//	CircuitPolynomial constraintPoly;
-		//	for (int j = 0; j < program_.size(); j++){
-		//		CircuitPolynomial selector_j = getSelector(program_.size(), j, followingTraceVariables_.first_.pc_);
-		//		Opcode opcode = program_.code()[j].opcode_;
-		//		Variable regiSecond = followingTraceVariables_.second_.registers_[i];
-		//		Variable regiFirst = followingTraceVariables_.first_.registers_[i];
-		//		unsigned int dest = program_.code()[j].destIdx_;
-		//		if (dest == i){
-		//			switch (opcode)
-		//			{
-		//			case Opcode::ADD:
-		//			case Opcode::SUB:
-		//			case Opcode::AND:
-		//			case Opcode::OR:
-		//			case Opcode::XOR:
-		//			case Opcode::MOV:
-		//			case Opcode::SHL:
-		//			case Opcode::SHR:
-		//				constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
-		//				break;
-		//			case Opcode::JMP:
-		//			case Opcode::CJMP:
-		//			case Opcode::CNJMP:
-		//			case Opcode::CMPE:
-		//			case Opcode::CMPA:
-		//			case Opcode::CMPAE:
-		//			case Opcode::CMPG:
-		//			case Opcode::CMPGE:
-		//			case Opcode::STOREW:
-		//			case Opcode::ANSWER:
-		//				constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
-		//				break;
-		//			case Opcode::LOADW:
-		//				constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.value_));
-		//				break;
-		//			default:
-		//				GADGETLIB_FATAL("Trace Consistency: No Such opcode exists");
-		//				break;
-		//			}
-		//		}
-		//		else{
-		//			constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
-		//		}
-		//	}
-		//	pb_->addGeneralConstraint(constraintPoly, "sum_{i=0}^{programLength} (selector(i) * (R'_j - R_j_OR_ALUres))", Opcode::NONE);
-		//}
-
 	}
 
 	void TraceConsistency::timeStampWitness(){
@@ -301,6 +253,7 @@
 			else{
 				switch (opcode)
 				{
+				case Opcode::MOVFILE:
 				case Opcode::ADD:
 				case Opcode::SUB:
 				case Opcode::AND:
@@ -372,44 +325,42 @@
 		::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
 		const Algebra::FElem generator = Algebra::FElem(getGF2E_X());
 		timeStampWitness();
-		Opcode opcode = program_.code()[programLine].opcode_;
+		Opcode opcode = program_.code()[programLine].opcode_;		
 		if (opcode == Opcode::JMP || opcode == Opcode::CJMP || opcode == Opcode::CNJMP){
 			unsigned int nextLine;
 			if (program_.code()[programLine].arg2isImmediate_){
 				nextLine = program_.code()[programLine].arg2IdxOrImmediate_;
-			}
-			else{
+			} else {
 				unsigned int regIndex = program_.code()[programLine].arg2IdxOrImmediate_;
 				nextLine = mapFieldElementToInteger(0, program_.pcLength(), pb_->val(followingTraceVariables_.first_.registers_[regIndex]));
 			}
 
 			// Calculate PC
-			if (opcode == Opcode::JMP){
+			if (opcode == Opcode::JMP) {
 				pcWitness(nextLine);
-			}
-			else if (opcode == Opcode::CJMP){
+			} else if (opcode == Opcode::CJMP) {
 				if (pb_->val(followingTraceVariables_.first_.flag_) == Algebra::one()){
 					pcWitness(nextLine);
+				} else{
+					pcWitness(programLine + 1);
 				}
-				else{
+			} else {
+				if (pb_->val(followingTraceVariables_.first_.flag_) == Algebra::zero()){
+					pcWitness(nextLine);
+				} else{
 					pcWitness(programLine + 1);
 				}
 			}
-			else{
-				if (pb_->val(followingTraceVariables_.first_.flag_) == Algebra::zero()){
-					pcWitness(nextLine);
-				}
-				else{ pcWitness(programLine + 1); }
-			}
-		}
-		else if (opcode == Opcode::ANSWER){
+		} else if (opcode == Opcode::ANSWER) {
 			pcWitness(programLine);
-		}
-		else{
+		} else {
 			pcWitness(programLine + 1); 
 		}
 		registersWitness(programLine);
-
+		
+		// if (opcode == Opcode::MOVFILE) {
+		// 	program_.arg2isImmediateToFalse(programLine);
+		// }
 	}
 
 

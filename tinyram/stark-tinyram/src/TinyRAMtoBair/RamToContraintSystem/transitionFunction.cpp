@@ -1,4 +1,5 @@
 #include <memory>
+#include <iostream>
 #include "transitionFunction.hpp"
 #include "ALU.hpp"
 #include "ALUInputConsistency.hpp"
@@ -20,10 +21,7 @@ TransitionFunction::TransitionFunction(ProtoboardPtr pb,
 		aluOutput(followingTraceVariable.second_.flag_, memoryFollowingTraceVariables_.first_.isMemOp_,memoryFollowingTraceVariables_.first_.address_,
 		memoryFollowingTraceVariables_.first_.isLoad_, memoryFollowingTraceVariables_.first_.value_){}
 
-GadgetPtr TransitionFunction::create(ProtoboardPtr pb,
-									const FollowingTraceVariables& followingTraceVariable,
-									const MemoryFollowingTraceVariables& memoryFollowingTraceVariables,
-									const TinyRAMProgram& program){
+GadgetPtr TransitionFunction::create(ProtoboardPtr pb, const FollowingTraceVariables& followingTraceVariable, const MemoryFollowingTraceVariables& memoryFollowingTraceVariables, const TinyRAMProgram& program) {
 	GadgetPtr pGadget(new TransitionFunction(pb, followingTraceVariable, memoryFollowingTraceVariables,program));
 	pGadget->init();
 	return pGadget;
@@ -56,10 +54,11 @@ int TransitionFunction::calcPC(){
 
 }
 
-void TransitionFunction::generateWitness(unsigned int i){
+void TransitionFunction::generateWitness(unsigned int i, const vector<string>& public_lines, const vector<string>& private_lines, size_t& pubread_cnt, size_t& secread_cnt){
 	int codeLineNumber = calcPC();
 	GADGETLIB_ASSERT(codeLineNumber < (long)program_.size(), "TransitionFunction: The code line number should be less than program.size()");
-	(::std::dynamic_pointer_cast<ALUInputConsistency>(aluInputConsistnecy_g_))->generateWitness(codeLineNumber);
+	
+	(::std::dynamic_pointer_cast<ALUInputConsistency>(aluInputConsistnecy_g_))->generateWitness(codeLineNumber, public_lines, private_lines, pubread_cnt, secread_cnt);
 	(::std::dynamic_pointer_cast<ALU_Gadget>(alu_g_))->generateWitness(codeLineNumber);
 	(::std::dynamic_pointer_cast<TraceConsistency>(traceConsistency_g_))->generateWitness(codeLineNumber);
 
@@ -81,8 +80,7 @@ void TransitionFunction::generateWitness(unsigned int i){
 		FElem address;
 		if (program_.code()[codeLineNumber].arg2isImmediate_){
 			address = mapIntegerToFieldElement(0, params->registerLength(), program_.code()[codeLineNumber].arg2IdxOrImmediate_);
-		}
-		else{ // Not immediate - The address is what is written in arg2
+		} else { // Not immediate - The address is what is written in arg2
 			int regNum = program_.code()[codeLineNumber].arg2IdxOrImmediate_;
 			address = pb_->val(followingTraceVariable_.first_.registers_[regNum]);
 		}
@@ -92,7 +90,7 @@ void TransitionFunction::generateWitness(unsigned int i){
 		// Update Is Load Opcode
 		bool isLoad = (Opcode::LOADB == opcode || Opcode::LOADW == opcode) ? true : false;
 		memInfo.updateIsLoadOp(isLoad);
-	} 
+	}
 	pb_->addMemoryInfo(memInfo);
 
 };

@@ -1,4 +1,5 @@
 #include "cs2Bair.hpp"
+#include <iostream>
 #include "../RamToContraintSystem/MemoryConsraints.hpp"
 
 using libstark::BairInstance;
@@ -14,9 +15,11 @@ using libstark::ConstraintSys;
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-cs2Bair::cs2Bair(ProtoboardPtr pb,const TinyRAMProgram& program, const int transcriptLen, bool constructWitness) :
+cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& public_lines, const vector<string>& private_lines) :
     pb_(pb),
 	program_(program),
+    public_lines_(public_lines),
+    private_lines_(private_lines),
     transcript_len(transcriptLen),
 	doesProgramUsesMemory_(false),
 	followingTraceVariable_(program.pcLength(), std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters()),
@@ -25,7 +28,7 @@ cs2Bair::cs2Bair(ProtoboardPtr pb,const TinyRAMProgram& program, const int trans
 		this->init();
 		this->generateConstraints();
 		this->boundaryConstraints();
-        if(constructWitness){
+        if (constructWitness) {
             generateWitness();
             generateMemoryWitness();
         }
@@ -88,6 +91,7 @@ std::vector<Variable> cs2Bair::variablesToVector(TraceVariables traceVariables){
 		v.emplace_back(traceVariables.pc_[i]);
 	}
 	for (unsigned int i = 0; i < params->numRegisters(); i++){
+        if (i == 14) continue; // magic register for read-instruction
 		v.emplace_back(traceVariables.registers_[i]);
 	}
 	return v;
@@ -160,7 +164,7 @@ void cs2Bair::createTranslationVector(){
 }
 
 void cs2Bair::generateConstraints(){
-	transitionFunction_->generateConstraints();
+    transitionFunction_->generateConstraints();
 	if (doesProgramUsesMemory_){
 		memoryConstraints_->generateConstraints();
 	}
@@ -185,40 +189,42 @@ VariableAssignment cs2Bair::vectorToAssignment(const std::vector<Algebra::FieldE
 }
 
 //#define falseWitness//checking how good PCP is at finding small errors
-//#define printTrace //print the execution trace (i.e. witness) while generating it
-void cs2Bair::generateWitness(){
+// #define printTrace //print the execution trace (i.e. witness) while generating it
+void cs2Bair::generateWitness() {
 	//const unsigned int transcript_len = POW2(TRANSCIPT_LEN_LOG) - 1;
 	// First Assignment should be zero
     initInitialVars();
 #ifdef printTrace
 	set<Algebra::Variable, Variable::VariableStrictOrder> usedVars;
 #endif
-    for (int i = 0; i < transcript_len; ++i){
-		::std::dynamic_pointer_cast<TransitionFunction>(transitionFunction_)->generateWitness(i);
+    size_t pubread_cnt = 0, secread_cnt = 0;
+    for (int i = 0; i < transcript_len; ++i) {
+		::std::dynamic_pointer_cast<TransitionFunction>(transitionFunction_)->generateWitness(i, public_lines_, private_lines_, pubread_cnt, secread_cnt);
         Algebra::VariableAssignment assignment = pb_->assignment();
         traceAssignmentTable_.push_back(assignmentToVec(assignment));
 #ifdef falseWitness
-		if (i == 3)
-			traceAssignmentTable_[i][4] = Algebra::xFE();
+		if (i == 3) {
+            traceAssignmentTable_[i][4] = Algebra::xFE();
+        }
 #endif
 		copyTraceOutputValuesToTraceInput();
 #ifdef printTrace
-		//cout << "var num:" << assignment.size() << endl;
-		//cout << i << ":" << endl;
+		// cout << "var num:" << assignment.size() << endl;
+		// cout << i << ":" << endl;
 		for (auto j : assignment){
 			if (j.second != Algebra::zero()){
 				usedVars.insert(j.first);
-			//	cout << "var num";
+				// cout << "var num";
 				
 			}
-		//	cout << j.first.name() << ":" << j.second << " ";
+			// cout << j.first.name() << ":" << j.second << " ";
 		}
-	/*	cout << "var num:" << pb_->getUsedVariables().size() << endl;
+	    // cout << "var num:" << pb_->getUsedVariables().size() << endl;
 
-		for (auto j : pb_->getUsedVariables()){
-			cout << j.name() << ":" << pb_->assignment()[j] << endl;
-		}*/
-		//cout << endl;
+		// for (auto j : pb_->getUsedVariables()){
+			// cout << j.name() << ":" << pb_->assignment()[j] << endl;
+		// }
+		// cout << endl;
 #endif
 	}
 #ifdef printTrace

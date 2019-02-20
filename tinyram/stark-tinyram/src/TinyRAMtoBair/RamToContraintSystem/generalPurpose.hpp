@@ -5,6 +5,8 @@
 #include <gadgetlib/protoboard.hpp>
 #include <gadgetlib/infrastructure.hpp>
 
+#include <iostream>
+
 using namespace Algebra;
 using namespace gadgetlib;
 
@@ -73,6 +75,14 @@ struct ALUInput{
 			const Algebra::UnpackedWord& pc);
 
 	ALUInput();
+	
+	void printALUInput(const ProtoboardPtr &pb_) const {
+		cout << "\targ1_val: " << pb_->val(arg1_val_) << "\n";
+		cout << "\targ2_val: " << pb_->val(arg2_val_) << "\n";
+		cout << "\tdest_val: " << pb_->val(dest_val_) << "\n";
+		cout << "\tflag: " << pb_->val(flag_) << "\n";
+	}
+	
 };
 
 /*************************************************************************************************/
@@ -107,6 +117,15 @@ struct ALUOutput{
 	ALUOutput(const Algebra::Variable& flag);
 
 	ALUOutput();
+	
+	void printALUOutput(const ProtoboardPtr &pb_) const {
+		cout << "\tflag_: " << pb_->val(flag_) << "\n";
+		cout << "\tresult_: " << pb_->val(result_) << "\n";
+		cout << "\tisMemOp_: " << pb_->val(isMemOp_) << "\n";
+		cout << "\taddress_: " << pb_->val(address_) << "\n";
+		cout << "\tisLoadOp_: " << pb_->val(isLoadOp_) << "\n";
+		cout << "\tvalue_: " << pb_->val(value_) << "\n";
+	}
 };
 
 /*************************************************************************************************/

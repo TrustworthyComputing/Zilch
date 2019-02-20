@@ -39,7 +39,7 @@ public:
 							const MemoryFollowingTraceVariables& memoryFollowingTraceVariables,
 							const TinyRAMProgram& program);
 	void generateConstraints();
-	void generateWitness(unsigned int i);
+	void generateWitness(unsigned int i, const vector<string>& public_lines, const vector<string>& private_lines, size_t& pubread_cnt, size_t& secread_cnt);
 	
 };
 

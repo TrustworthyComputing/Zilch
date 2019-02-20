@@ -10,6 +10,7 @@ Implementation of Protoboard, a "memory manager" for building arithmetic constra
 #include <gadgetlib/protoboard.hpp>
 #include <algebraLib/variable_operators.hpp>
 #include <algebraLib/variable.hpp>
+#include<iostream>
 
 
 namespace gadgetlib {
@@ -40,9 +41,7 @@ const Algebra::FElem Protoboard::val(const Algebra::LinearCombination& lc) const
 	return lc.eval(assignment_);
 }
 
-void Protoboard::addGeneralConstraint(const Polynomial& a,
-										const ::std::string& name,
-										Opcode opcode){
+void Protoboard::addGeneralConstraint(const Polynomial& a, const ::std::string& name, Opcode opcode){
 	if (opcode == Opcode::MEMORY){
 		addMemoryConstraint(a, name);
 		return;
@@ -50,45 +49,38 @@ void Protoboard::addGeneralConstraint(const Polynomial& a,
 	if (opcode == Opcode::NONE){
 		constraintSystem_.addConstraint(a, name);
 		return;
-	}
-	else{
+	} else {
 		int value = int(opcode);
 		ConstraintSystem& cs = opcodeConstraintSystem_[value];
 		cs.addConstraint(a, name);
 	}
 }
 
-void Protoboard::addMemoryConstraint(const Polynomial& a,
-									const ::std::string& name){
+void Protoboard::addMemoryConstraint(const Polynomial& a, const ::std::string& name) {
 	memoryConstraintSystem_.addConstraint(a, name);
 }
 
 
-bool Protoboard::isSatisfied(Opcode opcode,const PrintOptions& printOnFail){
+bool Protoboard::isSatisfied(Opcode opcode,const PrintOptions& printOnFail) {
 	if (opcode == Opcode::NONE){
 		return constraintSystem_.isSatisfied(assignment_, printOnFail);
-	}
-	else{
+	} else {
 		if (opcode == Opcode::MEMORY){
 			return memoryConstraintSystem_.isSatisfied(assignment_, printOnFail);
-		}
-		else{
+		} else {
 			int value = int(opcode);
 			return opcodeConstraintSystem_[value].isSatisfied(assignment_, printOnFail);
 		}
 	}
-	
-
 }
 
-	
-	//Ariel: Changed implementation to vector of LC's for faster evaluation
-	void Protoboard::enforceBooleanity(const Algebra::Variable& var, Opcode opcode){
-		Algebra::LinearCombination l1(Algebra::one() + var);
-		Polynomial constraint({ l1, Algebra::LinearCombination(var) });
-		addGeneralConstraint(constraint, "" + var.name() + "* ( 1 + " + var.name() + ")", opcode);
 
-	}
+//Ariel: Changed implementation to vector of LC's for faster evaluation
+void Protoboard::enforceBooleanity(const Algebra::Variable& var, Opcode opcode){
+	Algebra::LinearCombination l1(Algebra::one() + var);
+	Polynomial constraint({ l1, Algebra::LinearCombination(var) });
+	addGeneralConstraint(constraint, "" + var.name() + "* ( 1 + " + var.name() + ")", opcode);
+}
 
 
 ConstraintSystem Protoboard::constraintSystem(Opcode opcode) const{

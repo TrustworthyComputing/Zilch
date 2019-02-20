@@ -93,16 +93,13 @@ GadgetPtr ALU_Gadget::create(ProtoboardPtr pb,
 	return pGadget;
 }
 
-ALU_Gadget::ALU_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputVariables,
-					const ALUOutput& resultVariables)
-	: 
-        Gadget(pb),
+ALU_Gadget::ALU_Gadget(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables) : 
+    Gadget(pb),
 	program_("program",
 	std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters(),
 	std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->registerLength()),
-        inputVariables_(inputVariables),
-        resultVariables_(resultVariables){}
+    inputVariables_(inputVariables),
+    resultVariables_(resultVariables){}
 
 void ALU_Gadget::init() {
 	createInternalComponents();
@@ -113,58 +110,33 @@ void ALU_Gadget::init() {
 }
 
 void ALU_Gadget::createInternalComponents() {
-	components_[Opcode::XOR] = ALU_XOR_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::AND] = ALU_AND_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::OR] = ALU_OR_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::NOT] = ALU_NOT_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::ADD] = ALU_ADD_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::SUB] = ALU_SUB_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::MULL] = ALU_MULL_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::UMULH] = ALU_UMULH_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::SMULH] = ALU_SMULH_Gadget::create(pb_, inputVariables_,
-		resultVariables_);
-	components_[Opcode::UDIV] = ALU_UDIV_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::UMOD] = ALU_UMOD_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::CMPE] = ALU_CMPE_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::CMPA] = ALU_CMPA_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::CMPAE] = ALU_CMPAE_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::CMPG] = ALU_CMPG_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::CMPGE] = ALU_CMPGE_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::SHL] = ALU_SHL_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::SHR] = ALU_SHR_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::LOADW] = ALU_LOADW_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::STOREW] = ALU_STOREW_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::JMP] = ALU_JMP_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::ANSWER] = ALU_ANSWER_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::CJMP] = ALU_CJMP_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
-	components_[Opcode::RESERVED_OPCODE_24] = 
-		ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_,resultVariables_);
-	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_,
-															resultVariables_);
+	components_[Opcode::XOR] = ALU_XOR_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::AND] = ALU_AND_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::OR] = ALU_OR_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::NOT] = ALU_NOT_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::ADD] = ALU_ADD_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SUB] = ALU_SUB_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::MULL] = ALU_MULL_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::UMULH] = ALU_UMULH_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SMULH] = ALU_SMULH_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::UDIV] = ALU_UDIV_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::UMOD] = ALU_UMOD_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CMPE] = ALU_CMPE_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CMPA] = ALU_CMPA_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CMPAE] = ALU_CMPAE_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CMPG] = ALU_CMPG_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CMPGE] = ALU_CMPGE_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SHL] = ALU_SHL_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SHR] = ALU_SHR_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::LOADW] = ALU_LOADW_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::STOREW] = ALU_STOREW_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::JMP] = ALU_JMP_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::ANSWER] = ALU_ANSWER_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CJMP] = ALU_CJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::MOVFILE] = ALU_MOVFILE_Gadget::create(pb_, inputVariables_, resultVariables_);
 }
 
 void ALU_Gadget::setProgram(const TinyRAMProgram& program){
@@ -203,6 +175,7 @@ size_t getMaxConstraintNum(const TinyRAMProgram& program,const ProtoboardPtr& pb
 }
 
 void ALU_Gadget::generateConstraints() {
+    // std::cout << "void ALU_Gadget::generateConstraints() {" << '\n';
 	unpackArg1_g_->generateConstraints();
 	unpackArg2_g_->generateConstraints();
 	//standAlone_ = false; //uncomment if needed
@@ -241,6 +214,7 @@ void ALU_Gadget::generateConstraints() {
 }
 
 void ALU_Gadget::generateWitness(unsigned int i) {
+    // std::cout << "void ALU_Gadget::generateWitness(unsigned int i) {" << '\n';
 	GADGETLIB_ASSERT(i < program_.size(), "The value should be less than the program length");
 	Opcode opcode = program_.code()[i].opcode_;
 	switch (opcode)
@@ -307,6 +281,9 @@ void ALU_Gadget::generateWitness(unsigned int i) {
 	case gadgetlib::Opcode::MOV:
 		components_[Opcode::MOV]->generateWitness();
 		break;
+    case gadgetlib::Opcode::MOVFILE:
+        components_[Opcode::MOVFILE]->generateWitness();
+        break;
 	case gadgetlib::Opcode::CMOV:
 		break;
 	case gadgetlib::Opcode::JMP:
@@ -1829,6 +1806,53 @@ void ALU_MOV_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+    
+#ifdef DEBUG
+    std::cout << "\n\nALU_MOV_Gadget witness\nALUInput MOV:\n";
+    inputs_.printALUInput(pb_);
+    std::cout << "ALUOutput MOV" << '\n';
+    results_.printALUOutput(pb_);
+    std::cout << '\n';
+#endif
+}
+
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
+/*******************                         ALU_MOVFILE_Gadget						******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+ALU_MOVFILE_Gadget::ALU_MOVFILE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+
+GadgetPtr ALU_MOVFILE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_MOVFILE_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_MOVFILE_Gadget::init() {}
+
+void ALU_MOVFILE_Gadget::generateConstraints() {
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::MOVFILE);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::MOVFILE);
+}
+
+void ALU_MOVFILE_Gadget::generateWitness() {
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
+	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+
+#ifdef DEBUG
+    std::cout << "\n\nALU_MOVFILE_Gadget witness\nALUInput MOVFILE:\n";
+    inputs_.printALUInput(pb_);
+    std::cout << "ALUOutput MOVFILE" << '\n';
+    results_.printALUOutput(pb_);
+    std::cout << '\n';
+#endif
 }
 
 /*************************************************************************************************/

@@ -37,6 +37,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::CMPG: return "CMPG";
         case Opcode::CMPGE: return "CMPGE";
         case Opcode::MOV: return "MOV";
+        case Opcode::MOVFILE: return "MOVFILE";
         case Opcode::CMOV: return "CMOV";
         case Opcode::JMP: return "JMP";
         case Opcode::CJMP: return "CJMP";
@@ -79,6 +80,7 @@ Opcode opcodeFromString(const string op){
     if(op == "CMPG") return Opcode::CMPG;
     if(op == "CMPGE") return Opcode::CMPGE;
     if(op == "MOV") return Opcode::MOV;
+    if(op == "MOVFILE") return Opcode::MOVFILE;
     if(op == "CMOV") return Opcode::CMOV;
     if(op == "JMP") return Opcode::JMP;
     if(op == "CJMP") return Opcode::CJMP;
@@ -213,9 +215,11 @@ map<string, int> TinyRAMProgram::buildLabelsMap(const std::string filename){
     return labels_map;
 }
 
+void TinyRAMProgram::arg2isImmediateToFalse(const size_t pc) {
+	this->code_[pc].arg2isImmediate_ = false;	
+}
 
-
-void TinyRAMProgram::addInstructionsFromFile(const std::string filename, const std::string tapeFile){
+void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
     // create a map for labels to instruction numbers
     map<string, int> labels_map = buildLabelsMap(filename);
     
@@ -224,14 +228,6 @@ void TinyRAMProgram::addInstructionsFromFile(const std::string filename, const s
     std::regex regex{R"([\n]+)"}; // split to lines
     std::sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     std::vector<std::string> lines{it, {}};
-
-    // Read private inputs (tapeFile) to private_lines vector
-    std::ifstream tapefs(tapeFile);
-    std::string private_inputs((std::istreambuf_iterator<char>(tapefs)),std::istreambuf_iterator<char>());
-    std::sregex_token_iterator it2{private_inputs.begin(), private_inputs.end(), regex, -1};
-    std::vector<std::string> private_lines{it2, {}};
-
-    int secread_cnt = 0;
     for(const auto& l : lines){
         std::cout << l << std::endl; // print the current instruction
 
@@ -244,11 +240,6 @@ void TinyRAMProgram::addInstructionsFromFile(const std::string filename, const s
         vector<string> splitted_line = split(instr_without_comment, ' '); // tokenize the instruction
         if (isLabel(splitted_line[0])) { // if this line is a label, skip it
             continue;
-        } else if (! splitted_line[0].compare("SECREAD") ) {  // if the instruction is SECREAD, replace it with a private MOV
-            int regnum = stoi( splitted_line[1].substr(1, splitted_line[1].length()) );
-            int immidiate = stoi( private_lines[secread_cnt++] );
-            MachineInstruction instruction(Opcode::MOV, true, regnum, 0, immidiate);
-            addInstruction(instruction);
         } else {
             MachineInstruction instruction(instr_without_comment, labels_map);
             addInstruction(instruction);

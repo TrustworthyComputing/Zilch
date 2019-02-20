@@ -77,10 +77,7 @@ public:
 	virtual void init() = 0;
 	virtual void generateConstraints() = 0;
 protected:
-	ALU_Component_Gadget(const ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results)
-		: Gadget(pb), inputs_(inputs), results_(results){}
+	ALU_Component_Gadget(const ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), inputs_(inputs), results_(results) {}
 	
 	typedef ::std::shared_ptr<const TinyRAMProtoboardParams> TRParamsPtr;
 	const TRParamsPtr tinyRAMparams() const;
@@ -884,6 +881,27 @@ public:
 	void generateWitness();
 
 	DISALLOW_COPY_AND_ASSIGN(ALU_MOV_Gadget);
+};
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
+/*******************                         ALU_MOVFILE_Gadget                     ******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+class ALU_MOVFILE_Gadget : public ALU_Component_Gadget{
+private:
+	ALU_MOVFILE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+    void generateConstraints();
+	void generateWitness();
+
+	DISALLOW_COPY_AND_ASSIGN(ALU_MOVFILE_Gadget);
 };
 
 /*************************************************************************************************/
