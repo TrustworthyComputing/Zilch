@@ -114,15 +114,15 @@ stark-tinyram-tests: stark-tinyram gadgetlib fft algebralib libstark
 stark-tinyram-tests-clean:
 	$(MAKE) clean -C $(TINYRAM_TESTS_DIR) BLDDIR=$(BLDDIR)/stark-tinyram-tests
 
-libstark-tests: fft algebralib libstark
-	$(MAKE) -C $(STARK_TESTS_DIR) \
-		BLDDIR=$(BLDDIR)/libstark-tests                       \
-		FFTINC=$(FFTLIB_DIR)/src \
-		FFTLIBLNKDIR=$(BLDDIR)/fft					\
-		ALGEBRAINC=$(ALGEBRALIB_DIR)/headers \
-		ALGEBRALNKDIR=$(BLDDIR)/algebralib \
-		LIBSTARKINC=$(LIBSTARK_DIR)/src \
-		LIBSTARKLINKDIR=$(BLDDIR)/libstark
+#libstark-tests: fft algebralib libstark
+#	$(MAKE) -C $(STARK_TESTS_DIR) \
+#		BLDDIR=$(BLDDIR)/libstark-tests                       \
+#		FFTINC=$(FFTLIB_DIR)/src \
+#		FFTLIBLNKDIR=$(BLDDIR)/fft					\
+#		ALGEBRAINC=$(ALGEBRALIB_DIR)/headers \
+#		ALGEBRALNKDIR=$(BLDDIR)/algebralib \
+#		LIBSTARKINC=$(LIBSTARK_DIR)/src \
+#		LIBSTARKLINKDIR=$(BLDDIR)/libstark
 
 libstark-tests-clean:
 	$(MAKE) clean -C $(STARK_TESTS_DIR) BLDDIR=$(BLDDIR)/libstark-tests
