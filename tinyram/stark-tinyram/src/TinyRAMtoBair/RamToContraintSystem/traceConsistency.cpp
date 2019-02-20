@@ -158,7 +158,7 @@
 				unsigned int dest = program_.code()[j].destIdx_;
 				if (dest == i){
 					switch (opcode) {
-						case Opcode::MOVFILE:
+						case Opcode::READ:
 							// program_.arg2isImmediateToFalse(j);
 							selectorToConstraint[j] = 0;
 							//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
@@ -191,7 +191,7 @@
 						case Opcode::CMPG:
 						case Opcode::CMPGE:
 						case Opcode::STOREW:
-						case Opcode::READ:
+						// case Opcode::READ:
 						case Opcode::ANSWER:
 							selectorToConstraint[j] = 1;
 							//constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
@@ -253,7 +253,7 @@
 			else{
 				switch (opcode)
 				{
-				case Opcode::MOVFILE:
+				case Opcode::READ:
 				case Opcode::ADD:
 				case Opcode::SUB:
 				case Opcode::AND:
@@ -358,7 +358,7 @@
 		}
 		registersWitness(programLine);
 		
-		// if (opcode == Opcode::MOVFILE) {
+		// if (opcode == Opcode::READ) {
 		// 	program_.arg2isImmediateToFalse(programLine);
 		// }
 	}

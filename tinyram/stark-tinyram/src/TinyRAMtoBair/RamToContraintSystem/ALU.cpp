@@ -136,7 +136,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::MOVFILE] = ALU_MOVFILE_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::READ] = ALU_READ_Gadget::create(pb_, inputVariables_, resultVariables_);
 }
 
 void ALU_Gadget::setProgram(const TinyRAMProgram& program){
@@ -281,8 +281,8 @@ void ALU_Gadget::generateWitness(unsigned int i) {
 	case gadgetlib::Opcode::MOV:
 		components_[Opcode::MOV]->generateWitness();
 		break;
-    case gadgetlib::Opcode::MOVFILE:
-        components_[Opcode::MOVFILE]->generateWitness();
+    case gadgetlib::Opcode::READ:
+        components_[Opcode::READ]->generateWitness();
         break;
 	case gadgetlib::Opcode::CMOV:
 		break;
@@ -309,8 +309,6 @@ void ALU_Gadget::generateWitness(unsigned int i) {
 		break;
 	case gadgetlib::Opcode::LOADW:
 		components_[Opcode::LOADW]->generateWitness();
-		break;
-	case gadgetlib::Opcode::READ:
 		break;
 	case gadgetlib::Opcode::ANSWER:
 		components_[Opcode::ANSWER]->generateWitness();
@@ -1820,36 +1818,36 @@ void ALU_MOV_Gadget::generateWitness(){
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
-/*******************                         ALU_MOVFILE_Gadget						******************/
+/*******************                         ALU_READ_Gadget						******************/
 /*******************                                                            ******************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-ALU_MOVFILE_Gadget::ALU_MOVFILE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+ALU_READ_Gadget::ALU_READ_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
-GadgetPtr ALU_MOVFILE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_MOVFILE_Gadget(pb, inputs, results));
+GadgetPtr ALU_READ_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_READ_Gadget(pb, inputs, results));
 	pGadget->init();
 	return pGadget;
 }
 
-void ALU_MOVFILE_Gadget::init() {}
+void ALU_READ_Gadget::init() {}
 
-void ALU_MOVFILE_Gadget::generateConstraints() {
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::MOVFILE);
-	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::MOVFILE);
+void ALU_READ_Gadget::generateConstraints() {
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::READ);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::READ);
 }
 
-void ALU_MOVFILE_Gadget::generateWitness() {
+void ALU_READ_Gadget::generateWitness() {
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
 
 #ifdef DEBUG
-    std::cout << "\n\nALU_MOVFILE_Gadget witness\nALUInput MOVFILE:\n";
+    std::cout << "\n\nALU_READ_Gadget witness\nALUInput READ:\n";
     inputs_.printALUInput(pb_);
-    std::cout << "ALUOutput MOVFILE" << '\n';
+    std::cout << "ALUOutput READ" << '\n';
     results_.printALUOutput(pb_);
     std::cout << '\n';
 #endif

@@ -37,7 +37,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::CMPG: return "CMPG";
         case Opcode::CMPGE: return "CMPGE";
         case Opcode::MOV: return "MOV";
-        case Opcode::MOVFILE: return "MOVFILE";
+        case Opcode::READ: return "READ";
         case Opcode::CMOV: return "CMOV";
         case Opcode::JMP: return "JMP";
         case Opcode::CJMP: return "CJMP";
@@ -48,7 +48,6 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::LOADB: return "LOADB";
         case Opcode::STOREW: return "STOREW";
         case Opcode::LOADW: return "LOADW";
-        case Opcode::READ: return "READ";
         case Opcode::ANSWER: return "ANSWER";
         case Opcode::NUM_OPCODES: return "NUM_OPCODES";
         default :
@@ -80,7 +79,7 @@ Opcode opcodeFromString(const string op){
     if(op == "CMPG") return Opcode::CMPG;
     if(op == "CMPGE") return Opcode::CMPGE;
     if(op == "MOV") return Opcode::MOV;
-    if(op == "MOVFILE") return Opcode::MOVFILE;
+    if(op == "READ") return Opcode::READ;
     if(op == "CMOV") return Opcode::CMOV;
     if(op == "JMP") return Opcode::JMP;
     if(op == "CJMP") return Opcode::CJMP;
@@ -91,7 +90,6 @@ Opcode opcodeFromString(const string op){
     if(op == "LOADB") return Opcode::LOADB;
     if(op == "STOREW") return Opcode::STOREW;
     if(op == "LOADW") return Opcode::LOADW;
-    if(op == "READ") return Opcode::READ;
     if(op == "ANSWER") return Opcode::ANSWER;
     if(op == "NUM_OPCODES") return Opcode::NUM_OPCODES;
 

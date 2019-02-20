@@ -886,14 +886,14 @@ public:
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
-/*******************                         ALU_MOVFILE_Gadget                     ******************/
+/*******************                         ALU_READ_Gadget                     ******************/
 /*******************                                                            ******************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-class ALU_MOVFILE_Gadget : public ALU_Component_Gadget{
+class ALU_READ_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_MOVFILE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	ALU_READ_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 
 public:
@@ -901,7 +901,7 @@ public:
     void generateConstraints();
 	void generateWitness();
 
-	DISALLOW_COPY_AND_ASSIGN(ALU_MOVFILE_Gadget);
+	DISALLOW_COPY_AND_ASSIGN(ALU_READ_Gadget);
 };
 
 /*************************************************************************************************/

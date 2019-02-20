@@ -37,13 +37,13 @@ void ALUInputConsistency::generateConstraints(){
 		unsigned int arg2 = program_.code()[i].arg2IdxOrImmediate_;
 		unsigned int dest = program_.code()[i].destIdx_;
 		Opcode opcode = program_.code()[i].opcode_;
-		if (Opcode::MOVFILE == opcode) {
+		if (Opcode::READ == opcode) {
 			program_.arg2isImmediateToFalse(i);
 			arg2 = 14;
 		}
 		bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 		CircuitPolynomial arg2Poly;
-		if (!arg2IsImmediate) { // if not immediate -- MOVFILE uses reg 14 DO NOT USE IN PROGRAM
+		if (!arg2IsImmediate) { // if not immediate -- READ uses reg 14 DO NOT USE IN PROGRAM
 			arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
 		} else {
 			Algebra::FElem valArg2 = mapIntegerToFieldElement(0, params->registerLength(), arg2);
@@ -73,7 +73,7 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 	unsigned int arg2 = program_.code()[i].arg2IdxOrImmediate_;
 	unsigned int dest = program_.code()[i].destIdx_;
 	Opcode opcode = program_.code()[i].opcode_;
-	if (Opcode::MOVFILE == opcode) {
+	if (Opcode::READ == opcode) {
 		unsigned int read_from_tape_result;
 		if (arg2 == 0) {
 			read_from_tape_result = stoi( public_lines[pubread_cnt++] );

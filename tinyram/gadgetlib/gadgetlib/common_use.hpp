@@ -55,9 +55,7 @@ enum class Opcode : int {
 	LOADW = 29,
 	READ = 30,
 	ANSWER = 31,
-	NUM_OPCODES = 32,
-	
-	MOVFILE = 33
+	NUM_OPCODES = 32
 
 }; // enum Opcode
 
