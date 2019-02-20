@@ -50,6 +50,7 @@ make -j8
 -t : Time steps ((2^t)-1)
 -s : Security (2^-s)
 -p : No-Prover (0 or 1)
+-P : Primary-tape (file path containing public inputs)
 -A : Auxiliary-tape (file path containing private inputs)
 ```
 see examples below on how to use the prefixes.
@@ -64,6 +65,29 @@ In our implementation, both the prefix and the suffix of a the label should be `
 The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2<sup>10</sup>-1) machine steps, and soundness error at most 2<sup>-120</sup>.
 
 
+### An example for testing labels and read instruction:
+Perform a loop 3 times, each time reading one word from the primary tape and another one from the auxiliary tape.
+Primary tape is filled with `1, 2, 3, 4, ...`, while aux tape contains `101, 102, 103, 104, ...`.
+In simple terms, the below TinyRAM program adds 1+101+2+102+3+103 and prints it through the `ANSWER` instruction. 
+```
+__loop__
+READ r0 r0 0                ; consume next word from public tape and store it to r0
+READ r1 r1 1                ; consume next word from auxiliary tape and store it to r1
+
+ADD r2 r0 r2                ; add them together
+ADD r2 r1 r2                ; r2 = r0 + r1 + r2
+
+ADD r3 r3  1                ; r3++
+CMPE r3 r3 3                ; flag = (r3 == 3)
+CJMP r0 r0 __loop_end__     ; if (flag) then jump to __loop_end__
+JMP r0 r0 __loop__
+__loop_end__
+
+ANSWER r0 r0 r2             ; result should be 312
+```
+In order to execute the above program, simply run `./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape`.
+
+
 ### A more interesting example (Knowledge of Factorization):
 A more interesting example would be to prove the knowledge of the factors of a number (e.g. 15) without disclosing them to the verifier.
 As we already mentioned, all the private inputs (i.e. the inputs that only the prover has knowledge of) are placed in the auxiliary tape.
@@ -73,8 +97,8 @@ As we already mentioned, all the private inputs (i.e. the inputs that only the p
 
 #### TinyRAM code for the Knowledge of Factorization example:
 ```
-SECREAD r1          ; r1 is filled with a private value from auxiliary tape (e.g. 3)
-SECREAD r2          ; r2 is filled with a private value from auxiliary tape (e.g. 5)
+READ r1 r1 1          ; r1 is filled with a private value from auxiliary tape (e.g. 3)
+READ r2 r2 1          ; r2 is filled with a private value from auxiliary tape (e.g. 5)
 MOV r11 r0 1        ; r11 = 1
 MULL r3 r1 r2       ; r3 = r1 * r2
 CMPE r0 r3 15       ; flag = (r3 == 15)
@@ -113,12 +137,12 @@ Proof of correctness:
 
 #### TinyRAM code for the knowledge of RSA private key example:
 ```
-SECREAD r0          ; r0 is filled with a private value from auxiliary tape (e.g. p = 17)
-SECREAD r1          ; r1 is filled with a private value from auxiliary tape (e.g. q = 11)
+READ r0 r0 1        ; r0 is filled with a private value from auxiliary tape (e.g. p = 17)
+READ r1 r1 1        ; r1 is filled with a private value from auxiliary tape (e.g. q = 11)
 SUB r3 r0 1         ; p - 1 = 16
 SUB r4 r1 1         ; q - 1 = 10
 MULL r5 r3 r4       ; phi(n) = (p - 1) * (q - 1) = 160
-SECREAD r7          ; r7 is filled with a private value from auxiliary tape (e.g. d = 23)
+READ r7 r7 1        ; r7 is filled with a private value from auxiliary tape (e.g. d = 23)
 MOV r8 r8 7         ; public e = 7
 MULL r9 r7 r8       ; compute d * e
 UMOD r11 r9 r5      ; compute (d * e) mod phi(n)
