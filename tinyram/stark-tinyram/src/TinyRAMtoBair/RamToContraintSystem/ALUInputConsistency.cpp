@@ -39,11 +39,11 @@ void ALUInputConsistency::generateConstraints(){
 		Opcode opcode = program_.code()[i].opcode_;
 		if (Opcode::READ == opcode) {
 			program_.arg2isImmediateToFalse(i);
-			arg2 = 14;
+			arg2 = READ_RESERVED_REGISTER;
 		}
 		bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 		CircuitPolynomial arg2Poly;
-		if (!arg2IsImmediate) { // if not immediate -- READ uses reg 14 DO NOT USE IN PROGRAM
+		if (!arg2IsImmediate) { // if not immediate -- READ uses reg READ_RESERVED_REGISTER DO NOT USE IN PROGRAM
 			arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
 		} else {
 			Algebra::FElem valArg2 = mapIntegerToFieldElement(0, params->registerLength(), arg2);
@@ -84,8 +84,8 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 			exit(EXIT_FAILURE);
 		}
 		program_.arg2isImmediateToFalse(i);
-		arg2 = 14;
-		pb_->val(input_.registers_[14]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
+		arg2 = READ_RESERVED_REGISTER;
+		pb_->val(input_.registers_[READ_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
 	}
 	
 	bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate

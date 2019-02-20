@@ -91,7 +91,7 @@ std::vector<Variable> cs2Bair::variablesToVector(TraceVariables traceVariables){
 		v.emplace_back(traceVariables.pc_[i]);
 	}
 	for (unsigned int i = 0; i < params->numRegisters(); i++){
-        if (i == 14) continue; // magic register for read-instruction
+        if (i == READ_RESERVED_REGISTER) continue; // magic register for read-instruction
 		v.emplace_back(traceVariables.registers_[i]);
 	}
 	return v;

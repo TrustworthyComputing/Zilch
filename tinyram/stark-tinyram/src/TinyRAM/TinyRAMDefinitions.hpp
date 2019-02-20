@@ -17,6 +17,8 @@
 #define NUMBER_OPCODES 32
 #define BIN_EOF_STRING "EOF"
 
+#define READ_RESERVED_REGISTER 14
+
 using namespace std;
 
 
