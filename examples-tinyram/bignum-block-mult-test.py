@@ -18,7 +18,7 @@ def split_to_array_of(num, bitsnum):
     for i in range(blocks):
         j = blocks-1-i
         num32[j] = (num >> (bitsnum * i)) & ((1<<bitsnum) - 1)
-        print("p[" + str(j) + "] = " + str(num32[j]))
+        # print("p[" + str(j) + "] = " + str(num32[j]))
     print
     return num32
     
@@ -32,15 +32,17 @@ def recreate_num(x_array, bitsnum):
 
 p = 37975227936943673922808872755445627854565536638199
 p_blocks = split_to_array_of(p, BITS_PER_BLOCK)
-# print(p_blocks)
+print(p_blocks)
 
 q = 40094690950920881030683735292761468389214899724061
 q_blocks = split_to_array_of(q, BITS_PER_BLOCK)
-# print(q_blocks)
+print(q_blocks)
 
 # Multiply blocks
 l1 = len(p_blocks)
 l2 = len(q_blocks)
+print l1
+print l2
 
 x_ver = 0
 for ii in range(l1):
@@ -48,6 +50,7 @@ for ii in range(l1):
     for jj in range(l2):
         j = l2-1-jj
         mult = p_blocks[i] * q_blocks[j]
+        print(str(i) + "-" + str(j) + " : " + str(p_blocks[i]) + " * " + str(q_blocks[j]) + " = " + str(mult))
         x_ver = x_ver + (mult << (BITS_PER_BLOCK * (ii + jj)))
         
 
