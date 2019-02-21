@@ -108,6 +108,8 @@ __end__
 ANSWER r0 r0 r11    ; return r11 // return (r1 * r2 == 15)
 ```
 
+Also in file [knowledge_of_1024bit_factorization.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/knowledge_of_1024bit_factorization.asm) we have implemented the knowledge of factorization example for 1024 bit arithmetic based on block multiplication. Private inputs are located [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/knowledge_of_1024bit_factorization.auxtape) while public inputs (the 1024 bit number) is [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/knowledge_of_1024bit_factorization.pubtape).
+
 
 ### Another interesting example (Knowledge of RSA Private Key):
 Prover claims he/she posseses the private RSA key of a verifier-chosen public key without revealing anything about the key to the verifier.
