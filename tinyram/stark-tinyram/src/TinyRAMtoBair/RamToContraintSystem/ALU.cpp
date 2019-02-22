@@ -1724,6 +1724,11 @@ void ALU_LOADW_Gadget::generateWitness(){
 	pb_->val(results_.isMemOp_) = Algebra::one();
 	FElem address = pb_->val(inputs_.arg2_val_); // stores [A] to r_1 - check traceConsistency
 	FElem value = pb_->loadValue(address);
+    
+    // int v = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), value);
+    // int a = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), address);
+    // std::cout << "\tLoaded " << v << " from " << a<< '\n';
+    
 	pb_->val(results_.address_) = address;
 	pb_->val(results_.value_) = value;
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
