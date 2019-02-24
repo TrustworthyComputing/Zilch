@@ -92,16 +92,17 @@ In order to execute the above program, simply run `./stark-tinyram examples-tiny
 A more interesting example would be to prove the knowledge of the factors of a number (e.g. 15) without disclosing them to the verifier.
 As we already mentioned, all the private inputs (i.e. the inputs that only the prover has knowledge of) are placed in the auxiliary tape.
 ```
-./stark-tinyram examples-tinyram/knowledge_of_factorization.asm -t10 -s120 -T./examples-tinyram/knowledge_of_factorization_auxtape.txt
+./stark-tinyram examples-tinyram/knowledge_of_factorization.asm -t10 -s120 -P./examples-tinyram/knowledge_of_factorization.pubtape -A./examples-tinyram/knowledge_of_factorization.auxtape
 ```
 
 #### TinyRAM code for the Knowledge of Factorization example:
 ```
-READ r1 r1 1          ; r1 is filled with a private value from auxiliary tape (e.g. 3)
-READ r2 r2 1          ; r2 is filled with a private value from auxiliary tape (e.g. 5)
+READ r1 r1 1        ; r1 is filled with a private value from auxiliary tape (e.g. 3)
+READ r2 r2 1        ; r2 is filled with a private value from auxiliary tape (e.g. 5)
 MOV r11 r0 1        ; r11 = 1
 MULL r3 r1 r2       ; r3 = r1 * r2
-CMPE r0 r3 15       ; flag = (r3 == 15)
+READ r5 r5 0        ; r5 is filled with a public value from primary tape (e.g. 15)
+CMPE r0 r3 r5       ; flag = (r3 == 15)
 CJMP r0 r0 __end__  ; if (flag) then jump to __end__ (PC = 7)
 MOV r11 r0 0        ; r11 = 0
 __end__
@@ -115,7 +116,7 @@ To execute this example simply run `./stark-tinyram examples-tinyram/knowledge_o
 ### Another interesting example (Knowledge of RSA Private Key):
 Prover claims he/she posseses the private RSA key of a verifier-chosen public key without revealing anything about the key to the verifier.
 ```
-./stark-tinyram examples-tinyram/knowledge_of_RSA_private_key.asm -t10 -s120 -A./examples-tinyram/knowledge_of_RSA_private_key_auxtape.txt
+./stark-tinyram examples-tinyram/knowledge_of_RSA_private_key.asm -t10 -s120 -P./examples-tinyram/knowledge_of_RSA_private_key.pubtape -A./examples-tinyram/knowledge_of_RSA_private_key.auxtape
 ```
 
 
@@ -146,7 +147,7 @@ SUB r3 r0 1         ; p - 1 = 16
 SUB r4 r1 1         ; q - 1 = 10
 MULL r5 r3 r4       ; phi(n) = (p - 1) * (q - 1) = 160
 READ r7 r7 1        ; r7 is filled with a private value from auxiliary tape (e.g. d = 23)
-MOV r8 r8 7         ; public e = 7
+READ r8 r8 0        ; public e = 7
 MULL r9 r7 r8       ; compute d * e
 UMOD r11 r9 r5      ; compute (d * e) mod phi(n)
 ANSWER r0 r0 r11    ; Answer should be 1
