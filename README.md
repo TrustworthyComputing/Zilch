@@ -71,19 +71,17 @@ Primary tape is filled with `1, 2, 3, 4, ...`, while aux tape contains `101, 102
 In simple terms, the below TinyRAM program adds 1+101+2+102+3+103 and prints it through the `ANSWER` instruction. 
 ```
 __loop__
-READ r0 r0 0                ; consume next word from public tape and store it to r0
-READ r1 r1 1                ; consume next word from auxiliary tape and store it to r1
+    READ r0 r0 0        ; consume next word from public tape and store it to r0
+    READ r1 r1 1        ; consume next word from auxiliary tape and store it to r1
 
-ADD r2 r0 r2                ; add them together
-ADD r2 r1 r2                ; r2 = r0 + r1 + r2
+    ADD r2 r0 r2        ; add them together
+    ADD r2 r1 r2        ; r2 = r0 + r1 + r2
 
-ADD r3 r3  1                ; r3++
-CMPE r3 r3 3                ; flag = (r3 == 3)
-CJMP r0 r0 __loop_end__     ; if (flag) then jump to __loop_end__
-JMP r0 r0 __loop__
-__loop_end__
+    ADD r3 r3  1        ; r3++
+    CMPE r3 r3 3        ; flag = (r3 == 3)
+CNJMP r0 r0 __loop__    ; if (!flag) then jump to __loop__
 
-ANSWER r0 r0 r2             ; result should be 312
+ANSWER r0 r0 r2         ; result should be 312
 ```
 In order to execute the above program, simply run `./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape`.
 
