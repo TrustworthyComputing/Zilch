@@ -78,6 +78,8 @@ struct MachineInstruction {
     void print()const;
 };
 
+vector<string> split(const string &s);
+string trim(const std::string& str, const std::string& whitespace = " \t");
 bool isLabel(const string &str);
 
 class TinyRAMProgram {

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <regex>
 #include <map>
+#include <algorithm>    // For std::remove()
 
 
 using std::string;
@@ -118,8 +119,7 @@ int getRegNum(const string s){
     return stoul(idx);
 }
 
-MachineInstruction::MachineInstruction(const std::string line, const map<string, int> labels_map){
-
+MachineInstruction::MachineInstruction(const std::string line, const map<string, int> labels_map) {
     std::regex regex{R"([\s,]+)"}; // split on space and comma
     std::sregex_token_iterator it{line.begin(), line.end(), regex, -1};
     std::vector<std::string> words{it, {}};
@@ -146,22 +146,33 @@ MachineInstruction::MachineInstruction(const std::string line, const map<string,
     }
 }
 
-void TinyRAMProgram::print()const{
-    for(const auto& line: code_){
+void TinyRAMProgram::print() const {
+    for (const auto& line: code_) {
         line.print();
     }
 }
 
-vector<string> split(const string &s, char delim) {
+vector<string> split(const string &s) {
     vector<string> result;
-    stringstream ss (s);
+    stringstream ss(s);
     string item;
-
-    while (getline (ss, item, delim)) {
-        result.push_back (item);
+    while (getline(ss, item, ' ')) {
+		if (item.empty()) {
+			continue;
+		}
+        result.push_back(item);
     }
-
     return result;
+}
+
+string trim(const std::string& str, const std::string& whitespace) {
+    const auto strBegin = str.find_first_not_of(whitespace);
+    if (strBegin == std::string::npos) {
+		return ""; // no content
+	}
+    const auto strEnd = str.find_last_not_of(whitespace);
+    const auto strRange = strEnd - strBegin + 1;
+    return str.substr(strBegin, strRange);
 }
 
 bool isLabel(const string &str) { // check if a string is a label
@@ -192,13 +203,10 @@ map<string, int> TinyRAMProgram::buildLabelsMap(const std::string filename){
     size_t instructions_cnt = 0;
     map<string, int> labels_map;
     for (const auto& l : lines){
-        std::string delimiter = ";"; // split in comments
-        std::string instr_without_comment = l.substr(0, l.find(delimiter)); // keep only the instruction before comment
-        if (instr_without_comment.empty()) { // if instruction is empty, skip it
-            continue;
-        }
-        
-        vector<string> splitted_line = split(instr_without_comment, ' '); // tokenize the instruction
+		std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
+		instr_without_comment = trim(instr_without_comment);
+		if (instr_without_comment.empty()) continue; // if instruction is empty, skip it
+        vector<string> splitted_line = split(instr_without_comment); // tokenize the instruction
         if (isLabel(splitted_line[0])) { // if label starts with prefix and ends with suffix then it's a valid label
             // std::cout << "found label: " << splitted_line[0] << " -> " << instructions_cnt<<"\n";
             if (labels_map.find(splitted_line[0]) != labels_map.end()) { // check if key is present
@@ -220,7 +228,7 @@ void TinyRAMProgram::arg2isImmediateToFalse(const size_t pc) {
 void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
     // create a map for labels to instruction numbers
     map<string, int> labels_map = buildLabelsMap(filename);
-    
+
     std::ifstream ifs(filename);
     std::string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
     std::regex regex{R"([\n]+)"}; // split to lines
@@ -228,14 +236,10 @@ void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
     std::vector<std::string> lines{it, {}};
     for(const auto& l : lines){
         std::cout << l << std::endl; // print the current instruction
-
-        std::string delimiter = ";"; // split in comments
-        std::string instr_without_comment = l.substr(0, l.find(delimiter)); // keep only the instruction before comment
-        if (instr_without_comment.empty()) { // if instruction is empty, skip it
-            continue;
-        }
-
-        vector<string> splitted_line = split(instr_without_comment, ' '); // tokenize the instruction
+        std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
+		instr_without_comment = trim(instr_without_comment);
+		if (instr_without_comment.empty()) continue; // if instruction is empty, skip it
+		vector<string> splitted_line = split(instr_without_comment); // tokenize the instruction
         if (isLabel(splitted_line[0])) { // if this line is a label, skip it
             continue;
         } else {
