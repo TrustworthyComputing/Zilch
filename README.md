@@ -60,8 +60,15 @@ In our implementation, both the prefix and the suffix of a the label should be `
 
 ### Macros
 We have also added macros which are translated to a bunch of instructions automatically.
- 
-1. __@READ_AND_STORE_ARRAY len index tape__ Reads `len` words from `tape` (0 or 1) and stores them in index `idx`. First word is stored at `idx`, second in `idx+1`, `len`-word is stored at `idx+len-1`. Labels are auto-increment.
+
+1. __@INC register__ Increments `register` by one. (No use of extra registers)
+1. __@DEC register__ Decrements `register` by one. (No use of extra registers)
+1. __@MIN dest first-register second-register__ Uses `r0` as an intermediate register and puts to `dest` the minimum value of `first-register` and `second-register`.
+A simple example is [min_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/min_test.asm).
+1. __@MAX dest first-register second-register__ Uses `r0` as an intermediate register and puts to `dest` the maximum value of `first-register` and `second-register`.
+1. __@SWAP first-register second-register__ Uses `r0` as an intermediate register and swaps values between `first-register` and `second-register`.
+1. __@READ_AND_STORE_ARRAY len index tape__ Uses `r0`, `r1` and `r2`.
+Reads `len` words from `tape` (0 or 1) and stores them in index `idx`. First word is stored at `idx`, second in `idx+1`, `len`-word is stored at `idx+len-1`. Labels are auto-increment.
 For instance, `@READ_AND_STORE_ARRAY 3 1000 0` produces the following code:
 ```
 MOV r1 r1 0
@@ -73,9 +80,14 @@ __macro_0__
     CMPE r1 r1 3
 CNJMP r1 r1 __macro_0__
 ```
-1. 
 
-__Notice:__ Currently, the implemented macros use `r0`, `r1` and `r2` registers, thus any value that is stored in those registers before the macros will be lost.
+A simple example using `@MIN`, `@INC` and `@DEC` is [min_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/min_test.asm).
+Another simple example using `@SWAP` is [swap_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/swap_test.asm).
+An example using `@READ_AND_STORE_ARRAY` is presented in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/read_test_with_macros.asm).
+
+
+
+__Notice:__ Currently, some of the implemented macros use `r0`, `r1` and `r2` registers, thus any value that is stored in those registers before the macros will be lost.
 The programmer is responsible of either moving those values to other registers or storing and loading them from the memory.
 
 
