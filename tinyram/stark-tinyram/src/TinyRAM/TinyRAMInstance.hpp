@@ -108,7 +108,10 @@ public:
 	const MachineInstruction& getInstructionAtPc(const size_t pc) const { return code_[pc]; }
 	void addInstruction(const MachineInstruction& instruction) { code_.emplace_back(instruction); }
 	void addInstructionsFromFile(const std::string filename);
-	std::map<string, int> buildLabelsMap(const std::string filename);
+	
+	void unrollMacros(vector<std::string>& lines);
+	map<string, int> buildLabelsMap(vector<std::string>& lines);
+	
 	void arg2isImmediateToFalse(const size_t pc);
 	
     unsigned int pcLength() const {

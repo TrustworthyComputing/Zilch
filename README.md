@@ -41,11 +41,11 @@ make -j8
 ```
 
 ## STARK for TinyRAM programs
-#### Arguments format:
+### Arguments format:
 ```
 ./stark-tinyram <TinyRAM assembly file path> -t<trace length log_2> [-s<security parameter]> [-p<0,1>] [-T<tapeFile>]
 ```
-#### Prefixes
+### Prefixes
 ```
 -t : Time steps ((2^t)-1)
 -s : Security (2^-s)
@@ -55,8 +55,29 @@ make -j8
 ```
 see examples below on how to use the prefixes.
 
-#### Labels
+### Labels
 In our implementation, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
+
+### Macros
+We have also added macros which are translated to a bunch of instructions automatically.
+ 
+1. __@READ_AND_STORE_ARRAY len index tape__ Reads `len` words from `tape` (0 or 1) and stores them in index `idx`. First word is stored at `idx`, second in `idx+1`, `len`-word is stored at `idx+len-1`. Labels are auto-increment.
+For instance, `@READ_AND_STORE_ARRAY 3 1000 0` produces the following code:
+```
+MOV r1 r1 0
+__macro_0__
+    READ r0 r0 0
+    ADD r2 r1 1000
+    STOREW r0 r0 r2
+    ADD r1 r1 1
+    CMPE r1 r1 3
+CNJMP r1 r1 __macro_0__
+```
+1. 
+
+__Notice:__ Currently, the implemented macros use `r0`, `r1` and `r2` registers, thus any value that is stored in those registers before the macros will be lost.
+The programmer is responsible of either moving those values to other registers or storing and loading them from the memory.
+
 
 ### Example (Collatz Conjecture):
 ```
@@ -84,6 +105,9 @@ CNJMP r0 r0 __loop__    ; if (!flag) then jump to __loop__
 ANSWER r0 r0 r2         ; result should be 312
 ```
 In order to execute the above program, simply run `./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape`.
+
+We have also implemented the same example using macros in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/read_test_with_macros.asm).
+This specific example is not a great use-case of using macros since it expands to three loops instead of just one, but is implemented for comparison.
 
 
 ### A more interesting example (Knowledge of Factorization):

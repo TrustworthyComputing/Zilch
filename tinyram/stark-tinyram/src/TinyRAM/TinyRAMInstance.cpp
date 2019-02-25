@@ -193,18 +193,14 @@ bool isLabel(const string &str) { // check if a string is a label
     }
 }
 
-map<string, int> TinyRAMProgram::buildLabelsMap(const std::string filename){
-    std::ifstream ifs(filename);
-    std::string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
-    std::regex regex{R"([\n]+)"}; // split to lines
-    std::sregex_token_iterator it{content.begin(), content.end(), regex, -1};
-    std::vector<std::string> lines{it, {}};
-    
+map<string, int> TinyRAMProgram::buildLabelsMap(vector<std::string>& lines){
     size_t instructions_cnt = 0;
     map<string, int> labels_map;
-    for (const auto& l : lines){
+    for (auto& l : lines){
+		// std::cout << l << std::endl; // print the current instruction
 		std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
 		instr_without_comment = trim(instr_without_comment);
+		l = instr_without_comment; // update instructions vector
 		if (instr_without_comment.empty()) continue; // if instruction is empty, skip it
         vector<string> splitted_line = split(instr_without_comment); // tokenize the instruction
         if (isLabel(splitted_line[0])) { // if label starts with prefix and ends with suffix then it's a valid label
@@ -225,25 +221,70 @@ void TinyRAMProgram::arg2isImmediateToFalse(const size_t pc) {
 	this->code_[pc].arg2isImmediate_ = false;	
 }
 
-void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
-    // create a map for labels to instruction numbers
-    map<string, int> labels_map = buildLabelsMap(filename);
+void TinyRAMProgram::unrollMacros(vector<std::string>& lines) {
+	size_t macros_cnt = 0;
+	std::vector<string>::size_type size = lines.size();
+    for (std::vector<string>::size_type i = 0; i < size; ) {
+		string& str = lines[i];
+		str = str.substr(0, str.find(";")); 	// remove comment if exists
+		str = trim(str);
+		if (str.empty()) { 						// remove blank lines
+			lines.erase(lines.begin() + i);
+			size--;
+			continue;
+		}
+		vector<string> args_vec = split(str); 	// tokenize the instruction
+		if (args_vec[0] == "@READ_AND_STORE_ARRAY") { // @READ_AND_STORE_ARRAY len idx tape
+			if (args_vec.size() != 4) {
+				cout << "@READ_AND_STORE_ARRAY takes exactly 3 arguments!\n@READ_AND_STORE_ARRAY length-of-array index-to-store tape\n";
+				exit(EXIT_FAILURE);
+			}
+			size_t len = stoi(args_vec[1]);
+			size_t idx = stoi(args_vec[2]);
+			size_t tape = stoi(args_vec[3]);
+			string label = "__macro_" + to_string(macros_cnt++) + "__";
+			lines[i++] = "MOV r1 r1 0";
+			lines.insert(lines.begin() + (i++), label);
+			lines.insert(lines.begin() + (i++), "READ r0 r0 " + to_string(tape));
+			lines.insert(lines.begin() + (i++), "ADD r2 r1 " + to_string(idx));
+			lines.insert(lines.begin() + (i++), "STOREW r0 r0 r2");
+			lines.insert(lines.begin() + (i++), "ADD r1 r1 1");
+			lines.insert(lines.begin() + (i++), "CMPE r1 r1 " + to_string(len));
+			lines.insert(lines.begin() + (i), "CNJMP r1 r1 " + label);
+			size += 7;
+		} else if (args_vec[0] == "@DSADSA") {
+			
+		}
+		
+		
+		i++;
+    }
+}
 
-    std::ifstream ifs(filename);
-    std::string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
-    std::regex regex{R"([\n]+)"}; // split to lines
-    std::sregex_token_iterator it{content.begin(), content.end(), regex, -1};
-    std::vector<std::string> lines{it, {}};
+void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
+    ifstream ifs(filename);
+    string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
+    regex regex{R"([\n]+)"}; 													// split to lines
+    sregex_token_iterator it{content.begin(), content.end(), regex, -1};
+    vector<std::string> lines{it, {}};
+	for (auto& l : lines){
+		std::cout << l << std::endl; // print program as is
+	}
+	unrollMacros(lines);
+	std::cout << "\nUnrolled Program:" << '\n';
+	for (auto& l : lines){
+		std::cout << l << std::endl; // print program as is
+	}
+	std::cout << "\n\n";
+	
+	map<string, int> labels_map = buildLabelsMap(lines); 						// create a map for labels to instruction numbers
     for(const auto& l : lines){
-        std::cout << l << std::endl; // print the current instruction
-        std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
-		instr_without_comment = trim(instr_without_comment);
-		if (instr_without_comment.empty()) continue; // if instruction is empty, skip it
-		vector<string> splitted_line = split(instr_without_comment); // tokenize the instruction
-        if (isLabel(splitted_line[0])) { // if this line is a label, skip it
+		if (l.empty()) continue; 												// if instruction is empty, skip it
+		vector<string> splitted_line = split(l); 								// tokenize the instruction
+        if (isLabel(splitted_line[0])) { 										// if this line is a label, skip it
             continue;
         } else {
-            MachineInstruction instruction(instr_without_comment, labels_map);
+            MachineInstruction instruction(l, labels_map);
             addInstruction(instruction);
         }
     }
