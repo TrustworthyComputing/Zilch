@@ -15,6 +15,24 @@ using libstark::ConstraintSys;
 /*************************************************************************************************/
 /*************************************************************************************************/
 
+cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& public_lines) :
+    pb_(pb),
+	program_(program),
+    public_lines_(public_lines),
+    transcript_len(transcriptLen),
+	doesProgramUsesMemory_(false),
+	followingTraceVariable_(program.pcLength(), std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters()),
+	memoryFollowingTraceVariables_(followingTraceVariable_.first_.timeStamp_, followingTraceVariable_.second_.timeStamp_)
+    {
+		this->init();
+		this->generateConstraints();
+		this->boundaryConstraints();
+        if (constructWitness) {
+            generateWitness();
+            generateMemoryWitness();
+        }
+}
+
 cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& public_lines, const vector<string>& private_lines) :
     pb_(pb),
 	program_(program),

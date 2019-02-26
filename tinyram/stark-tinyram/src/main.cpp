@@ -17,29 +17,29 @@ using std::move;
 
 const string timePrefix = "-t";
 const string securityPrefix = "-s";
-const string noProverPrefix = "-p";
+const string simulatePrefix = "-e";
 const string primaryTapePrefix = "-P";
 const string auxTapePrefix = "-A";
 
 
 void printHelp(const string exeName){
     cout<<"Usage:"<<endl;
-    cout<<"$>"<<exeName<<" <TinyRAM assembly file path> "<<timePrefix<<"<trace length log_2> ["<<securityPrefix<<"<security parameter]> ["<<noProverPrefix<<"<0,1>] ["<<primaryTapePrefix<<"<primaryTapeFile>] ["<<auxTapePrefix<<"<auxTapeFile>]"<<endl;
+    cout<<"$>"<<exeName<<" <TinyRAM assembly file path> "<<timePrefix<<"<trace length log_2> ["<<securityPrefix<<"<security parameter]> ["<<simulatePrefix<<"<0,1>(simulate the prover)] ["<<primaryTapePrefix<<"<primaryTapeFile>] ["<<auxTapePrefix<<"<auxTapeFile>]"<<endl;
     cout<<endl<<"Example:"<<endl;
     cout<<"$>"<<exeName<<" examples-tinyram/collatz.asm "<<timePrefix<<"10 "<<securityPrefix<<"120"<<endl;
     cout<<endl<<"The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2^10-1) machine steps, and soundness error at most 2^-120."<<endl;
     cout<<endl<<"In the simulation the Prover and Verify interact, the Prover generates a proof and the Verifier verifies it. During the executions the specifications of generated BAIR and APR, measurements, and Verifiers decision, are printed to the standard output."<<endl;
-    cout<<"adding '-p0' to the arguments causes execution of verifier only, without the prover, simulating its execution time and measuring proof length"<<std::endl;
+    cout<<"adding '"<<simulatePrefix<<"1' to the arguments causes execution of verifier only, without the prover, simulating its execution time and measuring proof length"<<std::endl;
     cout<<endl<<"Another example:"<<endl;
     cout<<"$>"<<exeName<<" examples-tinyram/knowledge_of_factorization.asm "<<timePrefix<<"10 "<<securityPrefix<<"120 "<<auxTapePrefix<<"./examples-tinyram/knowledge_of_factorization_auxtape.txt"<<endl;
 }
 
-libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const unsigned int t, const vector<string>& public_lines, const vector<string>& private_lines){
+libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const unsigned int t, const vector<string>& public_lines){
     resetALU_GadgetGlobalState();
     shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 
     gadgetlib::ProtoboardPtr pb_instance = Protoboard::create(archParams_);
-    cs2Bair cs2bair_instance(pb_instance, prog, int(gadgetlib::POW2(t) - 1), false, public_lines, private_lines);
+    cs2Bair cs2bair_instance(pb_instance, prog, int(gadgetlib::POW2(t) - 1), false, public_lines);
 
     unique_ptr<cs2BairConstraints> cs2bairConstraints_(new cs2BairConstraints(cs2bair_instance));
     unique_ptr<cs2BairMemoryCS> cs2bairMemoryCS_(new cs2BairMemoryCS(cs2bair_instance));
@@ -60,7 +60,7 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const unsigne
 }
 
 void execute(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter, const bool simulateOnly) {
-    cout<<"Executing simulation with assembly from " + assemblyFile + " over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from " << primaryTapeFile <<"and private inputs from "+auxTapeFile<<endl<<endl;
+    cout<<"Executing simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n\n";
 
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
@@ -74,24 +74,22 @@ void execute(const string assemblyFile, const string primaryTapeFile, const stri
     string public_inputs((std::istreambuf_iterator<char>(primarytapefs)),std::istreambuf_iterator<char>());
     sregex_token_iterator pub_it{public_inputs.begin(), public_inputs.end(), regex, -1};
     vector<string> public_lines{pub_it, {}};
-    
     // Read private inputs (auxTapeFile) to private_lines vector
     ifstream auxtapefs(auxTapeFile);
     string private_inputs((std::istreambuf_iterator<char>(auxtapefs)),std::istreambuf_iterator<char>());
     sregex_token_iterator pr_it{private_inputs.begin(), private_inputs.end(), regex, -1};
     vector<string> private_lines{pr_it, {}};
 
-    //simulation only - no prover
-    if(simulateOnly){
-        const auto bairInstance = constructInstance(program, t, public_lines, private_lines);
+    if (simulateOnly) {                                                                         // simulation only - no prover
+        const auto bairInstance = constructInstance(program, t, public_lines);
         libstark::Protocols::simulateProtocol(bairInstance, securityParameter);
+        cout << "\nOnly simulation executed\n";
         return;
+    } else {                                                                                    // full execution
+        const auto bairWitness = constructWitness(program, t, public_lines, private_lines);     // witness is generated from the prover
+        const auto bairInstance = constructInstance(program, t, public_lines);                  // instance is generated from the verifier
+        libstark::Protocols::executeProtocol(bairInstance,bairWitness,securityParameter,false,false,true);
     }
-
-    //full execution
-    const auto bairWitness = constructWitness(program, t, public_lines, private_lines);
-    const auto bairInstance = constructInstance(program, t, public_lines, private_lines);
-    libstark::Protocols::executeProtocol(bairInstance,bairWitness,securityParameter,false,false,true);
 }
 
 int main(int argc, char *argv[]) {
@@ -103,7 +101,7 @@ int main(int argc, char *argv[]) {
     string assemblyFile(argv[1]);
     unsigned int executionLenLog = 0;
     unsigned int securityParameter = 60;
-    bool noProver = false;
+    bool simulate = false;
     string primaryTapeFile, auxTapeFile;
     for (int i=2; i< argc; i++) {
         const string currArg(argv[i]);
@@ -128,8 +126,8 @@ int main(int argc, char *argv[]) {
         if (prefix == securityPrefix) {
             securityParameter = num;
         }
-        if (prefix == noProverPrefix) {
-            noProver = (num == 0);
+        if (prefix == simulatePrefix) {
+            simulate = (num == 1);
         }
     }
 
@@ -138,7 +136,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    execute(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, noProver);
+    execute(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, simulate);
 
     return 0;
 }
