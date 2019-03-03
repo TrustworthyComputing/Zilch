@@ -1,3 +1,4 @@
+#include <iostream>
 #include "common.hpp"
 
 namespace libstark{
@@ -17,19 +18,45 @@ phase_t advancePhase(const phase_t& currPhase){
 }
 
 
+void randomCoeefs::serialize(std::ostream& s) {
+    writeVector(s, coeffUnshifted);
+    writeVector(s, coeffShifted);
+}
+
+
+/* specialization */
+template <> void partyState<randomCoeefs>::serialize(std::ostream& s) {
+    for (auto& random_coeef : boundary) {
+        random_coeef.serialize(s);
+    }
+    boundaryPolysMatrix.serialize(s);
+    ZK_mask_boundary.serialize(s);
+    for (auto& random_coeef : ZK_mask_composition) {
+        random_coeef.serialize(s);
+    }
+}
+
+/* specialization */
+template <> void partyState<rawQuery_t>::serialize(std::ostream& s) {
+    for (auto& raw_query : boundary) {
+        writeSet(s, raw_query);
+    }
+    writeSet(s, boundaryPolysMatrix);
+    writeSet(s, ZK_mask_boundary);
+    for (auto& raw_query : ZK_mask_composition) {
+        writeSet(s, raw_query);
+    }
+}
+
+
 void verifierMsg::serialize(std::ostream& s) {
     s << numRepetitions;
     randomCoefficients.serialize(s);
-    
     for (auto& field_elem_vec : coeffsPi) {
-        for (auto& elem : field_elem_vec) {
-            s << elem;
-        }
+        writeVector(s, field_elem_vec);
     }
     for (auto& field_elem_vec : coeffsChi) {
-        for (auto& elem : field_elem_vec) {
-            s << elem;
-        }
+        writeVector(s, field_elem_vec);
     }
     queries.serialize(s);
     for (auto& trans_msg_ptr : RS_verifier_witness_msg) {

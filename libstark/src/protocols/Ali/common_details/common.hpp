@@ -23,6 +23,9 @@ struct randomCoeefs{
     // <coeffUnshifted> + <coeffShifted>*x^<degShift>
 
     randomCoeefs():degShift(0){};
+    
+    void serialize(std::ostream& s);
+    
 };
 
 
@@ -35,16 +38,8 @@ public:
     T_univariate ZK_mask_boundary;
     std::vector<T_univariate> ZK_mask_composition;
     
-    void serialize(std::ostream& s) {
+    void serialize(std::ostream& s);
 
-        if (typeid(T_univariate) == typeid(randomCoeefs)) {
-            
-        } else if (typeid(T_univariate) == typeid(rawQuery_t)) {
-        
-        }
-        
-    }
-        
 };
 
 typedef partyState<randomCoeefs> randomCoeffsSet_t;

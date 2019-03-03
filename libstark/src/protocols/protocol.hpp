@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <iostream>
+#include <set>
 
 namespace libstark{
 namespace Protocols{
@@ -22,6 +23,15 @@ namespace Protocols{
 
 template<class T>
 inline void writeVector(std::ostream& s, const std::vector<T>& v) {
+    size_t sz = v.size();
+    s << sz;
+    for (auto it : v) {
+        s << it;
+    }
+}
+
+template<class T>
+inline void writeSet(std::ostream& s, const std::set<T>& v) {
     size_t sz = v.size();
     s << sz;
     for (auto it : v) {
