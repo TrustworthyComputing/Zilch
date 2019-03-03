@@ -34,6 +34,25 @@ namespace Algebra {
         s <<"]";
 		return s.str();
 	}
+
+FieldElement fromString(std::string s) {
+	s.erase(0, 1); 			// remove [
+	s.erase(s.size() - 1); 	// remove ]
+	if (s.empty()) return mapIntegerToFieldElement(0, 64, 0);
+	std::string rev(s.rbegin(), s.rend()); // reverse string
+	
+	std::string delimiter = " ";
+	size_t pos = 0;
+	int num = 0;
+	std::string token;
+	while ((pos = rev.find(delimiter)) != std::string::npos) {
+	    token = rev.substr(0, pos);
+		num = (num << 1) + stoi(token);
+	    rev.erase(0, pos + delimiter.length());
+	}
+	num = (num << 1) + stoi(rev);
+	return mapIntegerToFieldElement(0, 64, num);
+}
 	
 
 elementsSet_t getStandartBasis(const unsigned short basisSize){

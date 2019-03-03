@@ -251,6 +251,9 @@ inline const FieldElement xFE() {
 /** Functions that return random elements */
 FieldElement generateRandom();
 
+FieldElement fromString(std::string str);
+
+
 /**
  * Let \f$ B=(B_0, B_1, \dots , B_n) \f$ be the ordered basis
  * and let \f$ S \f$ be the affine shift.
