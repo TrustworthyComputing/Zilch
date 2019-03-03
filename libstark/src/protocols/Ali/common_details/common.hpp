@@ -8,21 +8,12 @@
 #include <algebraLib/FieldElement.hpp>
 #include <algebraLib/PolynomialDegree.hpp>
 #include <vector>
+#include <iostream>
 
 namespace libstark{
 namespace Protocols{
 namespace Ali{
 namespace details{
-
-template<typename T_univariate>
-class partyState{
-public:
-    virtual ~partyState(){};
-    std::vector<T_univariate> boundary;
-    T_univariate boundaryPolysMatrix;
-    T_univariate ZK_mask_boundary;
-    std::vector<T_univariate> ZK_mask_composition;
-};
 
 struct randomCoeefs{
     size_t degShift;
@@ -32,6 +23,28 @@ struct randomCoeefs{
     // <coeffUnshifted> + <coeffShifted>*x^<degShift>
 
     randomCoeefs():degShift(0){};
+};
+
+
+template<typename T_univariate>
+class partyState{
+public:
+    virtual ~partyState(){};
+    std::vector<T_univariate> boundary;
+    T_univariate boundaryPolysMatrix;
+    T_univariate ZK_mask_boundary;
+    std::vector<T_univariate> ZK_mask_composition;
+    
+    void serialize(std::ostream& s) {
+
+        if (typeid(T_univariate) == typeid(randomCoeefs)) {
+            
+        } else if (typeid(T_univariate) == typeid(rawQuery_t)) {
+        
+        }
+        
+    }
+        
 };
 
 typedef partyState<randomCoeefs> randomCoeffsSet_t;
@@ -44,6 +57,11 @@ phase_t advancePhase(const phase_t& currPhase);
 
 class verifierMsg : public TranscriptMessage{
 public:
+    
+    // friend std::ostream& operator<<(std::ostream&, const verifierMsg&);
+    
+    void serialize(std::ostream& s);
+    
     virtual ~verifierMsg(){};
     unsigned int numRepetitions;
     randomCoeffsSet_t randomCoefficients;
@@ -56,6 +74,9 @@ public:
 
 class proverMsg : public TranscriptMessage{
 public:
+    
+    void serialize(std::ostream& s);
+    
     virtual ~proverMsg(){};
     std::vector<CryptoCommitment::hashDigest_t> commitments;
     Ali::details::rawResults_t results;

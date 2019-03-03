@@ -9,6 +9,7 @@
 #include "protocols/Ali/prover.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <thread>
 
 namespace libstark{
@@ -44,13 +45,13 @@ namespace Protocols{
             startColor(RESET);
         }
         
-        void startProver(){
-            startColor(MAGENTA);
-        }
-        
-        void startVerifier(){
-            startColor(VERIFIER_COLOR);
-        }
+        // void startProver(){
+        //     startColor(MAGENTA);
+        // }
+        // 
+        // void startVerifier(){
+        //     startColor(VERIFIER_COLOR);
+        // }
         
         void startVerification(){
             startColor(GREEN);
@@ -60,9 +61,9 @@ namespace Protocols{
             startColor(CYAN);
         }
         
-        void startCicleCount(){
-            startColor(WHITE);
-        }
+        // void startCicleCount(){
+        //     startColor(WHITE);
+        // }
         
         std::string numBytesToString(size_t numBytes){
             std::string suffix[] = {"Bytes", "KBytes", "MBytes", "GBytes", "TBytes", "PBytes", "EByte", "ZByte"};
@@ -125,55 +126,26 @@ namespace Protocols{
         const size_t proofSentBytes = verifier.expectedSentProofBytes();
         const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
         
+        size_t cnt = 0;
+        std::ofstream ofs("example.txt");
         Timer t;
-        if (onlyVerifierData) {
-            verifier.fillResultsAndCommitmentRandomly();
-        } else {
-            size_t msgNum = 1;
-            startCicleCount();
-            while (!verifier.doneInteracting()) {
-                std::cout<<"communication iteration #"<<msgNum++<<":";
-                bool doStatusLoop = true;
-                Timer roundTimer;
-                std::thread barManager( [&](){
-                    unsigned int sleepInterval = 10;
-                    unsigned int sleepTime = 10;
-                    while(doStatusLoop){
-                        std::cout<<"."<<std::flush;
-                        for(unsigned int i=0; (i< sleepTime) && doStatusLoop; i++){
-                            std::this_thread::sleep_for(std::chrono::milliseconds(sleepInterval));
-                        }
-                        sleepTime*=2;
-                    }
-                });
-                //TASK("interaction round #" + std::to_string(msgNum++));
-                
-                startVerifier();
-                const auto vMsg = verifier.sendMessage();
-                
-                verifierTime += t.getElapsed();
-                t = Timer();
-                
-                startProver();
-                prover.receiveMessage(*vMsg);
-                const auto pMsg = prover.sendMessage();
-                
-                proverTime += t.getElapsed();
-                
-                {
-                    doStatusLoop = false;
-                    barManager.join();
-                    std::cout<<"("<<roundTimer.getElapsed()<<" seconds)"<<std::endl;
-                }
-                
-                t = Timer();
-                
-                startVerifier();
-                verifier.receiveMessage(*pMsg);
-                
-                startCicleCount();
-            }
+        while (!verifier.doneInteracting()) {
+            const auto vMsg = verifier.sendMessage();
+
+            vMsg->serialize(ofs);
+            
+            verifierTime += t.getElapsed();
+            
+            t = Timer();
+            prover.receiveMessage(*vMsg);
+
+            const auto pMsg = prover.sendMessage();
+            proverTime += t.getElapsed();
+            
+            t = Timer();
+            verifier.receiveMessage(*pMsg);
         }
+        ofs.close();
         
         startVerification();
         const bool res = verifier.verify();
@@ -182,8 +154,11 @@ namespace Protocols{
         
         resetColor();
         
-        printSpecs(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
-        // printSpecsCSV(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
+        if (true) {
+            printSpecs(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
+        } else {
+            printSpecsCSV(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
+        }
         
         return res;
     }

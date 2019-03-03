@@ -5,6 +5,7 @@
 #include "protocols/common/queries.hpp"
 
 #include <algebraLib/FieldElement.hpp>
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -38,12 +39,18 @@ typedef std::vector<Algebra::FieldElement> subproofLocation_t;
 
 class verifierRequest_t : public TranscriptMessage{
     public:
+        void serialize(std::ostream& s) {
+            
+        }
         std::vector<subproofLocation_t> proofConstructionQueries;
         rawQueries_t dataQueries;
 };
 
 class proverResponce_t : public TranscriptMessage{
     public:
+        void serialize(std::ostream& s) {
+            
+        }
         std::vector<CryptoCommitment::hashDigest_t> proofConstructionComitments;
         rawResults_t dataResults;
 };

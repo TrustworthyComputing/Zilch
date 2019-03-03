@@ -16,6 +16,40 @@ phase_t advancePhase(const phase_t& currPhase){
     }
 }
 
+
+void verifierMsg::serialize(std::ostream& s) {
+    s << numRepetitions;
+    randomCoefficients.serialize(s);
+    
+    for (auto& field_elem_vec : coeffsPi) {
+        for (auto& elem : field_elem_vec) {
+            s << elem;
+        }
+    }
+    for (auto& field_elem_vec : coeffsChi) {
+        for (auto& elem : field_elem_vec) {
+            s << elem;
+        }
+    }
+    queries.serialize(s);
+    for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
+        trans_msg_ptr->serialize(s);
+    }
+    for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
+        trans_msg_ptr->serialize(s);
+    }
+    
+}
+
+void proverMsg::serialize(std::ostream& s) {
+    
+}
+
+// std::ostream& operator<<(std::ostream& s, const verifierMsg& v) {
+//     s << v.numRepetitions;
+//     return s;
+// }
+
 namespace PCP_common {
 	
 using Algebra::FiniteSetInterface;
