@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <sstream>
 
 namespace libstark{
 namespace Protocols{
@@ -127,12 +128,24 @@ namespace Protocols{
         const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
         
         size_t cnt = 0;
-        std::ofstream ofs("example.txt");
+
+        
         Timer t;
         while (!verifier.doneInteracting()) {
+            std::cout << "\t\t\t\t\t\t"<< cnt <<"\n\n";
+            
+            std::string filename("example_" + std::to_string(cnt++) + ".txt");
+            // filename << 
+            
             const auto vMsg = verifier.sendMessage();
 
+            std::ofstream ofs(filename);
             vMsg->serialize(ofs);
+            ofs.close();
+            
+            std::ifstream ifs(filename);
+            vMsg->deserialize(ifs);
+            ifs.close();
             
             verifierTime += t.getElapsed();
             
@@ -143,9 +156,8 @@ namespace Protocols{
             proverTime += t.getElapsed();
             
             t = Timer();
-            verifier.receiveMessage(*pMsg);
+            verifier.receiveMessage(*pMsg);            
         }
-        ofs.close();
         
         startVerification();
         const bool res = verifier.verify();

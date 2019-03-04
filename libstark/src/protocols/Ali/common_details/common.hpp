@@ -25,6 +25,7 @@ struct randomCoeefs{
     randomCoeefs():degShift(0){};
     
     void serialize(std::ostream& s);
+    void deserialize(std::istream& s);
     
 };
 
@@ -39,6 +40,7 @@ public:
     std::vector<T_univariate> ZK_mask_composition;
     
     void serialize(std::ostream& s);
+    void deserialize(std::istream& s);
 
 };
 
@@ -56,6 +58,7 @@ public:
     // friend std::ostream& operator<<(std::ostream&, const verifierMsg&);
     
     void serialize(std::ostream& s);
+    void deserialize(std::istream& s);
     
     virtual ~verifierMsg(){};
     unsigned int numRepetitions;
@@ -71,6 +74,7 @@ class proverMsg : public TranscriptMessage{
 public:
     
     void serialize(std::ostream& s);
+    void deserialize(std::istream& s);
     
     virtual ~proverMsg(){};
     std::vector<CryptoCommitment::hashDigest_t> commitments;

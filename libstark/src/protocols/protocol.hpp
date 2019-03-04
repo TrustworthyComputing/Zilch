@@ -26,8 +26,9 @@ inline void writeVector(std::ostream& s, const std::vector<T>& v) {
     size_t sz = v.size();
     s << sz;
     for (auto it : v) {
-        s << it;
+        s << "," << it;
     }
+    s << "\n";
 }
 
 template<class T>
@@ -35,12 +36,13 @@ inline void writeSet(std::ostream& s, const std::set<T>& v) {
     size_t sz = v.size();
     s << sz;
     for (auto it : v) {
-        s << it;
+        s << "," << it;
     }
+    s << "\n";
 }
-  
+
 // template<class T>
-// inline void readVector(std::ostream& s, std::vector<T>* v) {
+// inline void readVector(std::istream& s, std::vector<T>* v) {
 //     size_t sz;
 //     s >> sz;
 //     new(v) std::vector<T>;
@@ -51,6 +53,8 @@ inline void writeSet(std::ostream& s, const std::set<T>& v) {
 //     }
 // }
 
+
+
 //
 // Transcript data related types
 //
@@ -59,6 +63,8 @@ public:
 virtual ~TranscriptMessage(){};
 
 virtual void serialize(std::ostream& s) = 0;
+virtual void deserialize(std::istream& s) = 0;
+
 
 };
 

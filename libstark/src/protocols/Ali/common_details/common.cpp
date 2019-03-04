@@ -1,5 +1,8 @@
 #include <iostream>
 #include "common.hpp"
+#include <sstream>
+#include <assert.h>
+#include <string>
 
 namespace libstark{
 namespace Protocols{
@@ -19,58 +22,176 @@ phase_t advancePhase(const phase_t& currPhase){
 
 
 void randomCoeefs::serialize(std::ostream& s) {
+    s << degShift << "\n";
     writeVector(s, coeffUnshifted);
     writeVector(s, coeffShifted);
+}
+
+void randomCoeefs::deserialize(std::istream& s) {
+
 }
 
 
 /* specialization */
 template <> void partyState<randomCoeefs>::serialize(std::ostream& s) {
+    std::cout << "serialize sz:" <<  boundary.size() << '\n';
+    s << boundary.size() << "\n";
     for (auto& random_coeef : boundary) {
         random_coeef.serialize(s);
     }
+    
     boundaryPolysMatrix.serialize(s);
     ZK_mask_boundary.serialize(s);
+    
+    s << ZK_mask_composition.size() << "\n";
     for (auto& random_coeef : ZK_mask_composition) {
         random_coeef.serialize(s);
-    }
+    }    
 }
 
 /* specialization */
-template <> void partyState<rawQuery_t>::serialize(std::ostream& s) {
+template <> void partyState<randomCoeefs>::deserialize(std::istream& s) {
+    std::string line;
+    size_t boundary_size;
+    getline(s, line);
+    boundary_size = stoi(line);
+    std::cout << "boundary_size: " << boundary_size << "\n";
+
+    for (size_t i = 0 ; i < boundary_size ; i++) {
+        randomCoeefs rc;
+        // read degShift
+        size_t degShift;
+        getline(s, line);
+        degShift = stoi(line);
+        rc.degShift = degShift;
+        std::cout << "degShift: " << degShift << "\n";
+
+        // read coeffUnshifted
+        getline(s, line);
+        std::vector<std::string> random_coeff;
+        std::stringstream ss(line);
+        std::string intermediate;
+        while (std::getline(ss, intermediate, ',')) { 
+            random_coeff.push_back(intermediate); 
+        }
+        for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
+            rc.coeffUnshifted.push_back( Algebra::fromString(random_coeff[j+1]) );
+        }
+        for (auto& t : random_coeff) {
+            std::cout << "\t\t coeffUnshifted : " << t << '\n';
+        }
+
+        // read coeffShifted
+        getline(s, line);
+        random_coeff.clear();
+        std::stringstream ss2(line);
+        while (std::getline(ss2, intermediate, ',')) { 
+            random_coeff.push_back(intermediate); 
+        }
+        for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
+            rc.coeffShifted.push_back( Algebra::fromString(random_coeff[j+1]) );
+        }
+        for (auto& t : random_coeff) {
+            std::cout << "\t\t coeffShifted : " << t << '\n';
+        }
+        
+        boundary[i] = rc;
+    }
+    
+    
+}
+
+/* specialization */
+template <> void partyState<rawQuery_t>::serialize(std::ostream& s) {    
+    s << boundary.size() << "\n";
     for (auto& raw_query : boundary) {
         writeSet(s, raw_query);
     }
+    
     writeSet(s, boundaryPolysMatrix);
     writeSet(s, ZK_mask_boundary);
+    
+    s << ZK_mask_composition.size() << "\n";
     for (auto& raw_query : ZK_mask_composition) {
         writeSet(s, raw_query);
     }
 }
 
+/* specialization */
+template <> void partyState<rawQuery_t>::deserialize(std::istream& s) {
+
+}
+
 
 void verifierMsg::serialize(std::ostream& s) {
-    s << numRepetitions;
+    s << numRepetitions << "\n";
+    std::cout << "numRepetitions:" << numRepetitions << "\n";
+    
+    // s << "\nrandomCoefficients:";
     randomCoefficients.serialize(s);
+    
+    // s << "\ncoeffsPi:";
     for (auto& field_elem_vec : coeffsPi) {
         writeVector(s, field_elem_vec);
     }
+    
+    // s << "\ncoeffsChi:";
     for (auto& field_elem_vec : coeffsChi) {
         writeVector(s, field_elem_vec);
     }
+    
+    // s << "\nqueries:";
     queries.serialize(s);
+    
+    // s << "\nRS_verifier_witness_msg";
     for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
         trans_msg_ptr->serialize(s);
     }
+    
+    // s << "\nRS_verifier_composition_msg";
     for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
         trans_msg_ptr->serialize(s);
     }
+    // s << "\n";
+}
+
+void verifierMsg::deserialize(std::istream& s) {
+    std::string line;
+    getline(s, line);
+    numRepetitions = std::stoi(line);
+    
+    std::cout << "numRepetitions:" << numRepetitions << "\n";
+    
+    // size_t size = 0;
+    // s >> size;
+    // std::cout << "size:" << size << "\n";
+    // 
+    randomCoefficients.deserialize(s);
+    
+    // for (auto& field_elem_vec : coeffsPi) {
+    //     readVector(s, field_elem_vec);
+    // }
+    // for (auto& field_elem_vec : coeffsChi) {
+    //     readVector(s, field_elem_vec);
+    // }
+    // queries.deserialize(s);
+    // for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
+    //     trans_msg_ptr->deserialize(s);
+    // }
+    // for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
+    //     trans_msg_ptr->deserialize(s);
+    // }
     
 }
 
 void proverMsg::serialize(std::ostream& s) {
     
 }
+
+void proverMsg::deserialize(std::istream& s) {
+    
+}
+
 
 // std::ostream& operator<<(std::ostream& s, const verifierMsg& v) {
 //     s << v.numRepetitions;

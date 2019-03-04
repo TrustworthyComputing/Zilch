@@ -39,18 +39,18 @@ typedef std::vector<Algebra::FieldElement> subproofLocation_t;
 
 class verifierRequest_t : public TranscriptMessage{
     public:
-        void serialize(std::ostream& s) {
-            
-        }
+        void serialize(std::ostream& s);
+        void deserialize(std::istream& s);
+        
         std::vector<subproofLocation_t> proofConstructionQueries;
         rawQueries_t dataQueries;
 };
 
 class proverResponce_t : public TranscriptMessage{
     public:
-        void serialize(std::ostream& s) {
-            
-        }
+        void serialize(std::ostream& s);
+        void deserialize(std::istream& s);
+        
         std::vector<CryptoCommitment::hashDigest_t> proofConstructionComitments;
         rawResults_t dataResults;
 };

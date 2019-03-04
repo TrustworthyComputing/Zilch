@@ -12,6 +12,24 @@ using Algebra::zero;
 using Algebra::elementsSet_t;
 using Algebra::SubspacePolynomial;
 
+void verifierRequest_t::serialize(std::ostream& s) {
+
+}
+
+void verifierRequest_t::deserialize(std::istream& s) {
+
+}
+
+
+void proverResponce_t::serialize(std::ostream& s) {
+
+}
+
+void proverResponce_t::deserialize(std::istream& s) {
+
+}
+
+
 vector<FieldElement> getL0Basis(const vector<FieldElement>& BasisL, const bool L0isMSB){
 	if(L0isMSB){
         return vector<FieldElement>(BasisL.end() - SoundnessParameters::dimReduction, BasisL.end());
