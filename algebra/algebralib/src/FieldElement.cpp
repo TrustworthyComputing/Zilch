@@ -43,7 +43,7 @@ FieldElement fromString(std::string s) {
 	
 	std::string delimiter = " ";
 	size_t pos = 0;
-	int num = 0;
+	size_t num = 0;
 	std::string token;
 	while ((pos = rev.find(delimiter)) != std::string::npos) {
 	    token = rev.substr(0, pos);
