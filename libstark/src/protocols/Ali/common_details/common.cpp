@@ -28,7 +28,38 @@ void randomCoeefs::serialize(std::ostream& s) {
 }
 
 void randomCoeefs::deserialize(std::istream& s) {
-
+    std::string line;
+    // read degShift
+    getline(s, line);
+    degShift = stoi(line);
+    std::cout << "degShift: " << degShift << "\n";
+    // read coeffUnshifted
+    getline(s, line);
+    std::vector<std::string> random_coeff;
+    std::stringstream ss(line);
+    std::string intermediate;
+    while (std::getline(ss, intermediate, ',')) { 
+        random_coeff.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
+        coeffUnshifted.push_back( Algebra::fromString(random_coeff[j+1]) );
+    }
+    for (auto& t : random_coeff) {
+        std::cout << "\t\t coeffUnshifted : " << t << '\n';
+    }
+    // read coeffShifted
+    getline(s, line);
+    random_coeff.clear();
+    std::stringstream ss2(line);
+    while (std::getline(ss2, intermediate, ',')) { 
+        random_coeff.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
+        coeffShifted.push_back( Algebra::fromString(random_coeff[j+1]) );
+    }
+    for (auto& t : random_coeff) {
+        std::cout << "\t\t coeffShifted : " << t << '\n';
+    }
 }
 
 
@@ -52,53 +83,30 @@ template <> void partyState<randomCoeefs>::serialize(std::ostream& s) {
 /* specialization */
 template <> void partyState<randomCoeefs>::deserialize(std::istream& s) {
     std::string line;
+    // read boundary
     size_t boundary_size;
     getline(s, line);
     boundary_size = stoi(line);
-    std::cout << "boundary_size: " << boundary_size << "\n";
-
+    boundary.clear();
     for (size_t i = 0 ; i < boundary_size ; i++) {
-        randomCoeefs rc;
-        // read degShift
-        size_t degShift;
-        getline(s, line);
-        degShift = stoi(line);
-        rc.degShift = degShift;
-        std::cout << "degShift: " << degShift << "\n";
-
-        // read coeffUnshifted
-        getline(s, line);
-        std::vector<std::string> random_coeff;
-        std::stringstream ss(line);
-        std::string intermediate;
-        while (std::getline(ss, intermediate, ',')) { 
-            random_coeff.push_back(intermediate); 
-        }
-        for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
-            rc.coeffUnshifted.push_back( Algebra::fromString(random_coeff[j+1]) );
-        }
-        for (auto& t : random_coeff) {
-            std::cout << "\t\t coeffUnshifted : " << t << '\n';
-        }
-
-        // read coeffShifted
-        getline(s, line);
-        random_coeff.clear();
-        std::stringstream ss2(line);
-        while (std::getline(ss2, intermediate, ',')) { 
-            random_coeff.push_back(intermediate); 
-        }
-        for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
-            rc.coeffShifted.push_back( Algebra::fromString(random_coeff[j+1]) );
-        }
-        for (auto& t : random_coeff) {
-            std::cout << "\t\t coeffShifted : " << t << '\n';
-        }
-        
-        boundary[i] = rc;
+        Protocols::Ali::details::randomCoeefs emptyCoeefs;
+        boundary.push_back( emptyCoeefs );
+        boundary[i].deserialize(s);
     }
-    
-    
+    // read boundaryPolysMatrix
+    boundaryPolysMatrix.deserialize(s);
+    // read ZK_mask_boundary
+    ZK_mask_boundary.deserialize(s);
+    // read ZK_mask_composition
+    size_t ZK_mask_composition_size;
+    getline(s, line);
+    ZK_mask_composition_size = stoi(line);
+    ZK_mask_composition.clear();
+    for (size_t i = 0 ; i < ZK_mask_composition_size ; i++) {
+        Protocols::Ali::details::randomCoeefs emptyCoeefs;
+        ZK_mask_composition.push_back( emptyCoeefs );
+        ZK_mask_composition[i].deserialize(s);
+    }
 }
 
 /* specialization */
