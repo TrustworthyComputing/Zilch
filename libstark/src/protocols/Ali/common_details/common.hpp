@@ -29,6 +29,8 @@ struct randomCoeefs{
     
 };
 
+void deserializeRawQuery_t(std::istream&, rawQuery_t&);
+void deserializeFieldElementVector(std::istream&, std::vector<Algebra::FieldElement>&);
 
 template<typename T_univariate>
 class partyState{

@@ -119,70 +119,59 @@ template <> void partyState<rawQuery_t>::serialize(std::ostream& s) {
 /* specialization for rawQuery_t */
 template <> void partyState<rawQuery_t>::deserialize(std::istream& s) {
     std::string line;
-    std::string intermediate;
     // read boundary
     getline(s, line);
     size_t boundary_size = stoi(line);
     boundary.clear();
     for (size_t i = 0 ; i < boundary_size ; i++) {
-        // read rawQuery_t
-        getline(s, line);
-        std::vector<std::string> query_str;
-        std::stringstream ss(line);
-        while (std::getline(ss, intermediate, ',')) { 
-            query_str.push_back(intermediate); 
-        }
         rawQuery_t query;
-        for (int j = 0 ; j < std::stoi(query_str[0]) ; j++) {
-            query.insert( std::stoi(query_str[j+1]) );
-        }
+        deserializeRawQuery_t(s, query);
         boundary.push_back(query);
     }
-    
     // read boundaryPolysMatrix
     boundaryPolysMatrix.clear();
-    getline(s, line);
-    std::vector<std::string> query_str;
-    std::stringstream ss2(line);
-    while (std::getline(ss2, intermediate, ',')) { 
-        query_str.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(query_str[0]) ; j++) {
-        boundaryPolysMatrix.insert( std::stoi(query_str[j+1]) );
-    }
-
+    deserializeRawQuery_t(s, boundaryPolysMatrix);
     // read ZK_mask_boundary
     ZK_mask_boundary.clear();
-    getline(s, line);
-    query_str.clear();
-    std::stringstream ss3(line);
-    while (std::getline(ss3, intermediate, ',')) { 
-        query_str.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(query_str[0]) ; j++) {
-        ZK_mask_boundary.insert( std::stoi(query_str[j+1]) );
-    }
-    
+    deserializeRawQuery_t(s, ZK_mask_boundary);
     // read ZK_mask_composition
     getline(s, line);
     size_t ZK_mask_composition_size = stoi(line);
     ZK_mask_composition.clear();
     for (size_t i = 0 ; i < ZK_mask_composition_size ; i++) {
-        // read rawQuery_t
-        getline(s, line);
-        std::vector<std::string> query_str;
-        std::stringstream ss(line);
-        while (std::getline(ss, intermediate, ',')) { 
-            query_str.push_back(intermediate); 
-        }
         rawQuery_t query;
-        for (int j = 0 ; j < std::stoi(query_str[0]) ; j++) {
-            query.insert( std::stoi(query_str[j+1]) );
-        }
+        deserializeRawQuery_t(s, query);
         ZK_mask_composition.push_back(query);
     }
 }
 
+void deserializeRawQuery_t(std::istream& s, rawQuery_t& query) {
+    std::string line;
+    std::string intermediate;
+    getline(s, line);
+    std::vector<std::string> query_splitted;
+    std::stringstream ss(line);
+    while (std::getline(ss, intermediate, ',')) { 
+        query_splitted.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(query_splitted[0]) ; j++) {
+        query.insert( std::stoi(query_splitted[j+1]) );
+    }
+}
+
+void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldElement>& f_elems_vec) {
+    std::string line;
+    getline(s, line);
+    std::vector<std::string> field_elem;
+    std::stringstream ss(line);
+    std::string intermediate;
+    while (std::getline(ss, intermediate, ',')) { 
+        field_elem.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(field_elem[0]) ; j++) {
+        f_elems_vec.push_back( Algebra::fromString(field_elem[j+1]) );
+    }
+}
 
 void verifierMsg::serialize(std::ostream& s) {
     s << numRepetitions << "\n";
@@ -208,49 +197,26 @@ void verifierMsg::deserialize(std::istream& s) {
     std::string line;
     getline(s, line);
     numRepetitions = std::stoi(line);
-    
     // read randomCoefficients
     randomCoefficients.deserialize(s);
-    
     // read coeffsPi
     getline(s, line);
     size_t coeffsPi_size = stoi(line);
     assert(coeffsPi_size == coeffsPi.size());
     coeffsPi.clear();
     for (size_t i = 0 ; i < coeffsPi_size ; i++) {
-        // read FieldElements
-        getline(s, line);
-        std::vector<std::string> field_elem;
-        std::stringstream ss(line);
-        std::string intermediate;
-        while (std::getline(ss, intermediate, ',')) { 
-            field_elem.push_back(intermediate); 
-        }
         std::vector<Algebra::FieldElement> f_elems_vec;
-        for (int j = 0 ; j < std::stoi(field_elem[0]) ; j++) {
-            f_elems_vec.push_back( Algebra::fromString(field_elem[j+1]) );
-        }
+        deserializeFieldElementVector(s, f_elems_vec);
         coeffsPi.push_back(f_elems_vec);
     }
-
     // read coeffsChi
     getline(s, line);
     size_t coeffsChi_size = stoi(line);
     assert(coeffsChi_size == coeffsChi.size());
     coeffsChi.clear();
     for (size_t i = 0 ; i < coeffsChi_size ; i++) {
-        // read FieldElements
-        getline(s, line);
-        std::vector<std::string> field_elem;
-        std::stringstream ss(line);
-        std::string intermediate;
-        while (std::getline(ss, intermediate, ',')) { 
-            field_elem.push_back(intermediate); 
-        }
         std::vector<Algebra::FieldElement> f_elems_vec;
-        for (int j = 0 ; j < std::stoi(field_elem[0]) ; j++) {
-            f_elems_vec.push_back( Algebra::fromString(field_elem[j+1]) );
-        }
+        deserializeFieldElementVector(s, f_elems_vec);
         coeffsChi.push_back(f_elems_vec);
     }
     
