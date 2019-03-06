@@ -2,6 +2,7 @@
 #define __PARTYSTATE_HPP__
 
 #include "protocols/common/CryptoCommitment/MerkleCommitment.hpp"
+#include "protocols/Fri/common/common.hpp"
 #include "protocols/protocol.hpp"
 #include "protocols/common/queries.hpp"
 #include "languages/Acsp/AcspInstance.hpp"
@@ -26,8 +27,8 @@ struct randomCoeefs{
 
     randomCoeefs():degShift(0){};
     
-    void serialize(std::ostream& s);
-    void deserialize(std::istream& s);
+    void serialize(std::ostream& s, phase_t phase);
+    void deserialize(std::istream& s, phase_t phase);
     
 };
 
@@ -43,8 +44,8 @@ public:
     T_univariate ZK_mask_boundary;
     std::vector<T_univariate> ZK_mask_composition;
     
-    void serialize(std::ostream& s);
-    void deserialize(std::istream& s);
+    void serialize(std::ostream& s, phase_t phase);
+    void deserialize(std::istream& s, phase_t phase);
 
 };
 
@@ -52,17 +53,14 @@ typedef partyState<randomCoeefs> randomCoeffsSet_t;
 typedef partyState<rawQuery_t> rawQueries_t;
 typedef partyState<std::vector<CryptoCommitment::hashDigest_t>> rawResults_t;
 
-enum phase_t{START_PROTOCOL, UNIVARIATE_COMMITMENTS, VERIFIER_RANDOMNESS, RS_PROXIMITY, QUERY, RESULTS, DONE};
 
 phase_t advancePhase(const phase_t& currPhase);
 
 class verifierMsg : public TranscriptMessage{
 public:
     
-    // friend std::ostream& operator<<(std::ostream&, const verifierMsg&);
-    
-    void serialize(std::ostream& s);
-    void deserialize(std::istream& s);
+    void serialize(std::ostream& s, phase_t phase);
+    void deserialize(std::istream& s, phase_t phase);
     
     virtual ~verifierMsg(){};
     unsigned int numRepetitions;
@@ -77,8 +75,8 @@ public:
 class proverMsg : public TranscriptMessage{
 public:
     
-    void serialize(std::ostream& s);
-    void deserialize(std::istream& s);
+    void serialize(std::ostream& s, phase_t phase);
+    void deserialize(std::istream& s, phase_t phase);
     
     virtual ~proverMsg(){};
     std::vector<CryptoCommitment::hashDigest_t> commitments;

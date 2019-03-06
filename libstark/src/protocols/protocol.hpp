@@ -20,6 +20,7 @@ namespace Protocols{
 //
 //
 
+enum phase_t{START_PROTOCOL, UNIVARIATE_COMMITMENTS, VERIFIER_RANDOMNESS, RS_PROXIMITY, QUERY, RESULTS, DONE};
 
 template<class T>
 inline void writeVector(std::ostream& s, const std::vector<T>& v) {
@@ -41,30 +42,15 @@ inline void writeSet(std::ostream& s, const std::set<T>& v) {
     s << "\n";
 }
 
-// template<class T>
-// inline void readVector(std::istream& s, std::vector<T>* v) {
-//     size_t sz;
-//     s >> sz;
-//     new(v) std::vector<T>;
-//     for (size_t i = 0; i < sz ; ++i) {
-//         T t;
-//         s >> t;
-//         v->push_back(t);
-//     }
-// }
-
-
-
 //
 // Transcript data related types
 //
 class TranscriptMessage{
 public:
-virtual ~TranscriptMessage(){};
+    virtual ~TranscriptMessage(){};
 
-virtual void serialize(std::ostream& s) = 0;
-virtual void deserialize(std::istream& s) = 0;
-
+    virtual void serialize(std::ostream& s, phase_t phase) = 0;
+    virtual void deserialize(std::istream& s, phase_t phase) = 0;
 
 };
 
@@ -95,6 +81,8 @@ public:
     virtual size_t expectedQueriedDataBytes()const = 0;
     
     virtual void fillResultsAndCommitmentRandomly()=0;
+    virtual phase_t getPhase()const { return START_PROTOCOL; }
+    virtual phase_t getPreviousPhase()const { return START_PROTOCOL; }
 };
 
 

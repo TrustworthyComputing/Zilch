@@ -38,7 +38,8 @@ class verifier_t : public verifierInterface{
     size_t expectedSentProofBytes()const;
     size_t expectedQueriedDataBytes()const;
     void fillResultsAndCommitmentRandomly();
-
+    phase_t getPhase()const;
+    phase_t getPreviousPhase()const;
     
     private:
     const BairInstance& bairInstance_;
@@ -53,7 +54,7 @@ class verifier_t : public verifierInterface{
     Ali::details::partyState<uniEvalView_t> state_;
     std::vector<std::unique_ptr<IOPP_verifierInterface>> RS_verifier_witness_;
     std::vector<std::unique_ptr<IOPP_verifierInterface>> RS_verifier_composition_;
-    Ali::details::phase_t phase_;
+    phase_t phase_;
 
     //
     // methods

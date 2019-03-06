@@ -31,10 +31,7 @@ vector<FieldElement> getRandVector(const unsigned int len){
     return res;
 }
 
-verifier_t::verifier_t(const BairInstance& bairInstance, const RS_verifierFactory_t& RS_verifierFactory, const unsigned short securityParameter) : 
-    bairInstance_(bairInstance),
-    phase_(Ali::details::phase_t::START_PROTOCOL)
-    {
+verifier_t::verifier_t(const BairInstance& bairInstance, const RS_verifierFactory_t& RS_verifierFactory, const unsigned short securityParameter) : bairInstance_(bairInstance), phase_(phase_t::START_PROTOCOL) {
     
     TASK("Constructing verifier");
 
@@ -93,109 +90,100 @@ verifier_t::verifier_t(const BairInstance& bairInstance, const RS_verifierFactor
 void verifier_t::receiveMessage(const TranscriptMessage& msg){
     const Ali::details::proverMsg& pMsg = dynamic_cast<const Ali::details::proverMsg&>(msg);
 
-    switch(phase_){
-    
-    case(Ali::details::phase_t::UNIVARIATE_COMMITMENTS):
-    {
-        TASK("Received commitments");
-        
-        keepWitnessCommitment(pMsg.commitments[0]);
-        for(unsigned int i=1; i< pMsg.commitments.size(); i++){
-            keepZK_Composition_maskCommitment(pMsg.commitments[i],i-1);
-        }
-       
-        phase_ = Ali::details::advancePhase(phase_);
-    }
-    break;
-    
-    case(Ali::details::phase_t::RS_PROXIMITY):
-    {
-        TASK("Received message for RS proximity prover");
-        
-        bool RS_Done = true;
-        
-        for(unsigned int i=0; i<RS_verifier_witness_.size(); i++){
-            if(!RS_verifier_witness_[i]->doneInteracting()){
-                RS_verifier_witness_[i]->receiveMessage(*pMsg.RS_prover_witness_msg[i]);
-                RS_Done = false;
+    switch(phase_) {
+        case(phase_t::UNIVARIATE_COMMITMENTS): {
+            TASK("Received commitments");
+            
+            keepWitnessCommitment(pMsg.commitments[0]);
+            for(unsigned int i=1; i< pMsg.commitments.size(); i++){
+                keepZK_Composition_maskCommitment(pMsg.commitments[i],i-1);
             }
-        }
-        
-        for(unsigned int i=0; i<RS_verifier_composition_.size(); i++){
-            if(!RS_verifier_composition_[i]->doneInteracting()){
-                RS_verifier_composition_[i]->receiveMessage(*pMsg.RS_prover_composition_msg[i]);
-                RS_Done = false;
-            }
-        }
-        
-        if(RS_Done){
+           
             phase_ = Ali::details::advancePhase(phase_);
         }
-    }
-    break;
-    
-    case(Ali::details::phase_t::RESULTS):
-    {
-        TASK("Received results");
-        digestResults(pMsg.results);
-        fetchResults();
-        phase_ = Ali::details::advancePhase(phase_);
-    }
-    break;
-    
-    default:
-        _COMMON_FATAL("Got into unexpected phase in the protocol");
+        break;
+        
+        case(phase_t::RS_PROXIMITY): {
+            TASK("Received message for RS proximity prover");
+            
+            bool RS_Done = true;
+            
+            for(unsigned int i=0; i<RS_verifier_witness_.size(); i++){
+                if(!RS_verifier_witness_[i]->doneInteracting()){
+                    RS_verifier_witness_[i]->receiveMessage(*pMsg.RS_prover_witness_msg[i]);
+                    RS_Done = false;
+                }
+            }
+            
+            for(unsigned int i=0; i<RS_verifier_composition_.size(); i++){
+                if(!RS_verifier_composition_[i]->doneInteracting()){
+                    RS_verifier_composition_[i]->receiveMessage(*pMsg.RS_prover_composition_msg[i]);
+                    RS_Done = false;
+                }
+            }
+            
+            if(RS_Done){
+                phase_ = Ali::details::advancePhase(phase_);
+            }
+        }
+        break;
+        
+        case(phase_t::RESULTS): {
+            TASK("Received results");
+            digestResults(pMsg.results);
+            fetchResults();
+            phase_ = Ali::details::advancePhase(phase_);
+        }
+        break;
+        
+        default:
+            _COMMON_FATAL("Got into unexpected phase in the protocol");
     }
 }
 
 msg_ptr_t verifier_t::sendMessage(){
     msg_ptr_t vMsgPtr(new Ali::details::verifierMsg());
     auto& vMsg = dynamic_cast<Ali::details::verifierMsg&>(*vMsgPtr);
-    switch(phase_){
-    
-    case(Ali::details::phase_t::START_PROTOCOL):
-    {
-        TASK("Sending start protocol request)");
-        vMsg.numRepetitions = combSoundness_.size();
-        phase_ = Ali::details::advancePhase(phase_);
-    }
-    break;
-    
-    case(Ali::details::phase_t::VERIFIER_RANDOMNESS):
-    {
-        TASK("Sending random coefficients for unified RS proximity proof (including ZK rho)");
-        vMsg.coeffsPi = coeffsPi_;
-        vMsg.coeffsChi = coeffsChi_;
-        vMsg.randomCoefficients = randCoeffs_;
-        phase_ = Ali::details::advancePhase(phase_);
-    }
-    
-    case(Ali::details::phase_t::RS_PROXIMITY):
-    {
-            TASK("Sending message from RS proximity verifier");
-            for(auto& v : RS_verifier_witness_){
-                vMsg.RS_verifier_witness_msg.push_back(v->sendMessage());
-            }
-            
-            for(auto& v : RS_verifier_composition_){
-                vMsg.RS_verifier_composition_msg.push_back(v->sendMessage());
-            }
-    }
-    break;
-    
-    case(Ali::details::phase_t::QUERY):
-    {
+    switch(phase_) {
+        case(phase_t::START_PROTOCOL): {
+            TASK("Sending start protocol request)");
+            vMsg.numRepetitions = combSoundness_.size();
+            std::cout << "vMsg.numRepetitions: " << vMsg.numRepetitions << '\n';
+            phase_ = Ali::details::advancePhase(phase_);
+        }
+        break;
         
-        TASK("Sending queries");
-        vMsg.queries = getRawQueries();
-        phase_ = Ali::details::advancePhase(phase_);
+        case(phase_t::VERIFIER_RANDOMNESS): {
+            TASK("Sending random coefficients for unified RS proximity proof (including ZK rho)");
+            vMsg.coeffsPi = coeffsPi_;
+            vMsg.coeffsChi = coeffsChi_;
+            vMsg.randomCoefficients = randCoeffs_;
+            phase_ = Ali::details::advancePhase(phase_);
+        }
+        
+        case(phase_t::RS_PROXIMITY): {
+                TASK("Sending message from RS proximity verifier");
+                for(auto& v : RS_verifier_witness_){
+                    vMsg.RS_verifier_witness_msg.push_back(v->sendMessage());
+                }
+                
+                for(auto& v : RS_verifier_composition_){
+                    vMsg.RS_verifier_composition_msg.push_back(v->sendMessage());
+                }
+        }
+        break;
+        
+        case(phase_t::QUERY): {
+            
+            TASK("Sending queries");
+            vMsg.queries = getRawQueries();
+            phase_ = Ali::details::advancePhase(phase_);
+        }
+        break;
+        
+        default:
+            _COMMON_FATAL("Got into unexpected phase in the protocol");
     }
-    break;
-    
-    default:
-        _COMMON_FATAL("Got into unexpected phase in the protocol");
-    }
-
     return vMsgPtr;
 }
 
@@ -455,6 +443,21 @@ void verifier_t::fillResultsAndCommitmentRandomly(){
     fetchResults();
 }
 
+phase_t verifier_t::getPhase()const {
+    return this->phase_;
+}
+
+phase_t verifier_t::getPreviousPhase()const {
+    switch (this->phase_) {
+        case UNIVARIATE_COMMITMENTS: return START_PROTOCOL;
+        case VERIFIER_RANDOMNESS: return UNIVARIATE_COMMITMENTS;
+        case RS_PROXIMITY: return VERIFIER_RANDOMNESS;
+        case QUERY: return RS_PROXIMITY;
+        case RESULTS: return QUERY;
+        default : return DONE;
+    }
+}
+
 void verifier_t::verifyParams(const AcspInstance& instance){
     const short PCPP_spaceDim = Ali::details::PCP_common::basisForWitness(instance).basis.size();
     const short ContextField_Dim = Algebra::ExtensionDegree;
@@ -575,7 +578,7 @@ bool verifier_t::verify()const{
 }
 
 bool verifier_t::doneInteracting()const{
-    return phase_ == Ali::details::phase_t::DONE;
+    return phase_ == phase_t::DONE;
 }
 
 size_t verifier_t::expectedCommitedProofBytes()const{

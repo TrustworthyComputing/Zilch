@@ -249,6 +249,8 @@ prover_t::prover_t(const std::vector<FieldElement>& evaluationBasis, std::vector
 }
 
 void prover_t::receiveMessage(const TranscriptMessage& msg){
+    std::cout << "FRI::prover_t::receiveMessage" << '\n';
+    
     const verifierRequest_t& vMsgCast = dynamic_cast<const verifierRequest_t&>(msg);
 
     //retrieve commitments
@@ -262,6 +264,8 @@ void prover_t::receiveMessage(const TranscriptMessage& msg){
 }
 
 msg_ptr_t prover_t::sendMessage(){
+    std::cout << "FRI::prover_t::sendMessage" << '\n';
+    
     return msg_ptr_t(new proverResponce_t(nextResponce_));
 }
 

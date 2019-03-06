@@ -50,7 +50,7 @@ private:
     bool entireWitnessKept_;
     std::vector<std::unique_ptr<PartieInterface>> RS_prover_witness_;
     std::vector<std::unique_ptr<PartieInterface>> RS_prover_composition_;
-    Ali::details::phase_t phase_;
+    phase_t phase_;
     Ali::details::rawResults_t nextResults_;
 
     //

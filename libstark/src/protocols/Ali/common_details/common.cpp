@@ -19,13 +19,13 @@ phase_t advancePhase(const phase_t& currPhase){
 }
 
 
-void randomCoeefs::serialize(std::ostream& s) {
+void randomCoeefs::serialize(std::ostream& s, phase_t phase) {
     s << degShift << "\n";
     writeVector(s, coeffUnshifted);
     writeVector(s, coeffShifted);
 }
 
-void randomCoeefs::deserialize(std::istream& s) {
+void randomCoeefs::deserialize(std::istream& s, phase_t phase) {
     std::string line;
     // read degShift
     getline(s, line);
@@ -55,23 +55,23 @@ void randomCoeefs::deserialize(std::istream& s) {
 
 
 /* specialization for randomCoeefs */
-template <> void partyState<randomCoeefs>::serialize(std::ostream& s) {
+template <> void partyState<randomCoeefs>::serialize(std::ostream& s, phase_t phase) {
     s << boundary.size() << "\n";
     for (auto& random_coeef : boundary) {
-        random_coeef.serialize(s);
+        random_coeef.serialize(s, phase);
     }
     
-    boundaryPolysMatrix.serialize(s);
-    ZK_mask_boundary.serialize(s);
+    boundaryPolysMatrix.serialize(s, phase);
+    ZK_mask_boundary.serialize(s, phase);
     
     s << ZK_mask_composition.size() << "\n";
     for (auto& random_coeef : ZK_mask_composition) {
-        random_coeef.serialize(s);
+        random_coeef.serialize(s, phase);
     }    
 }
 
 /* specialization for randomCoeefs */
-template <> void partyState<randomCoeefs>::deserialize(std::istream& s) {
+template <> void partyState<randomCoeefs>::deserialize(std::istream& s, phase_t phase) {
     std::string line;
     // read boundary
     getline(s, line);
@@ -80,12 +80,12 @@ template <> void partyState<randomCoeefs>::deserialize(std::istream& s) {
     for (size_t i = 0 ; i < boundary_size ; i++) {
         Protocols::Ali::details::randomCoeefs emptyCoeefs;
         boundary.push_back( emptyCoeefs );
-        boundary[i].deserialize(s);
+        boundary[i].deserialize(s, phase);
     }
     // read boundaryPolysMatrix
-    boundaryPolysMatrix.deserialize(s);
+    boundaryPolysMatrix.deserialize(s, phase);
     // read ZK_mask_boundary
-    ZK_mask_boundary.deserialize(s);
+    ZK_mask_boundary.deserialize(s, phase);
     // read ZK_mask_composition
     size_t ZK_mask_composition_size;
     getline(s, line);
@@ -94,12 +94,12 @@ template <> void partyState<randomCoeefs>::deserialize(std::istream& s) {
     for (size_t i = 0 ; i < ZK_mask_composition_size ; i++) {
         Protocols::Ali::details::randomCoeefs emptyCoeefs;
         ZK_mask_composition.push_back( emptyCoeefs );
-        ZK_mask_composition[i].deserialize(s);
+        ZK_mask_composition[i].deserialize(s, phase);
     }
 }
 
 /* specialization for rawQuery_t */
-template <> void partyState<rawQuery_t>::serialize(std::ostream& s) {    
+template <> void partyState<rawQuery_t>::serialize(std::ostream& s, phase_t phase) {    
     s << boundary.size() << "\n";
     for (auto& raw_query : boundary) {
         writeSet(s, raw_query);
@@ -115,7 +115,7 @@ template <> void partyState<rawQuery_t>::serialize(std::ostream& s) {
 }
 
 /* specialization for rawQuery_t */
-template <> void partyState<rawQuery_t>::deserialize(std::istream& s) {
+template <> void partyState<rawQuery_t>::deserialize(std::istream& s, phase_t phase) {
     std::string line;
     // read boundary
     getline(s, line);
@@ -171,75 +171,121 @@ void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldEl
     }
 }
 
-void verifierMsg::serialize(std::ostream& s) {
-    s << numRepetitions << "\n";
-    randomCoefficients.serialize(s);
-    s << coeffsPi.size() << "\n";
-    for (auto& field_elem_vec : coeffsPi) {
-        writeVector(s, field_elem_vec);
-    }
-    s << coeffsChi.size() << "\n";
-    for (auto& field_elem_vec : coeffsChi) {
-        writeVector(s, field_elem_vec);
-    }
-    queries.serialize(s);
-    for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
-        trans_msg_ptr->serialize(s);
-    }
-    for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
-        trans_msg_ptr->serialize(s);
+void verifierMsg::serialize(std::ostream& s, phase_t phase) {
+    switch (phase) {
+        case START_PROTOCOL: {
+            s << numRepetitions << "\n";
+        }
+        break;
+        
+        case VERIFIER_RANDOMNESS: {
+            s << coeffsPi.size() << "\n";
+            for (auto& field_elem_vec : coeffsPi) {
+                writeVector(s, field_elem_vec);
+            }
+            s << coeffsChi.size() << "\n";
+            for (auto& field_elem_vec : coeffsChi) {
+                writeVector(s, field_elem_vec);
+            }
+            randomCoefficients.serialize(s, phase);
+        }
+        
+        case RS_PROXIMITY: {
+            s << RS_verifier_witness_msg.size() << "\n";
+            for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
+                trans_msg_ptr->serialize(s, phase);
+            }
+            s << RS_verifier_composition_msg.size() << "\n";
+            for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
+                trans_msg_ptr->serialize(s, phase);
+            }
+        }
+        break;
+        
+        case QUERY: {
+            queries.serialize(s, phase);
+        }
+        break;
+            
+        default:
+            std::cerr << "verifierMsg::serialize : Got into unexpected phase in the protocol\n";
+            exit(EXIT_FAILURE);
     }
 }
 
-void verifierMsg::deserialize(std::istream& s) {
+void verifierMsg::deserialize(std::istream& s, phase_t phase) {
     std::string line;
-    getline(s, line);
-    numRepetitions = std::stoi(line);
-    // read randomCoefficients
-    randomCoefficients.deserialize(s);
-    // read coeffsPi
-    getline(s, line);
-    size_t coeffsPi_size = stoi(line);
-    coeffsPi.clear();
-    for (size_t i = 0 ; i < coeffsPi_size ; i++) {
-        std::vector<Algebra::FieldElement> f_elems_vec;
-        deserializeFieldElementVector(s, f_elems_vec);
-        coeffsPi.push_back(f_elems_vec);
-    }
-    // read coeffsChi
-    getline(s, line);
-    size_t coeffsChi_size = stoi(line);
-    coeffsChi.clear();
-    for (size_t i = 0 ; i < coeffsChi_size ; i++) {
-        std::vector<Algebra::FieldElement> f_elems_vec;
-        deserializeFieldElementVector(s, f_elems_vec);
-        coeffsChi.push_back(f_elems_vec);
-    }
-    
-    queries.deserialize(s);
+    switch(phase) {
+        case START_PROTOCOL: {
+            getline(s, line);
+            numRepetitions = std::stoi(line);
+        }
+        break;
 
-    for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
-        trans_msg_ptr->deserialize(s);
+        case VERIFIER_RANDOMNESS: {
+            // read coeffsPi
+            getline(s, line);
+            size_t coeffsPi_size = stoi(line);
+            coeffsPi.clear();
+            for (size_t i = 0 ; i < coeffsPi_size ; i++) {
+                std::vector<Algebra::FieldElement> f_elems_vec;
+                deserializeFieldElementVector(s, f_elems_vec);
+                coeffsPi.push_back(f_elems_vec);
+            }
+            // read coeffsChi
+            getline(s, line);
+            size_t coeffsChi_size = stoi(line);
+            coeffsChi.clear();
+            for (size_t i = 0 ; i < coeffsChi_size ; i++) {
+                std::vector<Algebra::FieldElement> f_elems_vec;
+                deserializeFieldElementVector(s, f_elems_vec);
+                coeffsChi.push_back(f_elems_vec);
+            }
+            // read randomCoefficients
+            randomCoefficients.deserialize(s, phase);
+        }
+        
+        case RS_PROXIMITY: {
+            getline(s, line);
+            size_t RS_verifier_witness_msg_size = stoi(line);
+            RS_verifier_witness_msg.clear();
+            for (size_t i = 0 ; i < RS_verifier_witness_msg_size ; i++) {
+                msg_ptr_t trans_msg_ptr(new Fri::common::verifierRequest_t());
+                trans_msg_ptr->deserialize(s, phase);
+                RS_verifier_witness_msg.push_back(std::move(trans_msg_ptr));
+            }
+            
+            getline(s, line);
+            size_t RS_verifier_composition_msg_size = stoi(line);
+            RS_verifier_composition_msg.clear();
+            for (size_t i = 0 ; i < RS_verifier_composition_msg_size ; i++) {
+                msg_ptr_t trans_msg_ptr(new Fri::common::verifierRequest_t());
+                trans_msg_ptr->deserialize(s, phase);
+                RS_verifier_composition_msg.push_back(std::move(trans_msg_ptr));
+            }
+        }
+        break;
+
+        case QUERY: {
+            queries.deserialize(s, phase);
+        }
+        break;
+        
+        default:
+            std::cerr << "verifierMsg::serialize : Got into unexpected phase in the protocol\n";
+            exit(EXIT_FAILURE);
     }
-    for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
-        trans_msg_ptr->deserialize(s);
-    }
+}
+
+void proverMsg::serialize(std::ostream& s, phase_t phase) {
+    std::cout << "\nserialize prover message\n\n";
+
+}
+
+void proverMsg::deserialize(std::istream& s, phase_t phase) {
     
 }
 
-void proverMsg::serialize(std::ostream& s) {
-    
-}
-
-void proverMsg::deserialize(std::istream& s) {
-    
-}
-
-
-// std::ostream& operator<<(std::ostream& s, const verifierMsg& v) {
-//     s << v.numRepetitions;
-//     return s;
-// }
 
 namespace PCP_common {
 	

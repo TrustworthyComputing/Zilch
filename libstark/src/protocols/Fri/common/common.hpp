@@ -35,8 +35,8 @@ public:
     T localState;
     std::map<Algebra::FieldElement, state_t<T> , Algebra::classCompElements> subproofs;
     
-    void serialize(std::ostream& s);
-    void deserialize(std::istream& s);
+    void serialize(std::ostream& s, phase_t phase);
+    void deserialize(std::istream& s, phase_t phase);
 };
 
 typedef state_t<rawQuery_t> rawQueries_t;
@@ -47,8 +47,8 @@ typedef std::vector<Algebra::FieldElement> subproofLocation_t;
 
 class verifierRequest_t : public TranscriptMessage{
     public:
-        void serialize(std::ostream& s);
-        void deserialize(std::istream& s);
+        void serialize(std::ostream& s, phase_t phase);
+        void deserialize(std::istream& s, phase_t phase);
         
         std::vector<subproofLocation_t> proofConstructionQueries;
         rawQueries_t dataQueries;
@@ -56,8 +56,8 @@ class verifierRequest_t : public TranscriptMessage{
 
 class proverResponce_t : public TranscriptMessage{
     public:
-        void serialize(std::ostream& s);
-        void deserialize(std::istream& s);
+        void serialize(std::ostream& s, phase_t phase);
+        void deserialize(std::istream& s, phase_t phase);
         
         std::vector<CryptoCommitment::hashDigest_t> proofConstructionComitments;
         rawResults_t dataResults;

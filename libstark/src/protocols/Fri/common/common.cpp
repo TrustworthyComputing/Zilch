@@ -41,18 +41,17 @@ void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldEl
 }
 
 /* specialization for rawQuery_t */
-template <> void state_t<rawQuery_t>::serialize(std::ostream& s) {    
+template <> void state_t<rawQuery_t>::serialize(std::ostream& s, phase_t phase) {    
     writeSet(s, localState);
-    
     s << subproofs.size() << "\n";
     for (auto& sproof : subproofs) {
         s << sproof.first << "\n";
-        sproof.second.serialize(s);
+        sproof.second.serialize(s, phase);
     }
 }
 
 /* specialization for rawQuery_t */
-template <> void state_t<rawQuery_t>::deserialize(std::istream& s) {
+template <> void state_t<rawQuery_t>::deserialize(std::istream& s, phase_t phase) {
     std::string line;
     // read localState
     localState.clear();
@@ -66,25 +65,20 @@ template <> void state_t<rawQuery_t>::deserialize(std::istream& s) {
         FieldElement fe = Algebra::fromString(line);
         state_t<rawQuery_t> rq_state;
         subproofs[fe] = rq_state;
-        subproofs[fe].deserialize(s);
+        subproofs[fe].deserialize(s, phase);
     }
 }
 
 
-void verifierRequest_t::serialize(std::ostream& s) {
-	std::cout <<"\n\n\t\t\tvoid verifierRequest_t::serialize(std::ostream& s) {\n\n";
-    
+void verifierRequest_t::serialize(std::ostream& s, phase_t phase) {
     s << proofConstructionQueries.size() << "\n";
     for (auto& field_elem_vec : proofConstructionQueries) {
         writeVector(s, field_elem_vec);
     }
-
-    dataQueries.serialize(s);
-    
+    dataQueries.serialize(s, phase);
 }
 
-void verifierRequest_t::deserialize(std::istream& s) {
-    std::cout <<"\n\n\t\t\tvoid verifierRequest_t::deserialize(std::istream& s) {\n\n";
+void verifierRequest_t::deserialize(std::istream& s, phase_t phase) {
     std::string line;
     // read proofConstructionQueries
     getline(s, line);
@@ -96,17 +90,17 @@ void verifierRequest_t::deserialize(std::istream& s) {
         proofConstructionQueries.push_back(f_elems_vec);
     }
     // read dataQueries
-    dataQueries.deserialize(s);
+    dataQueries.deserialize(s, phase);
 }
 
 
-void proverResponce_t::serialize(std::ostream& s) {
-    std::cout <<"\n\n\t\t\tvoid proverResponce_t::serialize(std::ostream& s) {\n\n";
+void proverResponce_t::serialize(std::ostream& s, phase_t phase) {
+    std::cout <<"\t\t\tvoid proverResponce_t::serialize(std::ostream& s)\n\n";
 
 }
 
-void proverResponce_t::deserialize(std::istream& s) {
-    std::cout <<"\n\n\t\t\tvoid proverResponce_t::deserialize(std::istream& s) {\n\n";
+void proverResponce_t::deserialize(std::istream& s, phase_t phase) {
+    std::cout <<"\t\t\tvoid proverResponce_t::deserialize(std::istream& s)\n\n";
 
 }
 

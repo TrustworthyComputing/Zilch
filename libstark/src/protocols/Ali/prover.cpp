@@ -785,7 +785,7 @@ prover_t::prover_t(const BairInstance& bairInstance, const AcspWitness& witness,
     bairInstance_(bairInstance),
     witness_(witness),
     RS_proverFactory_(RS_proverFactory),
-    phase_(Ali::details::phase_t::START_PROTOCOL){
+    phase_(phase_t::START_PROTOCOL){
         
         vector<FieldElement> coeffsPi(bairInstance.constraintsPermutation().numMappings());
         vector<FieldElement> coeffsChi(bairInstance.constraintsAssignment().numMappings());
@@ -793,116 +793,106 @@ prover_t::prover_t(const BairInstance& bairInstance, const AcspWitness& witness,
     }
     
 void prover_t::receiveMessage(const TranscriptMessage& msg){
+    std::cout << "ALI::prover_t::receiveMessage" << '\n';
     const Ali::details::verifierMsg& vMsg = dynamic_cast<const Ali::details::verifierMsg&>(msg);
     
-    switch(phase_){
-
-    case(Ali::details::phase_t::START_PROTOCOL):
-    {
-        TASK("Received start protocol request");
-        numRS_repetitions_ = vMsg.numRepetitions;
-        evaluateBoundryPolys(numRS_repetitions_);
-        evaluateZK_Composition_mask();
-        phase_ = Ali::details::advancePhase(phase_);
-    }
-    break;
-    
-    case(Ali::details::phase_t::VERIFIER_RANDOMNESS):
-    {
-        TASK("Receiving randomness from verifier");
-       
-        instance_.resize(0);
-        for(unsigned int i=0; i<numRS_repetitions_; i++){
-            instance_.push_back(CBairToAcsp::reduceInstance(bairInstance_,vMsg.coeffsPi[i],vMsg.coeffsChi[i]));
+    switch(phase_) {
+        case(phase_t::START_PROTOCOL): {
+            TASK("Received start protocol request");
+            numRS_repetitions_ = vMsg.numRepetitions;
+            evaluateBoundryPolys(numRS_repetitions_);
+            evaluateZK_Composition_mask();
+            phase_ = Ali::details::advancePhase(phase_);
         }
-       
-        for(unsigned int i=0; i<numRS_repetitions_; i++){
-            RS_prover_witness_.push_back(RS_proverFactory_(
-                    Ali::details::PCP_common::basisForWitness(*(instance_[i])).basis, 
-                    computeUnivariateForRS_Proximity_Witness(vMsg.randomCoefficients, i),
-                    true
-                    ));
+        break;
+        
+        case(phase_t::VERIFIER_RANDOMNESS): {
+            TASK("Receiving randomness from verifier");
+           
+            instance_.resize(0);
+            for(unsigned int i=0; i<numRS_repetitions_; i++){
+                instance_.push_back(CBairToAcsp::reduceInstance(bairInstance_,vMsg.coeffsPi[i],vMsg.coeffsChi[i]));
+            }
+           
+            for(unsigned int i=0; i<numRS_repetitions_; i++){
+                RS_prover_witness_.push_back(RS_proverFactory_(
+                        Ali::details::PCP_common::basisForWitness(*(instance_[i])).basis, 
+                        computeUnivariateForRS_Proximity_Witness(vMsg.randomCoefficients, i),
+                        true
+                        ));
+            }
+            
+            for(unsigned int i=0; i<numRS_repetitions_; i++){
+            RS_prover_composition_.push_back(RS_proverFactory_(
+                    Ali::details::PCP_common::basisForConsistency(*(instance_[i])).basis, 
+                    computeUnivariateForRS_Proximity_Composition(vMsg.randomCoefficients, i),
+                    false
+                ));
+            }
+            
+            phase_ = Ali::details::advancePhase(phase_);
         }
         
-        for(unsigned int i=0; i<numRS_repetitions_; i++){
-        RS_prover_composition_.push_back(RS_proverFactory_(
-                Ali::details::PCP_common::basisForConsistency(*(instance_[i])).basis, 
-                computeUnivariateForRS_Proximity_Composition(vMsg.randomCoefficients, i),
-                false
-            ));
-        }
-        
-        phase_ = Ali::details::advancePhase(phase_);
-    }
-    
-    default:
-    for(unsigned int i=0; i<vMsg.RS_verifier_witness_msg.size(); i++){
-        if(vMsg.RS_verifier_witness_msg[i]){
-            TASK("Received message from Witness RS proximity verifier #" + std::to_string(i));
-            RS_prover_witness_[i]->receiveMessage(*(vMsg.RS_verifier_witness_msg[i]));
-        }
-    }
-    for(unsigned int i=0; i<vMsg.RS_verifier_composition_msg.size(); i++){
-        if(vMsg.RS_verifier_composition_msg[i]){
-            TASK("Received message from Composition RS proximity verifier #" + std::to_string(i));
-            RS_prover_composition_[i]->receiveMessage(*(vMsg.RS_verifier_composition_msg[i]));
-        }
-    }
-    {
-        //Assume queries sent only at the end
-        //the proof is destructed after answering to queries
-        if(!vMsg.queries.boundaryPolysMatrix.empty()){
-            {
-                TASK("Deleting IOPP proofs");
-                for(unsigned int i=0; i< numRS_repetitions_; i++){
-                    dynamic_cast<Fri::Prover::prover_t*>(RS_prover_witness_[i].get())->deleteProof();
-                    dynamic_cast<Fri::Prover::prover_t*>(RS_prover_composition_[i].get())->deleteProof();
+        default:
+            for(unsigned int i=0; i<vMsg.RS_verifier_witness_msg.size(); i++){
+                if(vMsg.RS_verifier_witness_msg[i]){
+                    TASK("Received message from Witness RS proximity verifier #" + std::to_string(i));
+                    RS_prover_witness_[i]->receiveMessage(*(vMsg.RS_verifier_witness_msg[i]));
+                }
+            }
+            for(unsigned int i=0; i<vMsg.RS_verifier_composition_msg.size(); i++){
+                if(vMsg.RS_verifier_composition_msg[i]){
+                    TASK("Received message from Composition RS proximity verifier #" + std::to_string(i));
+                    RS_prover_composition_[i]->receiveMessage(*(vMsg.RS_verifier_composition_msg[i]));
                 }
             }
             {
-                TASK("Answering queries");
-                nextResults_ = answerQueries(vMsg.queries);
+                //Assume queries sent only at the end
+                //the proof is destructed after answering to queries
+                if(!vMsg.queries.boundaryPolysMatrix.empty()){
+                    {
+                        TASK("Deleting IOPP proofs");
+                        for(unsigned int i=0; i< numRS_repetitions_; i++){
+                            dynamic_cast<Fri::Prover::prover_t*>(RS_prover_witness_[i].get())->deleteProof();
+                            dynamic_cast<Fri::Prover::prover_t*>(RS_prover_composition_[i].get())->deleteProof();
+                        }
+                    }
+                    {
+                        TASK("Answering queries");
+                        nextResults_ = answerQueries(vMsg.queries);
+                    }
+                }
             }
-        }
     }
-    }
-
 }
 
 msg_ptr_t prover_t::sendMessage(){
+    std::cout << "ALI::prover_t::sendMessage" << '\n';
     
     msg_ptr_t pMsgPtr(new Ali::details::proverMsg());
     auto& pMsg = dynamic_cast<Ali::details::proverMsg&>(*pMsgPtr);
 
-    switch(phase_){
-    
-    case(Ali::details::phase_t::UNIVARIATE_COMMITMENTS):
-    {
-        TASK("Sending commitments");
-        
-        pMsg.commitments.push_back(state_.boundaryPolysMatrix->getCommitment());
-        for(const auto& f:state_.ZK_mask_composition){
-            pMsg.commitments.push_back(f->getCommitment());
+    switch(phase_) {
+        case(phase_t::UNIVARIATE_COMMITMENTS): {
+            TASK("Sending commitments");
+            pMsg.commitments.push_back(state_.boundaryPolysMatrix->getCommitment());
+            for(const auto& f:state_.ZK_mask_composition){
+                pMsg.commitments.push_back(f->getCommitment());
+            }
+            phase_ = Ali::details::advancePhase(phase_);
         }
+        break;
         
-        phase_ = Ali::details::advancePhase(phase_);
+        default:
+            TASK("Sending communication from RS proximity prover and queries results");
+            for(unsigned int i=0; i< numRS_repetitions_; i++){
+                pMsg.RS_prover_witness_msg.push_back(RS_prover_witness_[i]->sendMessage());
+            }
+            for(unsigned int i=0; i< numRS_repetitions_; i++){
+                pMsg.RS_prover_composition_msg.push_back(RS_prover_composition_[i]->sendMessage());
+            }
+            pMsg.results = nextResults_;
     }
-    break;
-    
-    default:
-        TASK("Sending communication from RS proximity prover and queries results");
-        
-        for(unsigned int i=0; i< numRS_repetitions_; i++){
-            pMsg.RS_prover_witness_msg.push_back(RS_prover_witness_[i]->sendMessage());
-        }
-        
-        for(unsigned int i=0; i< numRS_repetitions_; i++){
-            pMsg.RS_prover_composition_msg.push_back(RS_prover_composition_[i]->sendMessage());
-        }
-        
-        pMsg.results = nextResults_;
-    }
-
     return pMsgPtr;
 }
 
