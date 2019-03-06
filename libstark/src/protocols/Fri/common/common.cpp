@@ -12,20 +12,101 @@ using Algebra::zero;
 using Algebra::elementsSet_t;
 using Algebra::SubspacePolynomial;
 
-void verifierRequest_t::serialize(std::ostream& s) {
+void deserializeRawQuery_t(std::istream& s, rawQuery_t& query) {
+    std::string line;
+    std::string intermediate;
+    getline(s, line);
+    std::vector<std::string> query_splitted;
+    std::stringstream ss(line);
+    while (std::getline(ss, intermediate, ',')) { 
+        query_splitted.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(query_splitted[0]) ; j++) {
+        query.insert( std::stoi(query_splitted[j+1]) );
+    }
+}
 
+void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldElement>& f_elems_vec) {
+    std::string line;
+    getline(s, line);
+    std::vector<std::string> field_elem;
+    std::stringstream ss(line);
+    std::string intermediate;
+    while (std::getline(ss, intermediate, ',')) { 
+        field_elem.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(field_elem[0]) ; j++) {
+        f_elems_vec.push_back( Algebra::fromString(field_elem[j+1]) );
+    }
+}
+
+/* specialization for rawQuery_t */
+template <> void state_t<rawQuery_t>::serialize(std::ostream& s) {    
+    writeSet(s, localState);
+    
+    s << subproofs.size() << "\n";
+    for (auto& sproof : subproofs) {
+        s << sproof.first << "\n";
+        sproof.second.serialize(s);
+    }
+}
+
+/* specialization for rawQuery_t */
+template <> void state_t<rawQuery_t>::deserialize(std::istream& s) {
+    std::string line;
+    // read localState
+    localState.clear();
+    deserializeRawQuery_t(s, localState);
+    // read subproofs
+    getline(s, line);
+    size_t subproofs_size = stoi(line);
+    subproofs.clear();
+    for (size_t i = 0 ; i < subproofs_size ; i++) {
+        getline(s, line);
+        FieldElement fe = Algebra::fromString(line);
+        state_t<rawQuery_t> rq_state;
+        subproofs[fe] = rq_state;
+        subproofs[fe].deserialize(s);
+    }
+}
+
+
+void verifierRequest_t::serialize(std::ostream& s) {
+	std::cout <<"\n\n\t\t\tvoid verifierRequest_t::serialize(std::ostream& s) {\n\n";
+    
+    s << proofConstructionQueries.size() << "\n";
+    for (auto& field_elem_vec : proofConstructionQueries) {
+        writeVector(s, field_elem_vec);
+    }
+
+    dataQueries.serialize(s);
+    
 }
 
 void verifierRequest_t::deserialize(std::istream& s) {
-
+    std::cout <<"\n\n\t\t\tvoid verifierRequest_t::deserialize(std::istream& s) {\n\n";
+    std::string line;
+    // read proofConstructionQueries
+    getline(s, line);
+    size_t proofConstructionQueries_size = stoi(line);
+    proofConstructionQueries.clear();
+    for (size_t i = 0 ; i < proofConstructionQueries_size ; i++) {
+        std::vector<Algebra::FieldElement> f_elems_vec;
+        deserializeFieldElementVector(s, f_elems_vec);
+        proofConstructionQueries.push_back(f_elems_vec);
+    }
+    // read dataQueries
+    dataQueries.deserialize(s);
 }
 
 
 void proverResponce_t::serialize(std::ostream& s) {
+    std::cout <<"\n\n\t\t\tvoid proverResponce_t::serialize(std::ostream& s) {\n\n";
 
 }
 
 void proverResponce_t::deserialize(std::istream& s) {
+    std::cout <<"\n\n\t\t\tvoid proverResponce_t::deserialize(std::istream& s) {\n\n";
 
 }
 

@@ -8,6 +8,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <sstream>
+#include <string>
 
 namespace libstark{
 namespace Protocols{
@@ -20,6 +22,9 @@ std::vector<Algebra::FieldElement> getColumnBasis(const std::vector<Algebra::Fie
 size_t getBasisLIndex_byL0L1indices(const std::vector<Algebra::FieldElement>& BasisL, const size_t idxL0, const size_t idxL1, const bool L0isMSB);
 unsigned short dimOfColumn(const unsigned short dimOfL);
 
+void deserializeRawQuery_t(std::istream&, rawQuery_t&);
+void deserializeFieldElementVector(std::istream&, std::vector<Algebra::FieldElement>&);
+
 namespace SoundnessParameters{
     const unsigned short dimReduction = 2;
 } //namespace SoundnessParameters
@@ -29,6 +34,9 @@ class state_t{
 public:
     T localState;
     std::map<Algebra::FieldElement, state_t<T> , Algebra::classCompElements> subproofs;
+    
+    void serialize(std::ostream& s);
+    void deserialize(std::istream& s);
 };
 
 typedef state_t<rawQuery_t> rawQueries_t;

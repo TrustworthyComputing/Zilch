@@ -1,8 +1,6 @@
 #include <iostream>
 #include "common.hpp"
-#include <sstream>
 #include <assert.h>
-#include <string>
 
 namespace libstark{
 namespace Protocols{
@@ -202,7 +200,6 @@ void verifierMsg::deserialize(std::istream& s) {
     // read coeffsPi
     getline(s, line);
     size_t coeffsPi_size = stoi(line);
-    assert(coeffsPi_size == coeffsPi.size());
     coeffsPi.clear();
     for (size_t i = 0 ; i < coeffsPi_size ; i++) {
         std::vector<Algebra::FieldElement> f_elems_vec;
@@ -212,7 +209,6 @@ void verifierMsg::deserialize(std::istream& s) {
     // read coeffsChi
     getline(s, line);
     size_t coeffsChi_size = stoi(line);
-    assert(coeffsChi_size == coeffsChi.size());
     coeffsChi.clear();
     for (size_t i = 0 ; i < coeffsChi_size ; i++) {
         std::vector<Algebra::FieldElement> f_elems_vec;
@@ -222,12 +218,12 @@ void verifierMsg::deserialize(std::istream& s) {
     
     queries.deserialize(s);
 
-    // for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
-    //     trans_msg_ptr->deserialize(s);
-    // }
-    // for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
-    //     trans_msg_ptr->deserialize(s);
-    // }
+    for (auto& trans_msg_ptr : RS_verifier_witness_msg) {
+        trans_msg_ptr->deserialize(s);
+    }
+    for (auto& trans_msg_ptr : RS_verifier_composition_msg) {
+        trans_msg_ptr->deserialize(s);
+    }
     
 }
 

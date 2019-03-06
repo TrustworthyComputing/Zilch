@@ -9,6 +9,8 @@
 #include <algebraLib/PolynomialDegree.hpp>
 #include <vector>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 namespace libstark{
 namespace Protocols{
