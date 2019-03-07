@@ -19,38 +19,27 @@ void deserializeRawQuery_t(std::istream& s, rawQuery_t& query) {
     std::vector<std::string> query_splitted;
     std::stringstream ss(line);
     while (std::getline(ss, intermediate, ',')) { 
-        query_splitted.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(query_splitted[0]) ; j++) {
-        query.insert( std::stoi(query_splitted[j+1]) );
+        query.insert( std::stoi(intermediate) );
     }
 }
 
 void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldElement>& f_elems_vec) {
     std::string line;
     getline(s, line);
-    std::vector<std::string> field_elem;
     std::stringstream ss(line);
     std::string intermediate;
-    while (std::getline(ss, intermediate, ',')) { 
-        field_elem.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(field_elem[0]) ; j++) {
-        f_elems_vec.push_back( Algebra::fromString(field_elem[j+1]) );
+    while (std::getline(ss, intermediate, ',')) {
+        f_elems_vec.push_back( Algebra::fromString(intermediate) );
     }
 }
 
 void deserializeHashDigestVector(std::istream& s, std::vector<CryptoCommitment::hashDigest_t>& hash_digest_vec) {
     std::string line;
     getline(s, line);
-    std::vector<std::string> hd_vec_str;
     std::stringstream ss(line);
     std::string intermediate;
-    while (std::getline(ss, intermediate, ',')) { 
-        hd_vec_str.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(hd_vec_str[0]) ; j++) {
-        hash_digest_vec.push_back( CryptoCommitment::fromString(hd_vec_str[j+1]) );
+    while (std::getline(ss, intermediate, ',')) {
+        hash_digest_vec.push_back( CryptoCommitment::fromString(intermediate) );
     }
 }
 
@@ -86,7 +75,6 @@ template <> void state_t<rawQuery_t>::deserialize(std::istream& s, phase_t phase
 /* specialization for rawResult_t */
 template <> void state_t<rawResult_t>::serialize(std::ostream& s, phase_t phase) {    
     writeVector(s, localState);
-    
     s << subproofs.size() << "\n";
     for (auto& sproof : subproofs) {
         s << sproof.first << "\n";
@@ -96,7 +84,6 @@ template <> void state_t<rawResult_t>::serialize(std::ostream& s, phase_t phase)
 
 /* specialization for rawResult_t */
 template <> void state_t<rawResult_t>::deserialize(std::istream& s, phase_t phase) {
-    
     std::string line;
     // read localState
     localState.clear();

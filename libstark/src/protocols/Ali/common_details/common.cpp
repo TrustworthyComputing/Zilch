@@ -36,20 +36,14 @@ void randomCoeefs::deserialize(std::istream& s, phase_t phase) {
     std::stringstream ss(line);
     std::string intermediate;
     while (std::getline(ss, intermediate, ',')) { 
-        random_coeff.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
-        coeffUnshifted.push_back( Algebra::fromString(random_coeff[j+1]) );
+        coeffUnshifted.push_back( Algebra::fromString( intermediate ) );
     }
     // read coeffShifted
     getline(s, line);
     random_coeff.clear();
     std::stringstream ss2(line);
     while (std::getline(ss2, intermediate, ',')) { 
-        random_coeff.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(random_coeff[0]) ; j++) {
-        coeffShifted.push_back( Algebra::fromString(random_coeff[j+1]) );
+        coeffShifted.push_back( Algebra::fromString( intermediate ) );
     }
 }
 
@@ -60,10 +54,8 @@ template <> void partyState<randomCoeefs>::serialize(std::ostream& s, phase_t ph
     for (auto& random_coeef : boundary) {
         random_coeef.serialize(s, phase);
     }
-    
     boundaryPolysMatrix.serialize(s, phase);
     ZK_mask_boundary.serialize(s, phase);
-    
     s << ZK_mask_composition.size() << "\n";
     for (auto& random_coeef : ZK_mask_composition) {
         random_coeef.serialize(s, phase);
@@ -104,10 +96,8 @@ template <> void partyState<rawQuery_t>::serialize(std::ostream& s, phase_t phas
     for (auto& raw_query : boundary) {
         writeSet(s, raw_query);
     }
-    
     writeSet(s, boundaryPolysMatrix);
     writeSet(s, ZK_mask_boundary);
-    
     s << ZK_mask_composition.size() << "\n";
     for (auto& raw_query : ZK_mask_composition) {
         writeSet(s, raw_query);
@@ -187,47 +177,33 @@ template <> void partyState<std::vector<CryptoCommitment::hashDigest_t>>::deseri
     }
 }
 
-
-
 void deserializeRawQuery_t(std::istream& s, rawQuery_t& query) {
     std::string line;
     std::string intermediate;
     getline(s, line);
-    std::vector<std::string> query_splitted;
     std::stringstream ss(line);
     while (std::getline(ss, intermediate, ',')) { 
-        query_splitted.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(query_splitted[0]) ; j++) {
-        query.insert( std::stoi(query_splitted[j+1]) );
+        query.insert( std::stoi(intermediate) );
     }
 }
 
 void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldElement>& f_elems_vec) {
     std::string line;
     getline(s, line);
-    std::vector<std::string> field_elem;
     std::stringstream ss(line);
     std::string intermediate;
-    while (std::getline(ss, intermediate, ',')) { 
-        field_elem.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(field_elem[0]) ; j++) {
-        f_elems_vec.push_back( Algebra::fromString(field_elem[j+1]) );
+    while (std::getline(ss, intermediate, ',')) {
+        f_elems_vec.push_back( Algebra::fromString(intermediate) );
     }
 }
 
 void deserializeHashDigestVector(std::istream& s, std::vector<CryptoCommitment::hashDigest_t>& hash_digest_vec) {
     std::string line;
     getline(s, line);
-    std::vector<std::string> hd_vec_str;
     std::stringstream ss(line);
     std::string intermediate;
     while (std::getline(ss, intermediate, ',')) { 
-        hd_vec_str.push_back(intermediate); 
-    }
-    for (int j = 0 ; j < std::stoi(hd_vec_str[0]) ; j++) {
-        hash_digest_vec.push_back( CryptoCommitment::fromString(hd_vec_str[j+1]) );
+        hash_digest_vec.push_back( CryptoCommitment::fromString(intermediate) );
     }
 }
 

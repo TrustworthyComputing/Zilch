@@ -25,9 +25,14 @@ enum phase_t{START_PROTOCOL, UNIVARIATE_COMMITMENTS, VERIFIER_RANDOMNESS, RS_PRO
 template<class T>
 inline void writeVector(std::ostream& s, const std::vector<T>& v) {
     size_t sz = v.size();
-    s << sz;
+    bool first = true;
     for (auto it : v) {
-        s << "," << it;
+        if (first) {
+            s << it;
+            first = false;
+        } else {
+            s << "," << it;
+        }
     }
     s << "\n";
 }
@@ -35,9 +40,14 @@ inline void writeVector(std::ostream& s, const std::vector<T>& v) {
 template<class T>
 inline void writeSet(std::ostream& s, const std::set<T>& v) {
     size_t sz = v.size();
-    s << sz;
+    bool first = true;
     for (auto it : v) {
-        s << "," << it;
+        if (first) {
+            s << it;
+            first = false;
+        } else {
+            s << "," << it;
+        }
     }
     s << "\n";
 }
