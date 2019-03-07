@@ -148,7 +148,6 @@ msg_ptr_t verifier_t::sendMessage(){
         case(phase_t::START_PROTOCOL): {
             TASK("Sending start protocol request)");
             vMsg.numRepetitions = combSoundness_.size();
-            std::cout << "vMsg.numRepetitions: " << vMsg.numRepetitions << '\n';
             phase_ = Ali::details::advancePhase(phase_);
         }
         break;
@@ -441,10 +440,6 @@ void verifier_t::fillResultsAndCommitmentRandomly(){
 
 
     fetchResults();
-}
-
-phase_t verifier_t::getPhase()const {
-    return this->phase_;
 }
 
 phase_t verifier_t::getPreviousPhase()const {

@@ -38,7 +38,6 @@ class verifier_t : public verifierInterface{
     size_t expectedSentProofBytes()const;
     size_t expectedQueriedDataBytes()const;
     void fillResultsAndCommitmentRandomly();
-    phase_t getPhase()const;
     phase_t getPreviousPhase()const;
     
     private:

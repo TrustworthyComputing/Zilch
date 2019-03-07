@@ -143,6 +143,52 @@ template <> void partyState<rawQuery_t>::deserialize(std::istream& s, phase_t ph
     }
 }
 
+
+/* specialization for <std::vector<CryptoCommitment::hashDigest_t> */
+template <> void partyState<std::vector<CryptoCommitment::hashDigest_t>>::serialize(std::ostream& s, phase_t phase) {
+    s << boundary.size() << "\n";
+    for (auto& hash_digest_vec : boundary) {
+        writeVector(s, hash_digest_vec);
+    }
+    writeVector(s, boundaryPolysMatrix);
+    writeVector(s, ZK_mask_boundary);
+    s << ZK_mask_composition.size() << "\n";
+    for (auto& raw_query : ZK_mask_composition) {
+        writeVector(s, raw_query);
+    }
+}
+
+/* specialization for <std::vector<CryptoCommitment::hashDigest_t> */
+template <> void partyState<std::vector<CryptoCommitment::hashDigest_t>>::deserialize(std::istream& s, phase_t phase) {
+    std::string line;
+    // read boundary
+    getline(s, line);
+    size_t boundary_size = stoi(line);
+    boundary.clear();
+    for (size_t i = 0 ; i < boundary_size ; i++) {
+        std::vector<CryptoCommitment::hashDigest_t> hash_digest_vec;
+        deserializeHashDigestVector(s, hash_digest_vec);
+        boundary.push_back(hash_digest_vec);
+    }
+    // read boundaryPolysMatrix
+    boundaryPolysMatrix.clear();
+    deserializeHashDigestVector(s, boundaryPolysMatrix);
+    // read ZK_mask_boundary
+    ZK_mask_boundary.clear();
+    deserializeHashDigestVector(s, ZK_mask_boundary);
+    // read ZK_mask_composition
+    getline(s, line);
+    size_t ZK_mask_composition_size = stoi(line);
+    ZK_mask_composition.clear();
+    for (size_t i = 0 ; i < ZK_mask_composition_size ; i++) {
+        std::vector<CryptoCommitment::hashDigest_t> hash_digest_vec;
+        deserializeHashDigestVector(s, hash_digest_vec);
+        ZK_mask_composition.push_back(hash_digest_vec);
+    }
+}
+
+
+
 void deserializeRawQuery_t(std::istream& s, rawQuery_t& query) {
     std::string line;
     std::string intermediate;
@@ -168,6 +214,20 @@ void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldEl
     }
     for (int j = 0 ; j < std::stoi(field_elem[0]) ; j++) {
         f_elems_vec.push_back( Algebra::fromString(field_elem[j+1]) );
+    }
+}
+
+void deserializeHashDigestVector(std::istream& s, std::vector<CryptoCommitment::hashDigest_t>& hash_digest_vec) {
+    std::string line;
+    getline(s, line);
+    std::vector<std::string> hd_vec_str;
+    std::stringstream ss(line);
+    std::string intermediate;
+    while (std::getline(ss, intermediate, ',')) { 
+        hd_vec_str.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(hd_vec_str[0]) ; j++) {
+        hash_digest_vec.push_back( CryptoCommitment::fromString(hd_vec_str[j+1]) );
     }
 }
 
@@ -278,12 +338,53 @@ void verifierMsg::deserialize(std::istream& s, phase_t phase) {
 }
 
 void proverMsg::serialize(std::ostream& s, phase_t phase) {
-    std::cout << "\nserialize prover message\n\n";
-
+    switch (phase) {
+        case UNIVARIATE_COMMITMENTS: {
+            writeVector(s, commitments);
+        }
+        break;
+        
+        default:
+            s << RS_prover_witness_msg.size() << "\n";
+            for (auto& trans_msg_ptr : RS_prover_witness_msg) {
+                trans_msg_ptr->serialize(s, phase);
+            }
+            s << RS_prover_composition_msg.size() << "\n";
+            for (auto& trans_msg_ptr : RS_prover_composition_msg) {
+                trans_msg_ptr->serialize(s, phase);
+            }
+            results.serialize(s, phase);
+    }
 }
 
 void proverMsg::deserialize(std::istream& s, phase_t phase) {
-    
+    std::string line;
+    switch (phase) {
+        case UNIVARIATE_COMMITMENTS: {
+            deserializeHashDigestVector(s, commitments);
+        }
+        break;
+        
+        default:
+            getline(s, line);
+            size_t RS_prover_witness_msg_size = stoi(line);
+            RS_prover_witness_msg.clear();
+            for (size_t i = 0 ; i < RS_prover_witness_msg_size ; i++) {
+                msg_ptr_t trans_msg_ptr(new Fri::common::proverResponce_t());
+                trans_msg_ptr->deserialize(s, phase);
+                RS_prover_witness_msg.push_back(std::move(trans_msg_ptr));
+            }
+        
+            getline(s, line);
+            size_t RS_prover_composition_msg_size = stoi(line);
+            RS_prover_composition_msg.clear();
+            for (size_t i = 0 ; i < RS_prover_composition_msg_size ; i++) {
+                msg_ptr_t trans_msg_ptr(new Fri::common::proverResponce_t());
+                trans_msg_ptr->deserialize(s, phase);
+                RS_prover_composition_msg.push_back(std::move(trans_msg_ptr));
+            }
+            results.deserialize(s, phase);
+    }
 }
 
 

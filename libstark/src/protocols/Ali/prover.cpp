@@ -793,7 +793,6 @@ prover_t::prover_t(const BairInstance& bairInstance, const AcspWitness& witness,
     }
     
 void prover_t::receiveMessage(const TranscriptMessage& msg){
-    std::cout << "ALI::prover_t::receiveMessage" << '\n';
     const Ali::details::verifierMsg& vMsg = dynamic_cast<const Ali::details::verifierMsg&>(msg);
     
     switch(phase_) {
@@ -867,8 +866,6 @@ void prover_t::receiveMessage(const TranscriptMessage& msg){
 }
 
 msg_ptr_t prover_t::sendMessage(){
-    std::cout << "ALI::prover_t::sendMessage" << '\n';
-    
     msg_ptr_t pMsgPtr(new Ali::details::proverMsg());
     auto& pMsg = dynamic_cast<Ali::details::proverMsg&>(*pMsgPtr);
 
@@ -894,6 +891,17 @@ msg_ptr_t prover_t::sendMessage(){
             pMsg.results = nextResults_;
     }
     return pMsgPtr;
+}
+
+phase_t prover_t::getPreviousPhase() const {
+    switch (this->phase_) {
+        case UNIVARIATE_COMMITMENTS: return START_PROTOCOL;
+        case VERIFIER_RANDOMNESS: return UNIVARIATE_COMMITMENTS;
+        case RS_PROXIMITY: return VERIFIER_RANDOMNESS;
+        case QUERY: return RS_PROXIMITY;
+        case RESULTS: return QUERY;
+        default : return DONE;
+    }
 }
 
 void prover_t::evaluateBoundryPolys(const unsigned int numRepetitions){

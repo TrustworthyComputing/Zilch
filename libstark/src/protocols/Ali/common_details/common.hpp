@@ -34,6 +34,7 @@ struct randomCoeefs{
 
 void deserializeRawQuery_t(std::istream&, rawQuery_t&);
 void deserializeFieldElementVector(std::istream&, std::vector<Algebra::FieldElement>&);
+void deserializeHashDigestVector(std::istream&, std::vector<CryptoCommitment::hashDigest_t>&);
 
 template<typename T_univariate>
 class partyState{

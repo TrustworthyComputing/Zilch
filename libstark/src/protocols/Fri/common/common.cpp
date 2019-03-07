@@ -40,6 +40,20 @@ void deserializeFieldElementVector(std::istream& s, std::vector<Algebra::FieldEl
     }
 }
 
+void deserializeHashDigestVector(std::istream& s, std::vector<CryptoCommitment::hashDigest_t>& hash_digest_vec) {
+    std::string line;
+    getline(s, line);
+    std::vector<std::string> hd_vec_str;
+    std::stringstream ss(line);
+    std::string intermediate;
+    while (std::getline(ss, intermediate, ',')) { 
+        hd_vec_str.push_back(intermediate); 
+    }
+    for (int j = 0 ; j < std::stoi(hd_vec_str[0]) ; j++) {
+        hash_digest_vec.push_back( CryptoCommitment::fromString(hd_vec_str[j+1]) );
+    }
+}
+
 /* specialization for rawQuery_t */
 template <> void state_t<rawQuery_t>::serialize(std::ostream& s, phase_t phase) {    
     writeSet(s, localState);
@@ -65,6 +79,37 @@ template <> void state_t<rawQuery_t>::deserialize(std::istream& s, phase_t phase
         FieldElement fe = Algebra::fromString(line);
         state_t<rawQuery_t> rq_state;
         subproofs[fe] = rq_state;
+        subproofs[fe].deserialize(s, phase);
+    }
+}
+
+/* specialization for rawResult_t */
+template <> void state_t<rawResult_t>::serialize(std::ostream& s, phase_t phase) {    
+    writeVector(s, localState);
+    
+    s << subproofs.size() << "\n";
+    for (auto& sproof : subproofs) {
+        s << sproof.first << "\n";
+        sproof.second.serialize(s, phase);
+    }
+}
+
+/* specialization for rawResult_t */
+template <> void state_t<rawResult_t>::deserialize(std::istream& s, phase_t phase) {
+    
+    std::string line;
+    // read localState
+    localState.clear();
+    deserializeHashDigestVector(s, localState);
+    // read subproofs
+    getline(s, line);
+    size_t subproofs_size = stoi(line);
+    subproofs.clear();
+    for (size_t i = 0 ; i < subproofs_size ; i++) {
+        getline(s, line);
+        FieldElement fe = Algebra::fromString(line);
+        state_t<rawResult_t> rr_state;
+        subproofs[fe] = rr_state;
         subproofs[fe].deserialize(s, phase);
     }
 }
@@ -95,13 +140,13 @@ void verifierRequest_t::deserialize(std::istream& s, phase_t phase) {
 
 
 void proverResponce_t::serialize(std::ostream& s, phase_t phase) {
-    std::cout <<"\t\t\tvoid proverResponce_t::serialize(std::ostream& s)\n\n";
-
+    writeVector(s, proofConstructionComitments);
+    dataResults.serialize(s, phase);
 }
 
 void proverResponce_t::deserialize(std::istream& s, phase_t phase) {
-    std::cout <<"\t\t\tvoid proverResponce_t::deserialize(std::istream& s)\n\n";
-
+    deserializeHashDigestVector(s, proofConstructionComitments);
+    dataResults.deserialize(s, phase);
 }
 
 

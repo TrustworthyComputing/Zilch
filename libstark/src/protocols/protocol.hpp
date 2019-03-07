@@ -66,6 +66,7 @@ public:
 
     //Send a message based on current internal state
     virtual msg_ptr_t sendMessage() = 0; 
+    virtual phase_t getPreviousPhase() const { return START_PROTOCOL; }
 
     virtual ~PartieInterface(){};
 };
@@ -81,7 +82,6 @@ public:
     virtual size_t expectedQueriedDataBytes()const = 0;
     
     virtual void fillResultsAndCommitmentRandomly()=0;
-    virtual phase_t getPhase()const { return START_PROTOCOL; }
     virtual phase_t getPreviousPhase()const { return START_PROTOCOL; }
 };
 

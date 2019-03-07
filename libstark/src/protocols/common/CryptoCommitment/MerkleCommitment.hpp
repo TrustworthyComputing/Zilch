@@ -15,7 +15,10 @@ struct hashDigest_t{
     char buffer[128/8];
     
     std::string toString()const;
+    friend std::ostream& operator<<(std::ostream& os, const hashDigest_t& hd);
 };
+
+hashDigest_t fromString(std::string s);
 
 bool operator==(const hashDigest_t& a, const hashDigest_t& b);
 bool operator!=(const hashDigest_t& a, const hashDigest_t& b);

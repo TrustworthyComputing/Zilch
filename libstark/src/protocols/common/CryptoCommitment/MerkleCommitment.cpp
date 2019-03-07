@@ -5,6 +5,7 @@
 #include <string>
 #include <algebraLib/FieldElement.hpp>
 #include <iomanip>
+#include <iostream>
 #include <wmmintrin.h>
 
 #ifdef WIN32
@@ -115,6 +116,36 @@ std::string hashDigest_t::toString()const{
     }
 
     return stream.str();
+}
+
+hashDigest_t fromString(std::string s) {
+    s.erase(0, 1); 			// remove [
+    s.erase(s.size() - 1); 	// remove ]
+    std::string delimiter = " ";
+    size_t pos = 0;
+    std::string token;
+    hashDigest_t hd;
+    int i = 0;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        hd.buffer[i++] = stoi(token);
+        s.erase(0, pos + delimiter.length());
+    }
+    hd.buffer[i++] = stoi(s);
+    return hd;
+}
+
+std::ostream& operator<<(std::ostream& os, const hashDigest_t& hd) {
+    os << "[";
+    for (int i = 0 ; i < (128/8) ; i++) {
+        int as_int = hd.buffer[i];
+        if (i > 0) {
+            os << " ";
+        } 
+        os << as_int;
+    }
+    os <<"]";
+    return os;
 }
 
 bool operator==(const hashDigest_t& a, const hashDigest_t& b){

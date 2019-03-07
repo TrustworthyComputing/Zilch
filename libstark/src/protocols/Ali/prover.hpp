@@ -36,7 +36,8 @@ class prover_t : public PartieInterface{
 public:
     prover_t(const BairInstance& bairInstance, const AcspWitness& witness, const RS_proverFactory_t& RS_proverFactory);
     void receiveMessage(const TranscriptMessage& msg);
-    msg_ptr_t sendMessage(); 
+    msg_ptr_t sendMessage();
+    phase_t getPreviousPhase()const;
 
 private:
     const BairInstance& bairInstance_;

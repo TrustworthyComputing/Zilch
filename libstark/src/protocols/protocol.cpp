@@ -131,34 +131,41 @@ namespace Protocols{
         size_t cnt = 0;
         Timer t;
         while (!verifier.doneInteracting()) {
-            std::cout << "\t\t\t\t\t\t"<< cnt <<"\n\n";
             std::string filename("msg_" + std::to_string(cnt++) + ".txt"); // message-file
                         
             const auto vMsg = verifier.sendMessage();
             phase_t phase = verifier.getPreviousPhase();
 
-            std::ofstream ofs(filename);
-            vMsg->serialize(ofs, phase);
-            ofs.close();
+            std::ofstream ver_ofs(filename);
+            vMsg->serialize(ver_ofs, phase);
+            ver_ofs.close();
             
-            std::ifstream ifs(filename);
+            std::ifstream ver_ifs(filename);
             msg_ptr_t sepVMsg(new Ali::details::verifierMsg());
-            sepVMsg->deserialize(ifs, phase);
-            ifs.close();
+            sepVMsg->deserialize(ver_ifs, phase);
+            ver_ifs.close();
             verifierTime += t.getElapsed();
             std::remove(filename.c_str()); // remove message-file
             
-            std::cout << "prover.receiveMessage " << '\n';
             t = Timer();
             prover.receiveMessage(*sepVMsg);
 
-            std::cout << "prover.sendMessage " << '\n';
             const auto pMsg = prover.sendMessage();
+            phase = prover.getPreviousPhase();
+            
+            std::ofstream pr_ofs(filename);
+            pMsg->serialize(pr_ofs, phase);
+            pr_ofs.close();
+            
+            std::ifstream pr_ifs(filename);
+            msg_ptr_t sepPMsg(new Ali::details::proverMsg());
+            sepPMsg->deserialize(pr_ifs, phase);
+            pr_ifs.close();
             proverTime += t.getElapsed();
+            std::remove(filename.c_str()); // remove message-file
             
             t = Timer();
-            std::cout << "verifier.receiveMessage " << '\n';
-            verifier.receiveMessage(*pMsg);            
+            verifier.receiveMessage(*sepPMsg);
         }
         
         startVerification();
