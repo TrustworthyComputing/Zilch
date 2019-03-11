@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#define RCVBUFSIZE 2048    // Size of receive buffer
+
 /**
 *   Base class representing basic communication endpoint
 */

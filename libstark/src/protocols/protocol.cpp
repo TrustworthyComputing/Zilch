@@ -17,7 +17,6 @@
 #include <arpa/inet.h>
 
 using namespace std;
-const unsigned int RCVBUFSIZE = 2048;    // Size of receive buffer
 
 namespace libstark{
 namespace Protocols{
@@ -126,7 +125,7 @@ namespace Protocols{
         
     }
     
-    bool executeProtocol(PartieInterface& prover, verifierInterface& verifier) {
+    bool executeProtocolLocally(PartieInterface& prover, verifierInterface& verifier) {
         double verifierTime = 0;
         double proverTime = 0;
         const size_t proofGeneratedBytes = verifier.expectedCommitedProofBytes();
@@ -374,20 +373,15 @@ namespace Protocols{
     
     bool executeProtocol(const BairInstance& instance, const BairWitness& witness, const unsigned short securityParameter, bool testBair, bool testAcsp, bool testPCP){
         const bool noWitness = !(testBair || testAcsp || testPCP);
-        
         prn::printBairInstanceSpec(instance);
         unique_ptr<AcspInstance> acspInstance = CBairToAcsp::reduceInstance(instance, vector<FieldElement>(instance.constraintsPermutation().numMappings(),one()), vector<FieldElement>(instance.constraintsAssignment().numMappings(),one()));
-        
         prn::printAcspInstanceSpec(*acspInstance);
         prn::printAprInstanceSpec(*acspInstance);
-        
         if(testBair){
             if(!BairWitnessChecker::verify(instance, witness)){
                 return false;
             }
         }
-        
-        
         //Reduce BAIR witness to ACSP witness
         unique_ptr<AcspWitness> acspWitness (nullptr);
         if(!noWitness){
@@ -419,18 +413,14 @@ namespace Protocols{
             }
         }
         
-        {
-            using namespace Ali::Verifier;
-            using namespace Ali::Prover;
-            
-            const auto RS_verifier = Biased_verifier;
-            verifier_t verifier(instance, RS_verifier, securityParameter);
-            
-            if (testPCP) {
-                const auto RS_prover = Biased_prover;
-                prover_t prover(instance,*acspWitness, RS_prover);
-                return Protocols::executeProtocol(prover,verifier);
-            }
+        using namespace Ali::Verifier;
+        using namespace Ali::Prover;
+        const auto RS_verifier = Biased_verifier;
+        verifier_t verifier(instance, RS_verifier, securityParameter);
+        if (testPCP) {
+            const auto RS_prover = Biased_prover;
+            prover_t prover(instance,*acspWitness, RS_prover);
+            return Protocols::executeProtocolLocally(prover,verifier);
         }
         return true;
     }
@@ -449,6 +439,38 @@ namespace Protocols{
         sock->send(&msg_size_n, sizeof(uint32_t));
         sock->send(str.c_str(), strlen(str.c_str()));
     }
+
+    phase_t receivePhaseAndMsg(string& filename, TCPSocket* sock) {
+        std::ofstream msg_from_ver(filename);
+        uint8_t echoBuffer[RCVBUFSIZE + 1];    // Buffer for echo string + \0
+        if (sock->recv(echoBuffer, sizeof(uint16_t)) <= 0) {
+            exit(EXIT_FAILURE);
+        }
+        uint16_t num_converted;
+        memcpy(&num_converted, echoBuffer, sizeof(uint16_t));
+        phase_t phase = static_cast<phase_t>((int) ntohs(num_converted));
+
+        if (sock->recv(echoBuffer, sizeof(uint32_t)) <= 0) {
+            exit(EXIT_FAILURE);
+        }
+        uint32_t msg_size_n;
+        memcpy(&msg_size_n, echoBuffer, sizeof(uint32_t));
+        uint32_t msg_size = ntohl(msg_size_n);
+
+        int bytesReceived = 0;              // Bytes read on each recv()
+        uint32_t totalBytesReceived = 0;         // Total bytes read
+        while (totalBytesReceived < msg_size) {
+            // Receive up to the buffer size bytes from the sender
+            if ((bytesReceived = (sock->recv(echoBuffer, RCVBUFSIZE))) <= 0) {
+                exit(EXIT_FAILURE);
+            }
+            totalBytesReceived += bytesReceived;     // Keep tally of total bytes
+            echoBuffer[bytesReceived] = '\0';        // Terminate the string!
+            msg_from_ver << echoBuffer;
+        }
+        msg_from_ver.close();
+        return phase;
+    }
     
     void sendDoneInteracting(bool done_interacting, TCPSocket* sock) {
         uint16_t done = htons((int) done_interacting);
@@ -463,46 +485,6 @@ namespace Protocols{
         uint16_t done_interacting;
         memcpy(&done_interacting, echoBuffer, sizeof(uint16_t));
         return (bool) ntohs((int) done_interacting);
-    }
-
-    phase_t receivePhaseAndMsg(string& filename, TCPSocket* sock) {
-        std::ofstream msg_from_ver(filename);
-        uint8_t echoBuffer[RCVBUFSIZE + 1];    // Buffer for echo string + \0
-        if (sock->recv(echoBuffer, sizeof(uint16_t)) <= 0) {
-            // cerr << "Unable to read";
-            exit(EXIT_FAILURE);
-        }
-        uint16_t num_converted;
-        memcpy(&num_converted, echoBuffer, sizeof(uint16_t));
-        phase_t phase = static_cast<phase_t>((int) ntohs(num_converted));
-        // cout << "Received phase: " << phase << "\n";
-
-        if (sock->recv(echoBuffer, sizeof(uint32_t)) <= 0) {
-            // cerr << "Unable to read";
-            exit(EXIT_FAILURE);
-        }
-        uint32_t msg_size_n;
-        memcpy(&msg_size_n, echoBuffer, sizeof(uint32_t));
-        uint32_t msg_size = ntohl(msg_size_n);
-        // cout << "Received msg size = " << msg_size << "\n\n";               // Setup to print the echoed string
-
-        int bytesReceived = 0;              // Bytes read on each recv()
-        uint32_t totalBytesReceived = 0;         // Total bytes read
-        // cout << "Received: ";               // Setup to print the echoed string
-        while (totalBytesReceived < msg_size) {
-            // Receive up to the buffer size bytes from the sender
-            if ((bytesReceived = (sock->recv(echoBuffer, RCVBUFSIZE))) <= 0) {
-                // cerr << "Unable to read";
-                exit(EXIT_FAILURE);
-            }
-            totalBytesReceived += bytesReceived;     // Keep tally of total bytes
-            echoBuffer[bytesReceived] = '\0';        // Terminate the string!
-            // cout << echoBuffer;                      // Print the echo buffer
-            msg_from_ver << echoBuffer;
-        }
-        // cout << endl;
-        msg_from_ver.close();
-        return phase;
     }
     
     bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness) {
@@ -538,13 +520,11 @@ namespace Protocols{
         double proverTime = 0;
         
         /* Set up the socket */
-        string servAddress = "localhost"; // First arg: server address
-        // string echoString = "This is a test";     // Second arg: string to echo
-        unsigned short echoServPort = 1234;
+        string servAddress = "localhost";
+        unsigned short port_number = 1234;
         
-        TCPSocket sck(servAddress, echoServPort);
+        TCPSocket sck(servAddress, port_number);
         TCPSocket* sock = &sck;
-        // sock->send(echoString.c_str(), echoString.size()); // send initial string
         
         size_t cnt = 0;
         Timer t;
@@ -592,8 +572,8 @@ namespace Protocols{
         const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
 
         std::cout << "Waiting for connection...\n";
-        unsigned short echoServPort = 1234;
-        TCPServerSocket servSock(echoServPort);     // Server Socket object
+        unsigned short port_number = 1234;
+        TCPServerSocket servSock(port_number);     // Server Socket object
         TCPSocket *sock = servSock.accept();
         
         size_t cnt = 0;
