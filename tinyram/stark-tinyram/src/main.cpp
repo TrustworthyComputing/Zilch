@@ -21,6 +21,7 @@ const string primaryTapePrefix = "-P";
 const string auxTapePrefix = "-A";
 const string verifierPrefix = "-V";
 const string proverPrefix = "-R";
+const string addressPrefix = "-r";
 
 
 void printHelp(const string exeName){
@@ -59,7 +60,7 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const unsigne
     return libstark::BairWitness(move(cs2bairColoring_), move(cs2bairMemory_));
 }
 
-void execute(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter) {
+void executeLocally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter) {
     cout<<"Executing simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n\n";
 
     //Initialize instance
@@ -85,8 +86,13 @@ void execute(const string assemblyFile, const string primaryTapeFile, const stri
     libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true);
 }
 
-
-void execute(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter, bool prover) {
+void executeNetwork(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter, bool prover, const string& address, unsigned short port_number) {
+    if (prover) {
+        cout<<"Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
+    } else {
+        cout<<"Verifier:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+" and public inputs from '" << primaryTapeFile <<"'. Verifier listens to port " << port_number<< ".\n\n";
+    }
+    
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
     TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
@@ -108,9 +114,9 @@ void execute(const string assemblyFile, const string primaryTapeFile, const stri
         sregex_token_iterator pr_it{private_inputs.begin(), private_inputs.end(), regex, -1};
         vector<string> private_lines{pr_it, {}};
         const auto bairWitness = constructWitness(program, t, public_lines, private_lines);     // witness is generated from the prover
-        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness);
+        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number);
     } else {
-        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter);
+        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number);
     }
 }
 
@@ -124,6 +130,8 @@ int main(int argc, char *argv[]) {
     unsigned int executionLenLog = 0;
     unsigned int securityParameter = 60;
     string primaryTapeFile, auxTapeFile;
+    string address = "localhost";
+    unsigned short port_number = 1234;
     bool prover = false;
     bool verifier = false;
     for (int i=2; i< argc; i++) {
@@ -139,6 +147,13 @@ int main(int argc, char *argv[]) {
         }
         if (prefix == primaryTapePrefix) {
             primaryTapeFile = currArg.substr(2);
+            continue;
+        }
+        if (prefix == addressPrefix) {
+            string arg_without_prefix = currArg.substr(2);
+            int pos = arg_without_prefix.find_first_of(':');
+            address = arg_without_prefix.substr(0, pos);
+            port_number = stoi(arg_without_prefix.substr(pos+1));
             continue;
         }
 
@@ -162,9 +177,9 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     if (verifier || prover) {
-        execute(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, prover);
+        executeNetwork(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number);
     } else { // run local simulation
-        execute(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter);
+        executeLocally(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter);
     }
 
     return 0;

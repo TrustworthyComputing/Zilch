@@ -116,8 +116,8 @@ public:
 bool executeProtocolLocally(PartieInterface& prover, verifierInterface& verifier);
 bool executeProtocol(const BairInstance& instance, const BairWitness& witness, const unsigned short securityParameter, bool testBair = false, bool testAcsp = false, bool testPCP = false);
 
-bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness);
-bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter);
+bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const std::string& address, unsigned short port_number);
+bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number);
 
 void simulateProtocol(const BairInstance& instance, const unsigned short securityParameter);
 

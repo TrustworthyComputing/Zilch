@@ -50,27 +50,28 @@ namespace Protocols{
         void resetColor(){
             startColor(RESET);
         }
-        
-        // void startProver(){
-        //     startColor(MAGENTA);
-        // }
-        // 
-        // void startVerifier(){
-        //     startColor(VERIFIER_COLOR);
-        // }
-        
-        void startVerification(){
+
+        void successColor(){
             startColor(GREEN);
+        }
+        
+        void decisionColor(){
+            startColor(YELLOW);
+        }
+        
+        void sentDecisionColor(){
+            startColor(MAGENTA);
+        }
+        
+        
+        void failureColor(){
+            startColor(RED);
         }
         
         void startSpecs(){
             startColor(CYAN);
         }
-        
-        // void startCicleCount(){
-        //     startColor(WHITE);
-        // }
-        
+
         std::string numBytesToString(size_t numBytes){
             std::string suffix[] = {"Bytes", "KBytes", "MBytes", "GBytes", "TBytes", "PBytes", "EByte", "ZByte"};
             
@@ -110,6 +111,27 @@ namespace Protocols{
             specs.addLine("Query complexity",numBytesToString(queriedDataBytes));
             specs.print();
             
+            resetColor();
+        }
+        
+        void printProverSpecs(const double proverTime, const double communicationTime){
+            startSpecs();
+            specsPrinter specs("Protocol execution measurements");
+            specs.addLine("Prover time",secondsToString(proverTime));
+            specs.addLine("Prover Communication time",secondsToString(communicationTime));
+            specs.print();
+            resetColor();
+        }
+        
+        void printVerifierSpecs(const double verifierTime, const double communicationTime, const size_t proofGeneratedBytes, const size_t proofSentBytes, const size_t queriedDataBytes){
+            startSpecs();
+            specsPrinter specs("Protocol execution measurements");
+            specs.addLine("Verifier time",secondsToString(verifierTime));
+            specs.addLine("Verifier Communication time",secondsToString(communicationTime));
+            specs.addLine("Total proof oracles size",numBytesToString(proofGeneratedBytes));
+            specs.addLine("Total communication complexity",numBytesToString(proofSentBytes));
+            specs.addLine("Query complexity",numBytesToString(queriedDataBytes));
+            specs.print();
             resetColor();
         }
         
@@ -172,11 +194,18 @@ namespace Protocols{
             verifier.receiveMessage(*sepPMsg);
         }
         
-        startVerification();
+        successColor();
         const bool res = verifier.verify();
         verifierTime += t.getElapsed();
-        std::cout<<"Verifier decision: "<<(res? "ACCEPT" : "REJECT")<<std::endl;
-        
+        decisionColor();
+        std::cout<<"Verifier decision: ";
+        if (res) {
+            successColor();
+            std::cout << "ACCEPT" <<std::endl;
+        } else {
+            failureColor();
+            std::cout << "REJECT" <<std::endl;
+        }
         resetColor();
         
         if (true) {
@@ -367,8 +396,6 @@ namespace Protocols{
             
             specs.print();
         }
-        
-        
     }
     
     bool executeProtocol(const BairInstance& instance, const BairWitness& witness, const unsigned short securityParameter, bool testBair, bool testAcsp, bool testPCP){
@@ -472,22 +499,20 @@ namespace Protocols{
         return phase;
     }
     
-    void sendDoneInteracting(bool done_interacting, TCPSocket* sock) {
-        uint16_t done = htons((int) done_interacting);
-        sock->send(&done, sizeof(uint16_t));
+    void sendBoolean(bool cond, TCPSocket* sock) {
+        uint8_t cnd = cond;
+        sock->send(&cnd, sizeof(uint8_t));
     }
     
-    bool receiveDoneInteracting(TCPSocket* sock) {
-        uint8_t echoBuffer[4];
-        if (sock->recv(echoBuffer, sizeof(uint16_t)) <= 0) {
+    bool receiveBoolean(TCPSocket* sock) {
+        uint8_t cond;
+        if (sock->recv(&cond, sizeof(uint8_t)) <= 0) {
             exit(EXIT_FAILURE);
         }
-        uint16_t done_interacting;
-        memcpy(&done_interacting, echoBuffer, sizeof(uint16_t));
-        return (bool) ntohs((int) done_interacting);
+        return (bool) cond;
     }
     
-    bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness) {
+    bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const string& address, unsigned short port_number) {
         prn::printBairInstanceSpec(instance);
         unique_ptr<AcspInstance> acspInstance = CBairToAcsp::reduceInstance(instance, vector<FieldElement>(instance.constraintsPermutation().numMappings(), one()), vector<FieldElement>(instance.constraintsAssignment().numMappings(), one()));
         prn::printAcspInstanceSpec(*acspInstance);
@@ -517,13 +542,10 @@ namespace Protocols{
         const auto RS_prover = Biased_prover;
         prover_t pr(instance, *acspWitness, RS_prover);
         PartieInterface& prover = (PartieInterface&) pr;
-        double proverTime = 0;
+        double proverTime = 0, communicationTime = 0;
         
         /* Set up the socket */
-        string servAddress = "localhost";
-        unsigned short port_number = 1234;
-        
-        TCPSocket sck(servAddress, port_number);
+        TCPSocket sck(address, port_number);
         TCPSocket* sock = &sck;
         
         size_t cnt = 0;
@@ -532,6 +554,7 @@ namespace Protocols{
         while (!done_interacting) {
             std::string filename("pr_msg_" + std::to_string(cnt++)); // message-file
             
+            t = Timer();
             std::string pr_filename_rcv = filename + ".rcv";
             phase_t phase = receivePhaseAndMsg(pr_filename_rcv, sock);
             std::ifstream pr_ifs(pr_filename_rcv);
@@ -539,11 +562,13 @@ namespace Protocols{
             sepVMsg->deserialize(pr_ifs, phase);
             pr_ifs.close();
             std::remove(pr_filename_rcv.c_str()); // remove message-file
-            proverTime += t.getElapsed();
+            communicationTime += t.getElapsed();
+            t = Timer();
             prover.receiveMessage(*sepVMsg);
             
-            t = Timer();
             const auto pMsg = prover.sendMessage();
+            proverTime += t.getElapsed();
+            t = Timer();
             phase = prover.getPreviousPhase();
             std::string pr_filename_snt = filename + ".snt";
             std::ofstream pr_ofs(pr_filename_snt);
@@ -552,27 +577,39 @@ namespace Protocols{
             sendPhaseAndMsg(pr_filename_snt, phase, sock);
             std::remove(pr_filename_snt.c_str()); // remove message-file
             
-            done_interacting = receiveDoneInteracting(sock);
+            done_interacting = receiveBoolean(sock);
+            communicationTime += t.getElapsed();
         }
-        printSpecs(proverTime,0,0,0,0); 
+        t = Timer();
+        bool res = receiveBoolean(sock);
+        communicationTime += t.getElapsed();
+        sentDecisionColor();
+        std::cout<<"Verifier decision: ";
+        if (res) {
+            successColor();
+            std::cout << "ACCEPT" <<std::endl;
+        } else {
+            failureColor();
+            std::cout << "REJECT" <<std::endl;
+        }
+        resetColor();
+        printProverSpecs(proverTime, communicationTime);        
         return true;
     }
     
-    
-    bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter) {
+    bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number) {
         prn::printBairInstanceSpec(instance);
         using namespace Ali::Verifier;
         const auto RS_verifier = Biased_verifier;
         verifier_t ver(instance, RS_verifier, securityParameter);
         verifierInterface& verifier = (verifierInterface&) ver;
         
-        double verifierTime = 0;
+        double verifierTime = 0, communicationTime = 0;
         const size_t proofGeneratedBytes = verifier.expectedCommitedProofBytes();
         const size_t proofSentBytes = verifier.expectedSentProofBytes();
         const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
 
         std::cout << "Waiting for connection...\n";
-        unsigned short port_number = 1234;
         TCPServerSocket servSock(port_number);     // Server Socket object
         TCPSocket *sock = servSock.accept();
         
@@ -583,15 +620,19 @@ namespace Protocols{
             std::string filename("ver_msg_" + std::to_string(cnt++)); // message-file
             std::string ver_filename_snt = filename + ".snt";
             
+            t = Timer();
             const auto vMsg = verifier.sendMessage();
+            verifierTime += t.getElapsed();
+            t = Timer();
             phase_t phase = verifier.getPreviousPhase();
             std::ofstream ver_ofs(ver_filename_snt);
             vMsg->serialize(ver_ofs, phase);
             ver_ofs.close();
             sendPhaseAndMsg(ver_filename_snt, phase, sock);
             std::remove(ver_filename_snt.c_str()); // remove message-file
+            communicationTime += t.getElapsed();
             
-            
+            t = Timer();
             std::string ver_filename_rcv = filename + ".rcv";
             phase = receivePhaseAndMsg(ver_filename_rcv, sock);
             std::ifstream ver_ifs(ver_filename_rcv);
@@ -599,22 +640,34 @@ namespace Protocols{
             sepPMsg->deserialize(ver_ifs, phase);
             ver_ifs.close();
             std::remove(ver_filename_rcv.c_str()); // remove message-file
-            verifierTime += t.getElapsed();
-            verifier.receiveMessage(*sepPMsg);
+            communicationTime += t.getElapsed();
             t = Timer();
+            verifier.receiveMessage(*sepPMsg);
+            verifierTime += t.getElapsed();
             
+            t = Timer();
             done_interacting = verifier.doneInteracting();
-            sendDoneInteracting(done_interacting, sock);            
+            sendBoolean(done_interacting, sock);            
+            communicationTime += t.getElapsed();
         }
-        delete sock;
         
-        startVerification();
         const bool res = verifier.verify();
         verifierTime += t.getElapsed();
-        std::cout<<"Verifier decision: "<<(res? "ACCEPT" : "REJECT")<<std::endl;
-        
+        t = Timer();
+        sendBoolean(res, sock);            
+        communicationTime += t.getElapsed();
+        decisionColor();
+        std::cout<<"Verifier decision: ";
+        if (res) {
+            successColor();
+            std::cout << "ACCEPT" <<std::endl;
+        } else {
+            failureColor();
+            std::cout << "REJECT" <<std::endl;
+        }
         resetColor();
-        printSpecs(0,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
+        delete sock;
+        printVerifierSpecs(verifierTime, communicationTime, proofGeneratedBytes, proofSentBytes, queriedDataBytes); 
         return res;
     }
     
