@@ -7,12 +7,17 @@
 #include "reductions/BairToAcsp/BairToAcsp.hpp"
 #include "protocols/Ali/verifier.hpp"
 #include "protocols/Ali/prover.hpp"
+#include "NetworkCom.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <thread>
 #include <sstream>
 #include <cstdio>
+#include <arpa/inet.h>
+
+using namespace std;
+const unsigned int RCVBUFSIZE = 2048;    // Size of receive buffer
 
 namespace libstark{
 namespace Protocols{
@@ -121,7 +126,7 @@ namespace Protocols{
         
     }
     
-    bool executeProtocol(PartieInterface& prover, verifierInterface& verifier, const bool onlyVerifierData) {
+    bool executeProtocol(PartieInterface& prover, verifierInterface& verifier) {
         double verifierTime = 0;
         double proverTime = 0;
         const size_t proofGeneratedBytes = verifier.expectedCommitedProofBytes();
@@ -419,20 +424,218 @@ namespace Protocols{
             using namespace Ali::Prover;
             
             const auto RS_verifier = Biased_verifier;
-            verifier_t verifier(instance, RS_verifier,securityParameter);
+            verifier_t verifier(instance, RS_verifier, securityParameter);
             
-            if(testPCP){
+            if (testPCP) {
                 const auto RS_prover = Biased_prover;
                 prover_t prover(instance,*acspWitness, RS_prover);
-                return Protocols::executeProtocol(prover,verifier,false);
-            }
-            else if(noWitness){
-                prover_t* prover_dummy = nullptr;
-                return Protocols::executeProtocol(*prover_dummy,verifier,true);
+                return Protocols::executeProtocol(prover,verifier);
             }
         }
-        
         return true;
+    }
+
+    void sendPhaseAndMsg(string& filename, phase_t phase, TCPSocket* sock) {
+        uint16_t phase_converted = htons((int) phase); /* htons convertion for integers */
+        sock->send(&phase_converted, sizeof(uint16_t));
+        std::ifstream inFile;
+        inFile.open(filename); // open the input file
+        std::stringstream strStream;
+        strStream << inFile.rdbuf(); //read the file
+        std::string str = strStream.str(); //str holds the content of the file
+        
+        uint32_t msg_size = strlen(str.c_str());
+        uint32_t msg_size_n = htonl(msg_size);
+        sock->send(&msg_size_n, sizeof(uint32_t));
+        sock->send(str.c_str(), strlen(str.c_str()));
+    }
+    
+    void sendDoneInteracting(bool done_interacting, TCPSocket* sock) {
+        uint16_t done = htons((int) done_interacting);
+        sock->send(&done, sizeof(uint16_t));
+    }
+    
+    bool receiveDoneInteracting(TCPSocket* sock) {
+        uint8_t echoBuffer[4];
+        if (sock->recv(echoBuffer, sizeof(uint16_t)) <= 0) {
+            exit(EXIT_FAILURE);
+        }
+        uint16_t done_interacting;
+        memcpy(&done_interacting, echoBuffer, sizeof(uint16_t));
+        return (bool) ntohs((int) done_interacting);
+    }
+
+    phase_t receivePhaseAndMsg(string& filename, TCPSocket* sock) {
+        std::ofstream msg_from_ver(filename);
+        uint8_t echoBuffer[RCVBUFSIZE + 1];    // Buffer for echo string + \0
+        if (sock->recv(echoBuffer, sizeof(uint16_t)) <= 0) {
+            // cerr << "Unable to read";
+            exit(EXIT_FAILURE);
+        }
+        uint16_t num_converted;
+        memcpy(&num_converted, echoBuffer, sizeof(uint16_t));
+        phase_t phase = static_cast<phase_t>((int) ntohs(num_converted));
+        // cout << "Received phase: " << phase << "\n";
+
+        if (sock->recv(echoBuffer, sizeof(uint32_t)) <= 0) {
+            // cerr << "Unable to read";
+            exit(EXIT_FAILURE);
+        }
+        uint32_t msg_size_n;
+        memcpy(&msg_size_n, echoBuffer, sizeof(uint32_t));
+        uint32_t msg_size = ntohl(msg_size_n);
+        // cout << "Received msg size = " << msg_size << "\n\n";               // Setup to print the echoed string
+
+        int bytesReceived = 0;              // Bytes read on each recv()
+        uint32_t totalBytesReceived = 0;         // Total bytes read
+        // cout << "Received: ";               // Setup to print the echoed string
+        while (totalBytesReceived < msg_size) {
+            // Receive up to the buffer size bytes from the sender
+            if ((bytesReceived = (sock->recv(echoBuffer, RCVBUFSIZE))) <= 0) {
+                // cerr << "Unable to read";
+                exit(EXIT_FAILURE);
+            }
+            totalBytesReceived += bytesReceived;     // Keep tally of total bytes
+            echoBuffer[bytesReceived] = '\0';        // Terminate the string!
+            // cout << echoBuffer;                      // Print the echo buffer
+            msg_from_ver << echoBuffer;
+        }
+        // cout << endl;
+        msg_from_ver.close();
+        return phase;
+    }
+    
+    bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness) {
+        prn::printBairInstanceSpec(instance);
+        unique_ptr<AcspInstance> acspInstance = CBairToAcsp::reduceInstance(instance, vector<FieldElement>(instance.constraintsPermutation().numMappings(), one()), vector<FieldElement>(instance.constraintsAssignment().numMappings(), one()));
+        prn::printAcspInstanceSpec(*acspInstance);
+        prn::printAprInstanceSpec(*acspInstance);
+        unique_ptr<AcspWitness> acspWitness (nullptr);
+        std::cout<<"Constructing APR (ACSP) witness:";
+        bool doStatusLoop = true;
+        Timer reductionTimer;
+        std::thread barManager(
+            [&](){
+                unsigned int sleepInterval = 10;
+                unsigned int sleepTime = 10;
+                while(doStatusLoop){
+                    std::cout<<"."<<std::flush;
+                    for(unsigned int i=0; (i< sleepTime) && doStatusLoop; i++){
+                        std::this_thread::sleep_for(std::chrono::milliseconds(sleepInterval));
+                    }
+                    sleepTime*=2;
+                }
+            }
+        );
+        acspWitness = CBairToAcsp::reduceWitness(instance, witness);
+        doStatusLoop = false;
+        barManager.join();
+        std::cout<<"("<<reductionTimer.getElapsed()<<" seconds)"<<std::endl;
+        using namespace Ali::Prover;
+        const auto RS_prover = Biased_prover;
+        prover_t pr(instance, *acspWitness, RS_prover);
+        PartieInterface& prover = (PartieInterface&) pr;
+        double proverTime = 0;
+        
+        /* Set up the socket */
+        string servAddress = "localhost"; // First arg: server address
+        // string echoString = "This is a test";     // Second arg: string to echo
+        unsigned short echoServPort = 1234;
+        
+        TCPSocket sck(servAddress, echoServPort);
+        TCPSocket* sock = &sck;
+        // sock->send(echoString.c_str(), echoString.size()); // send initial string
+        
+        size_t cnt = 0;
+        Timer t;
+        bool done_interacting = false;
+        while (!done_interacting) {
+            std::string filename("pr_msg_" + std::to_string(cnt++)); // message-file
+            
+            std::string pr_filename_rcv = filename + ".rcv";
+            phase_t phase = receivePhaseAndMsg(pr_filename_rcv, sock);
+            std::ifstream pr_ifs(pr_filename_rcv);
+            msg_ptr_t sepVMsg(new Ali::details::verifierMsg());
+            sepVMsg->deserialize(pr_ifs, phase);
+            pr_ifs.close();
+            std::remove(pr_filename_rcv.c_str()); // remove message-file
+            proverTime += t.getElapsed();
+            prover.receiveMessage(*sepVMsg);
+            
+            t = Timer();
+            const auto pMsg = prover.sendMessage();
+            phase = prover.getPreviousPhase();
+            std::string pr_filename_snt = filename + ".snt";
+            std::ofstream pr_ofs(pr_filename_snt);
+            pMsg->serialize(pr_ofs, phase);
+            pr_ofs.close();
+            sendPhaseAndMsg(pr_filename_snt, phase, sock);
+            std::remove(pr_filename_snt.c_str()); // remove message-file
+            
+            done_interacting = receiveDoneInteracting(sock);
+        }
+        printSpecs(proverTime,0,0,0,0); 
+        return true;
+    }
+    
+    
+    bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter) {
+        prn::printBairInstanceSpec(instance);
+        using namespace Ali::Verifier;
+        const auto RS_verifier = Biased_verifier;
+        verifier_t ver(instance, RS_verifier, securityParameter);
+        verifierInterface& verifier = (verifierInterface&) ver;
+        
+        double verifierTime = 0;
+        const size_t proofGeneratedBytes = verifier.expectedCommitedProofBytes();
+        const size_t proofSentBytes = verifier.expectedSentProofBytes();
+        const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
+
+        std::cout << "Waiting for connection...\n";
+        unsigned short echoServPort = 1234;
+        TCPServerSocket servSock(echoServPort);     // Server Socket object
+        TCPSocket *sock = servSock.accept();
+        
+        size_t cnt = 0;
+        Timer t;
+        bool done_interacting = verifier.doneInteracting();
+        while (!done_interacting) {
+            std::string filename("ver_msg_" + std::to_string(cnt++)); // message-file
+            std::string ver_filename_snt = filename + ".snt";
+            
+            const auto vMsg = verifier.sendMessage();
+            phase_t phase = verifier.getPreviousPhase();
+            std::ofstream ver_ofs(ver_filename_snt);
+            vMsg->serialize(ver_ofs, phase);
+            ver_ofs.close();
+            sendPhaseAndMsg(ver_filename_snt, phase, sock);
+            std::remove(ver_filename_snt.c_str()); // remove message-file
+            
+            
+            std::string ver_filename_rcv = filename + ".rcv";
+            phase = receivePhaseAndMsg(ver_filename_rcv, sock);
+            std::ifstream ver_ifs(ver_filename_rcv);
+            msg_ptr_t sepPMsg(new Ali::details::proverMsg());
+            sepPMsg->deserialize(ver_ifs, phase);
+            ver_ifs.close();
+            std::remove(ver_filename_rcv.c_str()); // remove message-file
+            verifierTime += t.getElapsed();
+            verifier.receiveMessage(*sepPMsg);
+            t = Timer();
+            
+            done_interacting = verifier.doneInteracting();
+            sendDoneInteracting(done_interacting, sock);            
+        }
+        delete sock;
+        
+        startVerification();
+        const bool res = verifier.verify();
+        verifierTime += t.getElapsed();
+        std::cout<<"Verifier decision: "<<(res? "ACCEPT" : "REJECT")<<std::endl;
+        
+        resetColor();
+        printSpecs(0,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
+        return res;
     }
     
     void simulateProtocol(const BairInstance& instance, const unsigned short securityParameter){

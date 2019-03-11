@@ -113,9 +113,12 @@ public:
 //
 // Protocol execution algorithm
 //
-bool executeProtocol(PartieInterface& prover, verifierInterface& verifier, const bool onlyVerifierData = false);
-
+bool executeProtocol(PartieInterface& prover, verifierInterface& verifier);
 bool executeProtocol(const BairInstance& instance, const BairWitness& witness, const unsigned short securityParameter, bool testBair = false, bool testAcsp = false, bool testPCP = false);
+
+bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness);
+bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter);
+
 void simulateProtocol(const BairInstance& instance, const unsigned short securityParameter);
 
 //printouts
