@@ -58,6 +58,7 @@ struct RAMArchParams {
 /// A data object which holds a TinyRAM code and auxiliary information.
 struct MachineInstruction {
 	Opcode opcode_ = Opcode::ANSWER;
+	bool arg1isImmediate_ = true;
 	bool arg2isImmediate_ = true;
 	size_t destIdx_ = 0;
 	size_t arg1Idx_ = 0;

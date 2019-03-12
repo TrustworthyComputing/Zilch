@@ -63,6 +63,13 @@ see examples below on how to use the prefixes.
 ## Labels
 In our implementation, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
 
+
+## Enhanced READ instructions
+* `READ ri rj A` : Consume the next word from the [A]-th tape (0 or 1) if it has remaining words and store it in `ri`. A can be either a register or an immediate value. For consuming the next word from the public tape A must be `0`, while for consuming from the private tape `A` must be `1`. In `READ` instruction, register `rj` is not used.
+
+* `RAREAD ri B A` : `RAREAD` stands for `Random Access Read`. `RAREAD` consumes the word in offset `B` from tape `A`. Both `A` and `B` can be either registers or immediate values.
+
+
 ## Macros
 We have also added macros which are translated to a bunch of instructions automatically.
 
