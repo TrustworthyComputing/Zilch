@@ -2,6 +2,9 @@
 #include <string>
 #include <regex>
 #include <protocols/protocol.hpp>
+#ifndef PRINT_HELPERS_HPP__  
+#include <protocols/print_helpers.hpp>
+#endif
 
 #include "TinyRAMtoBair/ConstraintSystemToBair/cs2Bair.hpp"
 #include "TinyRAMtoBair/RamToContraintSystem/ALU.hpp"
@@ -24,15 +27,34 @@ const string proverPrefix = "-R";
 const string addressPrefix = "-r";
 
 
-void printHelp(const string exeName){
-    cout<<"Usage:"<<endl;
-    cout<<"$>"<<exeName<<" <TinyRAM assembly file path> "<<timePrefix<<"<trace length log_2> ["<<securityPrefix<<"<security parameter]> ["<<primaryTapePrefix<<"<primaryTapeFile>] ["<<auxTapePrefix<<"<auxTapeFile>]"<<endl;
-    cout<<endl<<"Example:"<<endl;
-    cout<<"$>"<<exeName<<" examples-tinyram/collatz.asm "<<timePrefix<<"10 "<<securityPrefix<<"120"<<endl;
-    cout<<endl<<"The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2^10-1) machine steps, and soundness error at most 2^-120."<<endl;
-    cout<<endl<<"In the simulation the Prover and Verify interact, the Prover generates a proof and the Verifier verifies it. During the executions the specifications of generated BAIR and APR, measurements, and Verifiers decision, are printed to the standard output."<<endl;
-    cout<<endl<<"Another example:"<<endl;
-    cout<<"$>"<<exeName<<" examples-tinyram/knowledge_of_factorization.asm "<<timePrefix<<"10 "<<securityPrefix<<"120 "<<auxTapePrefix<<"./examples-tinyram/knowledge_of_factorization_auxtape.txt"<<endl;
+void printHelp(const string exeName) {
+    cout << YELLOW << "Usage:\n$ ";
+    cout << GREEN << exeName << RESET << " <TinyRAM assembly file path> " << YELLOW << timePrefix << RESET << "<trace length log_2> [" << YELLOW << securityPrefix << RESET << "<security parameter]> [" << YELLOW << primaryTapePrefix << RESET << "<primaryTapeFile>] [" << YELLOW << auxTapePrefix << RESET << "<auxTapeFile>] [" << YELLOW << verifierPrefix << RESET << "] [" << YELLOW << proverPrefix << RESET << "] [" << YELLOW << addressPrefix << RESET << "<address:port_number>]" << endl << endl;
+    
+    cout << YELLOW << "TinyRAM assembly file path" << RESET << ": Path to the TinyRAM assembly code (required)" << endl; 
+    cout << YELLOW << timePrefix << RESET << ": trace length log_2 (required)" << endl; 
+    cout << YELLOW << securityPrefix << RESET << ": security parameter (optional)" << endl;
+    cout << YELLOW << primaryTapePrefix << RESET << ": path to the primary tape file (optional)" << endl;
+    cout << YELLOW << auxTapePrefix << RESET << ": path to the auxiliary tape file (optional)" << endl;
+    cout << endl << "The below flags enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first." << endl;
+    cout << YELLOW << addressPrefix << RESET << ": verifier-address:port-number (optional) (default = 'localhost:1234')" << endl;
+    cout << YELLOW << verifierPrefix << RESET << ": enables execution of the verifier, listening on port-number (optional)" << endl;
+    cout << YELLOW << proverPrefix << RESET << ": enables execution of the prover, transmitting to verifier-address:port-number (optional)" << endl;
+    
+    cout << endl << YELLOW << "Example:\n$ " << RESET;
+    cout << exeName << " examples-tinyram/collatz.asm " << timePrefix << "10 " << securityPrefix << "120" << endl;
+    cout << endl << "The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2^10-1) machine steps, and soundness error at most 2^-120."<< endl;
+    cout << endl << "In the simulation the Prover and Verify interact, the Prover generates a proof and the Verifier verifies it. During the executions the specifications of generated BAIR and APR, measurements, and Verifiers decision, are printed to the standard output." << endl;
+    
+    cout << endl << YELLOW << "A simple read from tapes example:\n$ " << RESET;
+    cout << exeName << " examples-tinyram/read_test.asm " << timePrefix << "10 " << securityPrefix << "120 " << primaryTapePrefix << "./examples-tinyram/read_test.pubtape " << auxTapePrefix <<"./examples-tinyram/read_test.auxtape" << endl;
+    cout << endl << YELLOW << "The simple read from tapes example over the network:\n$ " << RESET;
+    cout << exeName << " examples-tinyram/read_test.asm " << timePrefix << "10 " << securityPrefix << "120 " << primaryTapePrefix << "./examples-tinyram/read_test.pubtape " << auxTapePrefix <<"./examples-tinyram/read_test.auxtape " << verifierPrefix << " " << addressPrefix << "localhost:2324"<< YELLOW << "\n$ " << RESET;
+    cout << exeName << " examples-tinyram/read_test.asm " << timePrefix << "10 " << securityPrefix << "120 " << primaryTapePrefix << "./examples-tinyram/read_test.pubtape " << auxTapePrefix <<"./examples-tinyram/read_test.auxtape " << proverPrefix << " " << addressPrefix << "localhost:2324"<< endl;
+    
+    
+    cout << endl << YELLOW << "Knowledge of Factorization example:\n$ " << RESET;
+    cout << exeName << " examples-tinyram/knowledge_of_factorization.asm " << timePrefix << "10 " << securityPrefix << "120 " << auxTapePrefix << "./examples-tinyram/knowledge_of_factorization_auxtape.txt" << endl;
 }
 
 libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const unsigned int t, const vector<string>& public_lines){
@@ -61,7 +83,7 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const unsigne
 }
 
 void executeLocally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter) {
-    cout<<"Executing simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n\n";
+    cout << "Executing simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n\n";
 
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
@@ -88,9 +110,9 @@ void executeLocally(const string assemblyFile, const string primaryTapeFile, con
 
 void executeNetwork(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter, bool prover, const string& address, unsigned short port_number) {
     if (prover) {
-        cout<<"Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
+        cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
     } else {
-        cout<<"Verifier:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+" and public inputs from '" << primaryTapeFile <<"'. Verifier listens to port " << port_number<< ".\n\n";
+        cout << "Verifier:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+" and public inputs from '" << primaryTapeFile <<"'. Verifier listens to port " << port_number<< ".\n\n";
     }
     
     //Initialize instance
@@ -156,8 +178,12 @@ int main(int argc, char *argv[]) {
             port_number = stoi(arg_without_prefix.substr(pos+1));
             continue;
         }
-
-        const unsigned int num(stoul(currArg.substr(2)));
+        
+        string arg = currArg.substr(2);
+        unsigned int num = 0;
+        if (arg.empty()) {
+            num = stoul(arg);
+        }
         if (prefix == timePrefix) {
             executionLenLog = num;
         }
@@ -165,10 +191,10 @@ int main(int argc, char *argv[]) {
             securityParameter = num;
         }
         if (prefix == verifierPrefix) {
-            verifier = (num == 1);
+            verifier = true;
         }
         if (prefix == proverPrefix) {
-            prover = (num == 1);
+            prover = true;
         }
     }
 

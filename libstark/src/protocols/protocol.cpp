@@ -1,4 +1,5 @@
 #include "protocol.hpp"
+#include "print_helpers.hpp"
 #include "common/Utils/Timing.hpp"
 #include "common/Utils/specsPrint.hpp"
 #include "common/Utils/TaskReporting.hpp"
@@ -20,132 +21,6 @@ using namespace std;
 
 namespace libstark{
 namespace Protocols{
-    
-    //the following are UBUNTU/LINUX ONLY terminal color codes.
-    #define RESET   "\033[0m"
-    #define BLACK   "\033[30m"      /* Black */
-    #define RED     "\033[31m"      /* Red */
-    #define GREEN   "\033[32m"      /* Green */
-    #define YELLOW  "\033[33m"      /* Yellow */
-    #define BLUE    "\033[34m"      /* Blue */
-    #define MAGENTA "\033[35m"      /* Magenta */
-    #define CYAN    "\033[36m"      /* Cyan */
-    #define WHITE   "\033[37m"      /* White */
-    #define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
-    #define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
-    #define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
-    #define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
-    #define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
-    #define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
-    #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
-    #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
-    
-    namespace{
-        const auto VERIFIER_COLOR = YELLOW;
-        
-        void startColor(const char* color){
-            std::cout<<color;
-        }
-        
-        void resetColor(){
-            startColor(RESET);
-        }
-
-        void successColor(){
-            startColor(GREEN);
-        }
-        
-        void decisionColor(){
-            startColor(YELLOW);
-        }
-        
-        void sentDecisionColor(){
-            startColor(MAGENTA);
-        }
-        
-        
-        void failureColor(){
-            startColor(RED);
-        }
-        
-        void startSpecs(){
-            startColor(CYAN);
-        }
-
-        std::string numBytesToString(size_t numBytes){
-            std::string suffix[] = {"Bytes", "KBytes", "MBytes", "GBytes", "TBytes", "PBytes", "EByte", "ZByte"};
-            
-            int i=0;
-            double currSize = numBytes;
-            while(currSize > 1024LL){
-                currSize /= 1024LL;
-                i++;
-            }
-            
-            return std::to_string(currSize) + " " + suffix[i];
-        }
-        
-        std::string secondsToString(double seconds){
-            if(seconds >= 60LL*60LL*24LL){
-                return std::to_string(seconds/(60LL*60LL*24LL)) + " Days";
-            }
-            
-            if(seconds >= 60LL*60LL){
-                return std::to_string(seconds/(60LL*60LL)) + " Hours";
-            }
-            
-            if(seconds >= 60LL){
-                return std::to_string(seconds/(60LL)) + " Minutes";
-            }
-            
-            return std::to_string(seconds) + " Seconds";
-        }
-        
-        void printSpecs(const double proverTime, const double verifierTime, const size_t proofGeneratedBytes, const size_t proofSentBytes, const size_t queriedDataBytes){
-            startSpecs();
-            specsPrinter specs("Protocol execution measurements");
-            specs.addLine("Prover time",secondsToString(proverTime));
-            specs.addLine("Verifier time",secondsToString(verifierTime));
-            specs.addLine("Total proof oracles size",numBytesToString(proofGeneratedBytes));
-            specs.addLine("Total communication complexity",numBytesToString(proofSentBytes));
-            specs.addLine("Query complexity",numBytesToString(queriedDataBytes));
-            specs.print();
-            
-            resetColor();
-        }
-        
-        void printProverSpecs(const double proverTime, const double communicationTime){
-            startSpecs();
-            specsPrinter specs("Protocol execution measurements");
-            specs.addLine("Prover time",secondsToString(proverTime));
-            specs.addLine("Prover Communication time",secondsToString(communicationTime));
-            specs.print();
-            resetColor();
-        }
-        
-        void printVerifierSpecs(const double verifierTime, const double communicationTime, const size_t proofGeneratedBytes, const size_t proofSentBytes, const size_t queriedDataBytes){
-            startSpecs();
-            specsPrinter specs("Protocol execution measurements");
-            specs.addLine("Verifier time",secondsToString(verifierTime));
-            specs.addLine("Verifier Communication time",secondsToString(communicationTime));
-            specs.addLine("Total proof oracles size",numBytesToString(proofGeneratedBytes));
-            specs.addLine("Total communication complexity",numBytesToString(proofSentBytes));
-            specs.addLine("Query complexity",numBytesToString(queriedDataBytes));
-            specs.print();
-            resetColor();
-        }
-        
-        void printSpecsCSV(const double proverTime, const double verifierTime, const size_t proofGeneratedBytes, const size_t proofSentBytes, const size_t queriedDataBytes){
-            return;
-            startSpecs();
-            std::cout<<"Comma Separated Valued (CSV) specifications:"<<std::endl;
-            std::cout<<"Prover time (seconds), Verifier time (seconds), Proof size (Bytes), Proof sent (Bytes), Queried data (Bytes)"<<std::endl;
-            std::cout<<proverTime<<","<<verifierTime<<","<<proofGeneratedBytes<<","<<proofSentBytes<<","<<queriedDataBytes<<std::endl;
-            
-            resetColor();
-        }
-        
-    }
     
     bool executeProtocolLocally(PartieInterface& prover, verifierInterface& verifier) {
         double verifierTime = 0;
@@ -547,7 +422,6 @@ namespace Protocols{
         TCPSocket sck(address, port_number);
         TCPSocket* sock = &sck;
         
-        size_t cnt = 0;
         Timer t;
         bool done_interacting = false;
         while (!done_interacting) {
@@ -604,7 +478,6 @@ namespace Protocols{
         TCPServerSocket servSock(port_number);     // Server Socket object
         TCPSocket *sock = servSock.accept();
         
-        size_t cnt = 0;
         Timer t;
         bool done_interacting = verifier.doneInteracting();
         while (!done_interacting) {
