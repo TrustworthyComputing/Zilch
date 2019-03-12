@@ -452,14 +452,13 @@ namespace Protocols{
         return true;
     }
 
-    void sendPhaseAndMsg(string& filename, phase_t phase, TCPSocket* sock) {
+    void sendPhaseAndMsg(std::stringstream& ss, phase_t phase, TCPSocket* sock) {
         uint16_t phase_converted = htons((int) phase); /* htons convertion for integers */
         sock->send(&phase_converted, sizeof(uint16_t));
-        std::ifstream inFile;
-        inFile.open(filename); // open the input file
-        std::stringstream strStream;
-        strStream << inFile.rdbuf(); //read the file
-        std::string str = strStream.str(); //str holds the content of the file
+        // std::ifstream inFile;
+        // inFile.open(filename); // open the input file
+        // ss << inFile.rdbuf(); //read the file
+        std::string str = ss.str(); //str holds the content of the file
         
         uint32_t msg_size = strlen(str.c_str());
         uint32_t msg_size_n = htonl(msg_size);
@@ -467,8 +466,8 @@ namespace Protocols{
         sock->send(str.c_str(), strlen(str.c_str()));
     }
 
-    phase_t receivePhaseAndMsg(string& filename, TCPSocket* sock) {
-        std::ofstream msg_from_ver(filename);
+    phase_t receivePhaseAndMsg(std::stringstream& ss, TCPSocket* sock) {
+        // std::ofstream msg_from_ver(filename);
         uint8_t echoBuffer[RCVBUFSIZE + 1];    // Buffer for echo string + \0
         if (sock->recv(echoBuffer, sizeof(uint16_t)) <= 0) {
             exit(EXIT_FAILURE);
@@ -493,9 +492,9 @@ namespace Protocols{
             }
             totalBytesReceived += bytesReceived;     // Keep tally of total bytes
             echoBuffer[bytesReceived] = '\0';        // Terminate the string!
-            msg_from_ver << echoBuffer;
+            ss << echoBuffer;
         }
-        msg_from_ver.close();
+        // msg_from_ver.close();
         return phase;
     }
     
@@ -552,16 +551,11 @@ namespace Protocols{
         Timer t;
         bool done_interacting = false;
         while (!done_interacting) {
-            std::string filename("pr_msg_" + std::to_string(cnt++)); // message-file
-            
             t = Timer();
-            std::string pr_filename_rcv = filename + ".rcv";
-            phase_t phase = receivePhaseAndMsg(pr_filename_rcv, sock);
-            std::ifstream pr_ifs(pr_filename_rcv);
+            std::stringstream pr_iss;
+            phase_t phase = receivePhaseAndMsg(pr_iss, sock);
             msg_ptr_t sepVMsg(new Ali::details::verifierMsg());
-            sepVMsg->deserialize(pr_ifs, phase);
-            pr_ifs.close();
-            std::remove(pr_filename_rcv.c_str()); // remove message-file
+            sepVMsg->deserialize(pr_iss, phase);
             communicationTime += t.getElapsed();
             t = Timer();
             prover.receiveMessage(*sepVMsg);
@@ -570,12 +564,9 @@ namespace Protocols{
             proverTime += t.getElapsed();
             t = Timer();
             phase = prover.getPreviousPhase();
-            std::string pr_filename_snt = filename + ".snt";
-            std::ofstream pr_ofs(pr_filename_snt);
-            pMsg->serialize(pr_ofs, phase);
-            pr_ofs.close();
-            sendPhaseAndMsg(pr_filename_snt, phase, sock);
-            std::remove(pr_filename_snt.c_str()); // remove message-file
+            std::stringstream pr_oss;
+            pMsg->serialize(pr_oss, phase);
+            sendPhaseAndMsg(pr_oss, phase, sock);
             
             done_interacting = receiveBoolean(sock);
             communicationTime += t.getElapsed();
@@ -617,29 +608,21 @@ namespace Protocols{
         Timer t;
         bool done_interacting = verifier.doneInteracting();
         while (!done_interacting) {
-            std::string filename("ver_msg_" + std::to_string(cnt++)); // message-file
-            std::string ver_filename_snt = filename + ".snt";
-            
             t = Timer();
             const auto vMsg = verifier.sendMessage();
             verifierTime += t.getElapsed();
             t = Timer();
             phase_t phase = verifier.getPreviousPhase();
-            std::ofstream ver_ofs(ver_filename_snt);
-            vMsg->serialize(ver_ofs, phase);
-            ver_ofs.close();
-            sendPhaseAndMsg(ver_filename_snt, phase, sock);
-            std::remove(ver_filename_snt.c_str()); // remove message-file
+            std::stringstream ver_oss;
+            vMsg->serialize(ver_oss, phase);
+            sendPhaseAndMsg(ver_oss, phase, sock);
             communicationTime += t.getElapsed();
             
             t = Timer();
-            std::string ver_filename_rcv = filename + ".rcv";
-            phase = receivePhaseAndMsg(ver_filename_rcv, sock);
-            std::ifstream ver_ifs(ver_filename_rcv);
+            std::stringstream ver_iss;
+            phase = receivePhaseAndMsg(ver_iss, sock);
             msg_ptr_t sepPMsg(new Ali::details::proverMsg());
-            sepPMsg->deserialize(ver_ifs, phase);
-            ver_ifs.close();
-            std::remove(ver_filename_rcv.c_str()); // remove message-file
+            sepPMsg->deserialize(ver_iss, phase);
             communicationTime += t.getElapsed();
             t = Timer();
             verifier.receiveMessage(*sepPMsg);
