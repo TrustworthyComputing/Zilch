@@ -158,10 +158,9 @@ int main(int argc, char *argv[]) {
     bool verifier = false;
     for (int i=2; i< argc; i++) {
         const string currArg(argv[i]);
-        if (currArg.length()<3) {
+        if (currArg.length()<2) {
             continue;
         }
-
         const string prefix = currArg.substr(0,2);
         if (prefix == auxTapePrefix) {
             auxTapeFile = currArg.substr(2);
@@ -178,23 +177,21 @@ int main(int argc, char *argv[]) {
             port_number = stoi(arg_without_prefix.substr(pos+1));
             continue;
         }
-        
-        string arg = currArg.substr(2);
-        unsigned int num = 0;
-        if (arg.empty()) {
-            num = stoul(arg);
+        if (prefix == verifierPrefix) {
+            verifier = true;
+            continue;
         }
+        if (prefix == proverPrefix) {
+            prover = true;
+            continue;
+        }
+        
+        const unsigned int num(stoul(currArg.substr(2)));
         if (prefix == timePrefix) {
             executionLenLog = num;
         }
         if (prefix == securityPrefix) {
             securityParameter = num;
-        }
-        if (prefix == verifierPrefix) {
-            verifier = true;
-        }
-        if (prefix == proverPrefix) {
-            prover = true;
         }
     }
 

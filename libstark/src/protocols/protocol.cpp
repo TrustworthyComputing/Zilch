@@ -477,6 +477,7 @@ namespace Protocols{
         std::cout << "Waiting for connection...\n";
         TCPServerSocket servSock(port_number);     // Server Socket object
         TCPSocket *sock = servSock.accept();
+        std::cout << "Started verification...\n";
         
         Timer t;
         bool done_interacting = verifier.doneInteracting();
