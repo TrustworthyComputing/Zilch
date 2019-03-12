@@ -40,25 +40,30 @@ cd libSTARK
 make -j8
 ```
 
-## STARK for TinyRAM programs
-### Arguments format:
+# STARK for TinyRAM programs
+## Arguments format:
 ```
 ./stark-tinyram <TinyRAM assembly file path> -t<trace length log_2> [-s<security parameter]> [-p<0,1>] [-T<tapeFile>]
 ```
-### Prefixes
+## Prefixes
 ```
--t : Time steps ((2^t)-1)
--s : Security (2^-s)
--p : No-Prover (0 or 1)
--P : Primary-tape (file path containing public inputs)
--A : Auxiliary-tape (file path containing private inputs)
+TinyRAM assembly file path: Path to the TinyRAM assembly code (required)
+-t: trace length log_2 (required)
+-s: security parameter (optional)
+-P: path to the primary tape file (file path containing public inputs) (optional)
+-A: path to the auxiliary tape file (file path containing private inputs) (optional)
+
+The below flags enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first.
+-r: verifier-address:port-number (optional) (default = 'localhost:1234')
+-V: enables execution of the verifier, listening on port-number (optional)
+-R: enables execution of the prover, transmitting to verifier-address:port-number (optional)
 ```
 see examples below on how to use the prefixes.
 
-### Labels
+## Labels
 In our implementation, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
 
-### Macros
+## Macros
 We have also added macros which are translated to a bunch of instructions automatically.
 
 1. __@INC register__ Increments `register` by one. (No use of extra registers)
@@ -89,6 +94,23 @@ An example using `@READ_AND_STORE_ARRAY` is presented in [read_test_with_macros.
 
 __Notice:__ Currently, some of the implemented macros use `r0`, `r1` and `r2` registers, thus any value that is stored in those registers before the macros will be lost.
 The programmer is responsible of either moving those values to other registers or storing and loading them from the memory.
+
+
+## Over the Network Verification:
+The default behavior (without flags `-r`, `-V`, `-R`) of the `stark-tinyram` executable results in a local execution. 
+In order to enable over the network verification first the verifier should be executed (`-V` flag) and then the prover (`-R` flag).
+The verifier acts as a server waiting for the prover to connect, executes and prints and returns its decision to the prover.
+
+For instance, a simple read from tapes example over the network:
+
+First run the verifier listening on port `2324`:
+```
+./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape -V -rlocalhost:2324
+```
+And then the prover to connect to port `2324`:
+```
+./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape -R -rlocalhost:2324
+```
 
 
 ### Example (Collatz Conjecture):
