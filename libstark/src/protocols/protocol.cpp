@@ -69,24 +69,24 @@ namespace Protocols{
             verifier.receiveMessage(*sepPMsg);
         }
         
-        successColor();
+        Colors::successColor();
         const bool res = verifier.verify();
         verifierTime += t.getElapsed();
-        decisionColor();
+        Colors::decisionColor();
         std::cout<<"Verifier decision: ";
         if (res) {
-            successColor();
+            Colors::successColor();
             std::cout << "ACCEPT" <<std::endl;
         } else {
-            failureColor();
+            Colors::failureColor();
             std::cout << "REJECT" <<std::endl;
         }
-        resetColor();
+        Colors::resetColor();
         
         if (true) {
-            printSpecs(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
+            Colors::printSpecs(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
         } else {
-            printSpecsCSV(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
+            Colors::printSpecsCSV(proverTime,verifierTime,proofGeneratedBytes,proofSentBytes,queriedDataBytes); 
         }
         
         return res;
@@ -448,17 +448,17 @@ namespace Protocols{
         t = Timer();
         bool res = receiveBoolean(sock);
         communicationTime += t.getElapsed();
-        sentDecisionColor();
+        Colors::sentDecisionColor();
         std::cout<<"Verifier decision: ";
         if (res) {
-            successColor();
+            Colors::successColor();
             std::cout << "ACCEPT" <<std::endl;
         } else {
-            failureColor();
+            Colors::failureColor();
             std::cout << "REJECT" <<std::endl;
         }
-        resetColor();
-        printProverSpecs(proverTime, communicationTime);        
+        Colors::resetColor();
+        Colors::printProverSpecs(proverTime, communicationTime);        
         return true;
     }
     
@@ -512,18 +512,18 @@ namespace Protocols{
         t = Timer();
         sendBoolean(res, sock);            
         communicationTime += t.getElapsed();
-        decisionColor();
+        Colors::decisionColor();
         std::cout<<"Verifier decision: ";
         if (res) {
-            successColor();
+            Colors::successColor();
             std::cout << "ACCEPT" <<std::endl;
         } else {
-            failureColor();
+            Colors::failureColor();
             std::cout << "REJECT" <<std::endl;
         }
-        resetColor();
+        Colors::resetColor();
         delete sock;
-        printVerifierSpecs(verifierTime, communicationTime, proofGeneratedBytes, proofSentBytes, queriedDataBytes); 
+        Colors::printVerifierSpecs(verifierTime, communicationTime, proofGeneratedBytes, proofSentBytes, queriedDataBytes); 
         return res;
     }
     
