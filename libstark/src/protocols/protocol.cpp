@@ -35,38 +35,16 @@ namespace Protocols{
             std::string filename("msg_" + std::to_string(cnt++) + ".txt"); // message-file
                         
             const auto vMsg = verifier.sendMessage();
-            phase_t phase = verifier.getPreviousPhase();
-
-            std::ofstream ver_ofs(filename);
-            vMsg->serialize(ver_ofs, phase);
-            ver_ofs.close();
-            
-            std::ifstream ver_ifs(filename);
-            msg_ptr_t sepVMsg(new Ali::details::verifierMsg());
-            sepVMsg->deserialize(ver_ifs, phase);
-            ver_ifs.close();
             verifierTime += t.getElapsed();
-            std::remove(filename.c_str()); // remove message-file
             
             t = Timer();
-            prover.receiveMessage(*sepVMsg);
+            prover.receiveMessage(*vMsg);
 
             const auto pMsg = prover.sendMessage();
-            phase = prover.getPreviousPhase();
-            
-            std::ofstream pr_ofs(filename);
-            pMsg->serialize(pr_ofs, phase);
-            pr_ofs.close();
-            
-            std::ifstream pr_ifs(filename);
-            msg_ptr_t sepPMsg(new Ali::details::proverMsg());
-            sepPMsg->deserialize(pr_ifs, phase);
-            pr_ifs.close();
             proverTime += t.getElapsed();
-            std::remove(filename.c_str()); // remove message-file
             
             t = Timer();
-            verifier.receiveMessage(*sepPMsg);
+            verifier.receiveMessage(*pMsg);
         }
         
         Colors::successColor();
@@ -416,7 +394,7 @@ namespace Protocols{
         const auto RS_prover = Biased_prover;
         prover_t pr(instance, *acspWitness, RS_prover);
         PartieInterface& prover = (PartieInterface&) pr;
-        double proverTime = 0, communicationTime = 0;
+        double proverTime = 0, serializationTime = 0;
         
         /* Set up the socket */
         TCPSocket sck(address, port_number);
@@ -425,29 +403,32 @@ namespace Protocols{
         Timer t;
         bool done_interacting = false;
         while (!done_interacting) {
-            t = Timer();
             std::stringstream pr_iss;
             phase_t phase = receivePhaseAndMsg(pr_iss, sock);
             msg_ptr_t sepVMsg(new Ali::details::verifierMsg());
+            
+            t = Timer();
             sepVMsg->deserialize(pr_iss, phase);
-            communicationTime += t.getElapsed();
+            serializationTime += t.getElapsed();
+            
             t = Timer();
             prover.receiveMessage(*sepVMsg);
+            proverTime += t.getElapsed();
             
+            t = Timer();
             const auto pMsg = prover.sendMessage();
             proverTime += t.getElapsed();
+            
+            std::stringstream pr_oss;
             t = Timer();
             phase = prover.getPreviousPhase();
-            std::stringstream pr_oss;
             pMsg->serialize(pr_oss, phase);
-            sendPhaseAndMsg(pr_oss, phase, sock);
+            serializationTime += t.getElapsed();
             
+            sendPhaseAndMsg(pr_oss, phase, sock);
             done_interacting = receiveBoolean(sock);
-            communicationTime += t.getElapsed();
         }
-        t = Timer();
         bool res = receiveBoolean(sock);
-        communicationTime += t.getElapsed();
         Colors::sentDecisionColor();
         std::cout<<"Verifier decision: ";
         if (res) {
@@ -458,7 +439,7 @@ namespace Protocols{
             std::cout << "REJECT" <<std::endl;
         }
         Colors::resetColor();
-        Colors::printProverSpecs(proverTime, communicationTime);        
+        Colors::printProverSpecs(proverTime, serializationTime);        
         return true;
     }
     
@@ -469,7 +450,7 @@ namespace Protocols{
         verifier_t ver(instance, RS_verifier, securityParameter);
         verifierInterface& verifier = (verifierInterface&) ver;
         
-        double verifierTime = 0, communicationTime = 0;
+        double verifierTime = 0, serializationTime = 0;
         const size_t proofGeneratedBytes = verifier.expectedCommitedProofBytes();
         const size_t proofSentBytes = verifier.expectedSentProofBytes();
         const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
@@ -485,34 +466,34 @@ namespace Protocols{
             t = Timer();
             const auto vMsg = verifier.sendMessage();
             verifierTime += t.getElapsed();
+            
             t = Timer();
             phase_t phase = verifier.getPreviousPhase();
             std::stringstream ver_oss;
             vMsg->serialize(ver_oss, phase);
-            sendPhaseAndMsg(ver_oss, phase, sock);
-            communicationTime += t.getElapsed();
+            serializationTime += t.getElapsed();
             
-            t = Timer();
+            sendPhaseAndMsg(ver_oss, phase, sock);
             std::stringstream ver_iss;
             phase = receivePhaseAndMsg(ver_iss, sock);
+            
+            t = Timer();
             msg_ptr_t sepPMsg(new Ali::details::proverMsg());
             sepPMsg->deserialize(ver_iss, phase);
-            communicationTime += t.getElapsed();
+            serializationTime += t.getElapsed();
+            
             t = Timer();
             verifier.receiveMessage(*sepPMsg);
             verifierTime += t.getElapsed();
             
-            t = Timer();
             done_interacting = verifier.doneInteracting();
             sendBoolean(done_interacting, sock);            
-            communicationTime += t.getElapsed();
         }
         
+        t = Timer();
         const bool res = verifier.verify();
         verifierTime += t.getElapsed();
-        t = Timer();
         sendBoolean(res, sock);            
-        communicationTime += t.getElapsed();
         Colors::decisionColor();
         std::cout<<"Verifier decision: ";
         if (res) {
@@ -524,7 +505,7 @@ namespace Protocols{
         }
         Colors::resetColor();
         delete sock;
-        Colors::printVerifierSpecs(verifierTime, communicationTime, proofGeneratedBytes, proofSentBytes, queriedDataBytes); 
+        Colors::printVerifierSpecs(verifierTime, serializationTime, proofGeneratedBytes, proofSentBytes, queriedDataBytes); 
         return res;
     }
     

@@ -72,20 +72,20 @@ namespace Colors{
         resetColor();
     }
     
-    void printProverSpecs(const double proverTime, const double communicationTime){
+    void printProverSpecs(const double proverTime, const double serializationTime){
         startSpecs();
         libstark::specsPrinter specs("Protocol execution measurements");
         specs.addLine("Prover time",secondsToString(proverTime));
-        specs.addLine("Prover Communication time",secondsToString(communicationTime));
+        specs.addLine("Prover Serialization & Deserialization time",secondsToString(serializationTime));
         specs.print();
         resetColor();
     }
     
-    void printVerifierSpecs(const double verifierTime, const double communicationTime, const size_t proofGeneratedBytes, const size_t proofSentBytes, const size_t queriedDataBytes){
+    void printVerifierSpecs(const double verifierTime, const double serializationTime, const size_t proofGeneratedBytes, const size_t proofSentBytes, const size_t queriedDataBytes){
         startSpecs();
         libstark::specsPrinter specs("Protocol execution measurements");
         specs.addLine("Verifier time",secondsToString(verifierTime));
-        specs.addLine("Verifier Communication time",secondsToString(communicationTime));
+        specs.addLine("Verifier Serialization & Deserialization time",secondsToString(serializationTime));
         specs.addLine("Total proof oracles size",numBytesToString(proofGeneratedBytes));
         specs.addLine("Total communication complexity",numBytesToString(proofSentBytes));
         specs.addLine("Query complexity",numBytesToString(queriedDataBytes));
