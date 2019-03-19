@@ -18,6 +18,7 @@ using std::shared_ptr;
 using std::vector;
 using std::move;
 
+const string helpPrefix = "-h";
 const string timePrefix = "-t";
 const string securityPrefix = "-s";
 const string primaryTapePrefix = "-P";
@@ -145,7 +146,7 @@ void executeNetwork(const string assemblyFile, const string primaryTapeFile, con
 int main(int argc, char *argv[]) {
     if(argc < 2){
         printHelp(argv[0]);
-        return 0;
+        return EXIT_SUCCESS;
     }
 
     string assemblyFile(argv[1]);
@@ -170,6 +171,11 @@ int main(int argc, char *argv[]) {
             primaryTapeFile = currArg.substr(2);
             continue;
         }
+        if (prefix == helpPrefix) {
+            printHelp(argv[0]);
+            return EXIT_SUCCESS;
+        }
+        
         if (prefix == addressPrefix) {
             string arg_without_prefix = currArg.substr(2);
             int pos = arg_without_prefix.find_first_of(':');
@@ -197,7 +203,7 @@ int main(int argc, char *argv[]) {
 
     if ((executionLenLog == 0) || (securityParameter == 0)) {
         printHelp(argv[0]);
-        return 0;
+        return EXIT_SUCCESS;
     }
     if (verifier || prover) {
         executeNetwork(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number);
@@ -205,5 +211,5 @@ int main(int argc, char *argv[]) {
         executeLocally(assemblyFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter);
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
