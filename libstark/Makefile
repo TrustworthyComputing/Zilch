@@ -1,6 +1,6 @@
 include ../flags.mk
 
-INCFLAGS=-Isrc -I$(ALGEBRAINC) -I$(FFTINC)
+INCFLAGS=-Isrc -I$(ALGEBRAINC) -I$(FFTINC) -march=native -lntl -lgf2x -lgmp -lm -lpthread
 
 SRCDIR  = src
 SRCEXT  = cpp

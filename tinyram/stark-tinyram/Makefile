@@ -25,7 +25,7 @@ all: $(TARGET)
 $(TARGET): buildrepo $(OBJS)
 #	@echo 'Building target: $@'
 #	@echo 'Invoking: GCC Linker'
-	$(CC) -o "$@" $(OBJS) -fopenmp $(LNKFLAGS) $(LIBFLAGS)
+	$(CC) -o "$@" $(OBJS) -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lntl -lgf2x -lgmp -lm -lpthread
 #	@echo 'Finished building target: $@'
 	cp $(TARGET) $(DST)
 

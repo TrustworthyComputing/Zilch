@@ -6,10 +6,16 @@
 #include <cstring>
 #include <map>
 #include <set>
+#include "createAffine.hpp"
+#include <NTL/GF2XFactoring.h>
+#include <NTL/matrix.h>
+#include <NTL/GF2EX.h>
+
 
 namespace libstark{
 namespace Protocols{
 namespace CryptoCommitment{
+using namespace NTL;
 
 struct hashDigest_t{
     char buffer[128/8];

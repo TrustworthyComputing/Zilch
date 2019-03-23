@@ -7,6 +7,10 @@
 #include <iomanip>
 #include <iostream>
 #include <wmmintrin.h>
+#include <NTL/GF2XFactoring.h>
+#include <NTL/matrix.h>
+#include <NTL/GF2EX.h>
+#include "createAffine.hpp"
 
 #ifdef WIN32
 #include <emmintrin.h>
@@ -14,6 +18,7 @@
 #ifdef __GNUC__
 #include <x86intrin.h>
 #endif	// #ifdef __GNUC__
+using namespace NTL;
 
 namespace libstark{
 namespace Protocols{
@@ -27,6 +32,110 @@ namespace{
 
 #define AES_128_key_exp(k, rcon) aes_128_key_expansion(k, _mm_aeskeygenassist_si128(k, rcon))
 
+#define ROUNDS 10
+
+GF2X irreducible; /* irreducible is the irreducible polynomial x^128 + x^7 + x^2 + x + 1 */
+Vec<GF2X> affineA;
+Vec<GF2X> affineInvA;
+GF2X Ac;
+
+
+void A_full(GF2X& elem) {
+    GF2X accum;
+    for (size_t i = 0; i < affineA.length(); i++) {
+        size_t cnt = 0;
+        for (size_t j = 0; j < 128; j++) {
+            if (IsOne(coeff(affineA[i], j)) && IsOne(coeff(elem, j))) {
+                cnt++;
+            }
+        }
+        SetCoeff(accum, i, cnt%2);
+    }
+    elem = conv<GF2X>(conv<GF2E>(accum) + conv<GF2E>(Ac));
+}
+
+void A_inv_full(GF2X& elem) {
+    elem = conv<GF2X>(conv<GF2E>(elem) - conv<GF2E>(Ac));
+    GF2X accum;
+    for (size_t i = 0; i < affineInvA.length(); i++) {
+        size_t cnt = 0;
+        for (size_t j = 0; j < 128; j++) {
+            if (IsOne(coeff(affineInvA[i], j)) && IsOne(coeff(elem, j))) {
+                cnt++;
+            }
+        }
+        SetCoeff(accum, i, cnt%2);
+    }
+    elem = accum;
+}
+
+void jarvis_key_schedule(vector<GF2X>& round_keys, GF2X& k, vector<GF2X> round_constants) {
+    round_keys.push_back(k);
+    for (size_t i = 0; i <= ROUNDS; i++) {
+        if (! IsZero(k)) {
+            k = InvMod(k, irreducible);
+        }
+        A_full(k);
+        k += round_constants[i];
+        round_keys.push_back(k);
+    }
+}
+
+GF2X jarvis_encrypt_field(GF2X x, GF2X key, vector<GF2X> round_constants) {
+    vector<GF2X> round_keys;
+    jarvis_key_schedule(round_keys, key, round_constants);
+    x += round_keys[0];
+    for (size_t i = 1; i < ROUNDS; i++) {
+        if (! IsZero(x)) {
+            x = InvMod(x, irreducible);
+        }
+        A_full(x);
+        x += round_keys[i];
+    }
+    if (! IsZero(x)) {
+        x = InvMod(x, irreducible);
+    }
+    x += round_keys[round_keys.size() - 1];
+    return x;
+}
+
+GF2X jarvis_decrypt_field(GF2X x, GF2X key, vector<GF2X> round_constants) {
+    vector<GF2X> round_keys;
+    jarvis_key_schedule(round_keys, key, round_constants);
+    x -= round_keys[round_keys.size() - 1];
+    if (! IsZero(x)) {
+        x = InvMod(x, irreducible);
+    }
+    for (size_t i = ROUNDS-1; i > 0; i--) {
+        x -= round_keys[i];
+        A_inv_full(x);
+        if (! IsZero(x)) {
+            x = InvMod(x, irreducible);
+        }
+    }
+    x -= round_keys[0];
+    return x;
+}
+
+void MyBytesFromGF2X(char* buffer, GF2X& p, int numbytes) {
+    memset(buffer, 0, numbytes);
+    for (size_t i = 0 ; i <= deg(p) ; i++) {
+        if (IsOne(coeff(p,i))) {
+            buffer[i/8] |= 1 << i % 8;
+        }
+    }
+}
+
+GF2X MyBytesToGF2X(const char* buffer, int numbytes) {
+    GF2X p;
+    for (size_t i = 0 ; i < numbytes ; i++) {
+        for (size_t j = 0 ; j < 8 ; j++) {
+            int bit = (buffer[i]>>j) & 1;
+            SetCoeff(p, i*8+j, bit);
+        }
+    }
+    return p;
+}
 
 static __m128i aes_128_key_expansion(__m128i key, __m128i keygened){
     keygened = _mm_shuffle_epi32(keygened, _MM_SHUFFLE(3,3,3,3));
