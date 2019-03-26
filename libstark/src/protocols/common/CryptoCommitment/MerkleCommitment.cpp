@@ -7,17 +7,31 @@
 #include <iomanip>
 #include <iostream>
 #include <wmmintrin.h>
-#include <NTL/GF2XFactoring.h>
-#include <NTL/matrix.h>
-#include <NTL/GF2EX.h>
-#include "createAffine.hpp"
 
 #ifdef WIN32
 #include <emmintrin.h>
-#endif	// #ifdef WIN32
+#endif // #ifdef WIN32
 #ifdef __GNUC__
 #include <x86intrin.h>
-#endif	// #ifdef __GNUC__
+#endif // #ifdef __GNUC__
+
+
+#define DAVIES_MEYER_AES_HASH
+// #define SHA_256_HASH
+// #define SHA_512_HASH
+// #define DAVIES_MEYER_JARVIS_HASH // WIP!!
+
+
+#if defined(SHA_256_HASH) || defined(SHA_512_HASH)
+#include "openssl/sha.h"
+#endif // #if defined(SHA_256_HASH) || defined(SHA_512_HASH)
+
+#ifdef DAVIES_MEYER_JARVIS_HASH
+#include <NTL/GF2XFactoring.h>
+#include <NTL/matrix.h>
+#include <NTL/GF2EX.h>
+#endif // #ifdef DAVIES_MEYER_JARVIS_HASH
+
 using namespace NTL;
 
 namespace libstark{
@@ -111,7 +125,7 @@ void Jarvis::A_inv_full(GF2X& elem) {
     elem = accum;
 }
 
-void Jarvis::jarvis_key_schedule(vector<GF2X>& round_keys, GF2X& k, vector<GF2X> round_constants) {
+void Jarvis::jarvis_key_schedule(std::vector<GF2X>& round_keys, GF2X& k) {
     round_keys.push_back(k);
     for (size_t i = 0; i <= ROUNDS; i++) {
         if (! IsZero(k)) {
@@ -123,9 +137,9 @@ void Jarvis::jarvis_key_schedule(vector<GF2X>& round_keys, GF2X& k, vector<GF2X>
     }
 }
 
-GF2X Jarvis::jarvis_encrypt_field(GF2X x, GF2X key, vector<GF2X> round_constants) {
-    vector<GF2X> round_keys;
-    jarvis_key_schedule(round_keys, key, round_constants);
+GF2X Jarvis::jarvis_encrypt_field(GF2X x, GF2X key) {
+    std::vector<GF2X> round_keys;
+    jarvis_key_schedule(round_keys, key);
     x += round_keys[0];
     for (size_t i = 1; i < ROUNDS; i++) {
         if (! IsZero(x)) {
@@ -141,9 +155,9 @@ GF2X Jarvis::jarvis_encrypt_field(GF2X x, GF2X key, vector<GF2X> round_constants
     return x;
 }
 
-GF2X Jarvis::jarvis_decrypt_field(GF2X x, GF2X key, vector<GF2X> round_constants) {
+GF2X Jarvis::jarvis_decrypt_field(GF2X x, GF2X key) {
     vector<GF2X> round_keys;
-    jarvis_key_schedule(round_keys, key, round_constants);
+    jarvis_key_schedule(round_keys, key);
     x -= round_keys[round_keys.size() - 1];
     if (! IsZero(x)) {
         x = InvMod(x, irreducible);
@@ -159,7 +173,7 @@ GF2X Jarvis::jarvis_decrypt_field(GF2X x, GF2X key, vector<GF2X> round_constants
     return x;
 }
 
-void Jarvis::MyBytesFromGF2X(char* buffer, GF2X& p, int numbytes) {
+void Jarvis::bytesFromGF2X(char* buffer, GF2X& p, int numbytes) {
     memset(buffer, 0, numbytes);
     for (int i = 0 ; i <= deg(p) ; i++) {
         if (IsOne(coeff(p,i))) {
@@ -168,7 +182,7 @@ void Jarvis::MyBytesFromGF2X(char* buffer, GF2X& p, int numbytes) {
     }
 }
 
-GF2X Jarvis::MyBytesToGF2X(const char* buffer, int numbytes) {
+GF2X Jarvis::bytesToGF2X(const char* buffer, int numbytes) {
     GF2X p;
     for (int i = 0 ; i < numbytes ; i++) {
         for (size_t j = 0 ; j < 8 ; j++) {
@@ -179,37 +193,61 @@ GF2X Jarvis::MyBytesToGF2X(const char* buffer, int numbytes) {
     return p;
 }
 
+#ifdef DAVIES_MEYER_JARVIS_HASH
+Jarvis jarvis;
+#endif // #ifdef DAVIES_MEYER_JARVIS_HASH
 
-//hashes 64 bytes from src into 32 bytes in dst
+/**
+ * hashes 32 bytes from src into 32 bytes in dst
+**/
 void hash(void const* const src, void * const dst) {
+#ifdef DAVIES_MEYER_AES_HASH
+    /**
+    * Code for AES-128 based hash
+    **/
     const __m128i key = _mm_loadu_si128((__m128i*)src);
-    const __m128i plaintext = _mm_loadu_si128(((__m128i*)src)+1);
-
-    /**
-     * Code for SHA-256
-    **/
-    // SHA256_CTX sha256;
-    // SHA256_Init(&sha256);
-    // SHA256_Update(&sha256,src,hash_src_len);
-    // SHA256_Final((unsigned char*)dst,&sha256);
-
-    /**
-     * Code for AES-128 based hash
-    **/
-    // const __m128i encRes = aes128_enc(plaintext, key);
-    
-    /**
-     * Code for Jarvis-128 based hash
-    **/
+    const __m128i plaintext = _mm_loadu_si128( ((__m128i*)src) + 1);
     const __m128i encRes = aes128_enc(plaintext, key);
-    
-
     _mm_storeu_si128((__m128i*)dst, _mm_xor_si128(encRes,plaintext));
+#elif SHA_256_HASH
+    /**
+    * Code for SHA-256
+    **/
+    SHA256_CTX sha256;
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, src, 32);
+    SHA256_Final(hash, &sha256);
+    _mm_storeu_si128((__m128i*)dst, *(__m128i*) &hash);
+#elif SHA_512_HASH
+    /**
+    * Code for SHA-512
+    **/
+    SHA512_CTX sha512;
+    unsigned char hash[SHA512_DIGEST_LENGTH];
+    SHA512_Init(&sha512);
+    SHA512_Update(&sha512, src, 32);
+    SHA512_Final(hash, &sha512);
+    _mm_storeu_si128((__m128i*)dst, *(__m128i*) &hash);
+#elif DAVIES_MEYER_JARVIS_HASH // WIP!!
+    /**
+    * Code for Jarvis-128 based hash
+    **/
+    const __m128i key = _mm_loadu_si128((__m128i*)src);
+    const __m128i plaintext = _mm_loadu_si128( ((__m128i*)src) + 1);
+    GF2X gf_key = jarvis.bytesToGF2X((char*) src, 128/8);
+    GF2X gf_ptxt = jarvis.bytesToGF2X((char*) ( ((__m128i*)src) + 1), 128/8);
+    GF2X gf_ctxt = jarvis.jarvis_encrypt_field(gf_ptxt, gf_key);
+    char d[128/8];
+    jarvis.bytesFromGF2X(d, gf_ctxt, 128/8);
+    const __m128i encRes2 = _mm_loadu_si128((__m128i*)d);
+    _mm_storeu_si128((__m128i*)dst, _mm_xor_si128(encRes,plaintext));
+#endif
 }
 
 hashDigest_t hash(void const* const src){
     hashDigest_t res;
-    hash(src,&res);
+    hash(src, &res);
     return res;
 }
 

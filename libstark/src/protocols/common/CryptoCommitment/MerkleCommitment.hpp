@@ -6,7 +6,6 @@
 #include <cstring>
 #include <map>
 #include <set>
-#include "createAffine.hpp"
 #include <NTL/GF2XFactoring.h>
 #include <NTL/matrix.h>
 #include <NTL/GF2EX.h>
@@ -54,13 +53,13 @@ public:
         fillAc(Ac);
     }
 
-    void jarvis_key_schedule(std::vector<GF2X>&, GF2X&, std::vector<GF2X>);
+    void jarvis_key_schedule(std::vector<GF2X>&, GF2X&);
 
-    GF2X jarvis_encrypt_field(GF2X, GF2X, std::vector<GF2X>);
-    GF2X jarvis_decrypt_field(GF2X, GF2X, std::vector<GF2X>);
+    GF2X jarvis_encrypt_field(GF2X, GF2X);
+    GF2X jarvis_decrypt_field(GF2X, GF2X);
 
-    void MyBytesFromGF2X(char*, GF2X&, int);
-    GF2X MyBytesToGF2X(const char*, int);
+    void bytesFromGF2X(char*, GF2X&, int);
+    GF2X bytesToGF2X(const char*, int);
 
 };
 
