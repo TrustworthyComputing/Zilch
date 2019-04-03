@@ -18,13 +18,13 @@
 
 #define DAVIES_MEYER_AES_HASH
 // #define SHA_256_HASH
+// #define SHA_384_HASH
 // #define SHA_512_HASH
 // #define DAVIES_MEYER_JARVIS_HASH // WIP!!
 
-
-#if defined(SHA_256_HASH) || defined(SHA_512_HASH)
+#if defined(SHA_256_HASH) || defined(SHA_384_HASH) || defined(SHA_512_HASH)
 #include "openssl/sha.h"
-#endif // #if defined(SHA_256_HASH) || defined(SHA_512_HASH)
+#endif // #if defined(SHA_256_HASH) || defined(SHA_384_HASH) || defined(SHA_512_HASH)
 
 #ifdef DAVIES_MEYER_JARVIS_HASH
 #include <NTL/GF2XFactoring.h>
@@ -209,7 +209,7 @@ void hash(void const* const src, void * const dst) {
     const __m128i plaintext = _mm_loadu_si128( ((__m128i*)src) + 1);
     const __m128i encRes = aes128_enc(plaintext, key);
     _mm_storeu_si128((__m128i*)dst, _mm_xor_si128(encRes,plaintext));
-#elif SHA_256_HASH
+#elif defined(SHA_256_HASH)
     /**
     * Code for SHA-256
     **/
@@ -219,7 +219,17 @@ void hash(void const* const src, void * const dst) {
     SHA256_Update(&sha256, src, 32);
     SHA256_Final(hash, &sha256);
     _mm_storeu_si128((__m128i*)dst, *(__m128i*) &hash);
-#elif SHA_512_HASH
+#elif defined(SHA_384_HASH)
+    /**
+    * Code for SHA-384
+    **/
+    SHA512_CTX sha384;
+    unsigned char hash[SHA384_DIGEST_LENGTH];
+    SHA384_Init(&sha384);
+    SHA384_Update(&sha384, src, 32);
+    SHA384_Final(hash, &sha384);
+    _mm_storeu_si128((__m128i*)dst, *(__m128i*) &hash);
+#elif defined(SHA_512_HASH)
     /**
     * Code for SHA-512
     **/
@@ -229,7 +239,7 @@ void hash(void const* const src, void * const dst) {
     SHA512_Update(&sha512, src, 32);
     SHA512_Final(hash, &sha512);
     _mm_storeu_si128((__m128i*)dst, *(__m128i*) &hash);
-#elif DAVIES_MEYER_JARVIS_HASH // WIP!!
+#elif defined(DAVIES_MEYER_JARVIS_HASH) // WIP!!
     /**
     * Code for Jarvis-128 based hash
     **/
