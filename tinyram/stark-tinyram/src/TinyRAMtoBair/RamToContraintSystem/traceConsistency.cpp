@@ -280,6 +280,7 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 			case Opcode::CMPA:
 			case Opcode::CMPAE:
 			case Opcode::CMPG:
+			case Opcode::CMPGE:
 			case Opcode::STOREW:
 			case Opcode::ANSWER:
 				pb_->val(regiSecond) = pb_->val(regiFirst);
