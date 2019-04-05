@@ -39,7 +39,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::CMPGE: return "CMPGE";
         case Opcode::MOV: return "MOV";
         case Opcode::READ: return "READ";
-        case Opcode::RAREAD: return "RAREAD";
+        case Opcode::SEEK: return "SEEK";
         case Opcode::CMOV: return "CMOV";
         case Opcode::JMP: return "JMP";
         case Opcode::CJMP: return "CJMP";
@@ -82,7 +82,7 @@ Opcode opcodeFromString(const string op){
     if(op == "CMPGE") return Opcode::CMPGE;
     if(op == "MOV") return Opcode::MOV;
     if(op == "READ") return Opcode::READ;
-    if(op == "RAREAD") return Opcode::RAREAD;
+    if(op == "SEEK") return Opcode::SEEK;
     if(op == "CMOV") return Opcode::CMOV;
     if(op == "JMP") return Opcode::JMP;
     if(op == "CJMP") return Opcode::CJMP;
@@ -133,7 +133,7 @@ MachineInstruction::MachineInstruction(const std::string line, const map<string,
 
     opcode_ = opcodeFromString(words[0]);
     destIdx_ = getRegNum(words[1]);
-	if (opcode_ == Opcode::RAREAD) { // the first argument in RAREAD can be either immediate or register
+	if (opcode_ == Opcode::SEEK) { // the first argument in SEEK can be either immediate or register
 		arg1isImmediate_ = !isReg(words[2]);
 		if (!arg1isImmediate_) {
             arg1Idx_ = getRegNum(words[2]);

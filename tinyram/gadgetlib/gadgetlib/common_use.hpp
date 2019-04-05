@@ -54,7 +54,7 @@ enum class Opcode : int {
 	STOREW = 28,
 	LOADW = 29,
 	READ = 30,
-	RAREAD = 31,
+	SEEK = 31,
 	ANSWER = 32,
 	NUM_OPCODES = 33
 

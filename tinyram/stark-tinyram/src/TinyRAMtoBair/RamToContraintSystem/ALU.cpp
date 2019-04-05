@@ -137,7 +137,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::READ] = ALU_READ_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::RAREAD] = ALU_RAREAD_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SEEK] = ALU_SEEK_Gadget::create(pb_, inputVariables_, resultVariables_);
 }
 
 void ALU_Gadget::setProgram(const TinyRAMProgram& program){
@@ -285,8 +285,8 @@ void ALU_Gadget::generateWitness(unsigned int i) {
     case gadgetlib::Opcode::READ:
         components_[Opcode::READ]->generateWitness();
         break;
-    case gadgetlib::Opcode::RAREAD:
-        components_[Opcode::RAREAD]->generateWitness();
+    case gadgetlib::Opcode::SEEK:
+        components_[Opcode::SEEK]->generateWitness();
         break;
 	case gadgetlib::Opcode::CMOV:
 		break;
@@ -1866,36 +1866,36 @@ void ALU_READ_Gadget::generateWitness() {
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
-/*******************         ALU_RAREAD_Gadget : Random Access Read 		    ******************/
+/*******************         ALU_SEEK_Gadget : Random Access Read 		    ******************/
 /*******************                                                            ******************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-ALU_RAREAD_Gadget::ALU_RAREAD_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+ALU_SEEK_Gadget::ALU_SEEK_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
-GadgetPtr ALU_RAREAD_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_RAREAD_Gadget(pb, inputs, results));
+GadgetPtr ALU_SEEK_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_SEEK_Gadget(pb, inputs, results));
 	pGadget->init();
 	return pGadget;
 }
 
-void ALU_RAREAD_Gadget::init() {}
+void ALU_SEEK_Gadget::init() {}
 
-void ALU_RAREAD_Gadget::generateConstraints() {
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::RAREAD);
-	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::RAREAD);
+void ALU_SEEK_Gadget::generateConstraints() {
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::SEEK);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::SEEK);
 }
 
-void ALU_RAREAD_Gadget::generateWitness() {
+void ALU_SEEK_Gadget::generateWitness() {
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
 
 #ifdef DEBUG
-    std::cout << "\n\nALU_RAREAD_Gadget witness\nALUInput RAREAD:\n";
+    std::cout << "\n\nALU_SEEK_Gadget witness\nALUInput SEEK:\n";
     inputs_.printALUInput(pb_);
-    std::cout << "ALUOutput RAREAD" << '\n';
+    std::cout << "ALUOutput SEEK" << '\n';
     results_.printALUOutput(pb_);
     std::cout << '\n';
 #endif

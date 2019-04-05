@@ -66,7 +66,7 @@ In our implementation, both the prefix and the suffix of a the label should be `
 ## Enhanced READ instructions
 * `READ ri rj A` : Consume the next word from the [A]-th tape (0 or 1) if it has remaining words and store it in `ri`. A can be either a register or an immediate value. For consuming the next word from the public tape A must be `0`, while for consuming from the private tape `A` must be `1`. In `READ` instruction, register `rj` is not used.
 
-* `RAREAD ri B A` : `RAREAD` stands for `Random Access Read`. `RAREAD` consumes the word in offset `B` from tape `A`. Both `A` and `B` can be either registers or immediate values.
+* `SEEK ri B A` : `SEEK` is a random access `read` command. `SEEK` consumes the word in offset `B` from tape `A`. Both `A` and `B` can be either registers or immediate values.
 
 
 ## Macros

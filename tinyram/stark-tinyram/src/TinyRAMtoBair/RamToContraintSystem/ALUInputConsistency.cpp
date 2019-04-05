@@ -37,7 +37,7 @@ void ALUInputConsistency::generateConstraints(){
 		unsigned int arg2 = program_.code()[i].arg2IdxOrImmediate_;
 		unsigned int dest = program_.code()[i].destIdx_;
 		Opcode opcode = program_.code()[i].opcode_;
-		if (Opcode::READ == opcode || Opcode::RAREAD == opcode) {
+		if (Opcode::READ == opcode || Opcode::SEEK == opcode) {
 			program_.arg2isImmediateToFalse(i);
 			arg2 = READ_RESERVED_REGISTER;
 		}
@@ -101,7 +101,7 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 		program_.arg2isImmediateToFalse(i);
 		arg2 = READ_RESERVED_REGISTER;
 		pb_->val(input_.registers_[READ_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
-	} else if (Opcode::RAREAD == opcode) {
+	} else if (Opcode::SEEK == opcode) {
 		unsigned int read_from_tape_result;
 		
 		bool arg1IsImmediate = program_.code()[i].arg1isImmediate_; // check if arg1 is immediate
@@ -134,7 +134,7 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 			std::cerr << "\nMOVIFILE error: last argument should be either 0 for primary tape or 1 for auxiliary tape.\n";
 			exit(EXIT_FAILURE);
 		}
-		std::cout << "Read from offset " << arg1 << " value " << read_from_tape_result << '\n';
+		// std::cout << "Read from offset " << arg1 << " value " << read_from_tape_result << '\n';
 		program_.arg2isImmediateToFalse(i);
 		arg2 = READ_RESERVED_REGISTER;
 		pb_->val(input_.registers_[READ_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
@@ -150,5 +150,3 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 	pb_->val(output_.arg1_val_) = pb_->val(input_.registers_[arg1]);
 	pb_->val(output_.dest_val_) = pb_->val(input_.registers_[dest]);
 };
-
-

@@ -159,7 +159,7 @@ void TraceConsistency::registerConsistency(){
 			if (dest == i){
 				switch (opcode) {
 					case Opcode::READ:
-					case Opcode::RAREAD:
+					case Opcode::SEEK:
 						// program_.arg2isImmediateToFalse(j);
 						selectorToConstraint[j] = 0;
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
@@ -254,7 +254,7 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 			switch (opcode)
 			{
 			case Opcode::READ:
-			case Opcode::RAREAD:
+			case Opcode::SEEK:
 			case Opcode::ADD:
 			case Opcode::SUB:
 			case Opcode::AND:
