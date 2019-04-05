@@ -247,4 +247,10 @@ Execution:
 [BGHSV](http://ieeexplore.ieee.org/document/1443079/)].
 1. Interactive and ZK proof systems [[BM](https://www.sciencedirect.com/science/article/pii/0022000088900281?via%3Dihub), [GMR](https://dl.acm.org/citation.cfm?doid=22145.22178), [BFL](https://link.springer.com/article/10.1007%2FBF01200056)].
 
+
+### ![alt text][twc-logo] An open-source project by Trustworthy Computing Group
+
+
+[twc-logo]: ./logos/twc.png
+
 [badge-license]: https://img.shields.io/badge/license-MIT-green.svg?style=flat-square
