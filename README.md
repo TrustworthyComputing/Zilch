@@ -30,7 +30,6 @@ https://github.com/elibensasson/libSTARK/issues/2
 
 #### Libraries (all should be available in standard Linux distribution package managers)
 * OpenMP (https://en.wikipedia.org/wiki/OpenMP) for parallelization.
-* googletest (https://github.com/google/googletest) for **unit-tests compilation only**
 
 ## How to run the code
 #### Compilation:
@@ -220,21 +219,8 @@ ANSWER r0 r0 r11    ; Answer should be 1
 In the simulation the Prover and Verifier interact, the Prover generates a proof and the Verifier verifies it.
 During the executions the specifications of generated BAIR and APR, measurements, and Verifier's decision, are printed to the standard output.
 
-## Unit-tests
-To use the unit-test the gtest development package should be installed: `apt install libgtest-dev`.
 
-Compilation:
-```
-make -j8 tests
-```
-Execution:
-```
-./bin/algebralib-tests/algebralib_tests
-./bin/libstark-tests/libstark-tests
-./bin/stark-tinyram-tests/stark-tinyram-tests
-```
-
-### Academic literature (partial list, reverse chronological order)
+### Academic literature
 
 1. Scalable perfect zero knowledge IOP systems [[BCGV](https://link.springer.com/chapter/10.1007%2F978-3-662-49099-0_2), [BCFGRS](https://link.springer.com/chapter/10.1007%2F978-3-319-70503-3_6)].
 1. A STARK without ZK [[SCI](https://link.springer.com/chapter/10.1007%2F978-3-319-56617-7_19)].
