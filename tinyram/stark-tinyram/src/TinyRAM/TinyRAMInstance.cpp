@@ -340,11 +340,11 @@ void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
 		std::cout << l << std::endl; // print program as is
 	}
 	unrollMacros(lines);
-	std::cout << "\nUnrolled Program:" << '\n';
-	for (auto& l : lines){
-		std::cout << l << std::endl; // print program as is
-	}
-	std::cout << "\n\n";
+	// std::cout << "\nUnrolled Program:" << '\n';
+	// for (auto& l : lines){
+	// 	std::cout << l << std::endl; // print program as is
+	// }
+	// std::cout << "\n\n";
 	
 	map<string, int> labels_map = buildLabelsMap(lines); 						// create a map for labels to instruction numbers
     for(const auto& l : lines){

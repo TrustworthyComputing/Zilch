@@ -6,6 +6,11 @@
 #include <algebraLib/BitExtract.hpp>
 #include <bitset>
 
+#ifndef PRINT_HELPERS_HPP__  
+#include <protocols/print_helpers.hpp>
+#endif
+
+
 //#include <algebraLib/SelectorSum.hpp>
 #define EXTDIM Algebra::ExtensionDegree
 using namespace std;
@@ -1824,7 +1829,7 @@ void ALU_ANSWER_Gadget::generateWitness(){
         **/
 
         size_t a = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
-        std::cout << "\n*** TIMESTEPS=" << max_timestep << " ANSWER=" << a << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
+        std::cout << "\n*** TIMESTEPS=" << max_timestep << YELLOW << " ANSWER=" << a << RESET << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
 
 	}
 }
