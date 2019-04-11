@@ -122,6 +122,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::UDIV] = ALU_UDIV_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::UMOD] = ALU_UMOD_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CMPE] = ALU_CMPE_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::CMPNE] = ALU_CMPNE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CMPA] = ALU_CMPA_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CMPAE] = ALU_CMPAE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CMPG] = ALU_CMPG_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -266,6 +267,9 @@ void ALU_Gadget::generateWitness(unsigned int i) {
 		break;
 	case gadgetlib::Opcode::CMPE:
 		components_[Opcode::CMPE]->generateWitness();
+		break;
+    case gadgetlib::Opcode::CMPNE:
+		components_[Opcode::CMPNE]->generateWitness();
 		break;
 	case gadgetlib::Opcode::CMPA:
 		components_[Opcode::CMPA]->generateWitness();
@@ -1124,6 +1128,46 @@ void ALU_CMPE_Gadget::generateWitness(){
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
+/*******************                         ALU_CMPNE_Gadget                    ******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+ALU_CMPNE_Gadget::ALU_CMPNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
+										:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+GadgetPtr ALU_CMPNE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_CMPNE_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_CMPNE_Gadget::init(){}
+
+void ALU_CMPNE_Gadget::generateConstraints(){
+	CircuitPolynomial flagConstarint1((inputs_.arg1_val_ + inputs_.arg2_val_) * (Algebra::one() + results_.flag_));
+	CircuitPolynomial flagConstarint2((inputs_.arg1_val_ + inputs_.arg2_val_) * pInverse_);
+	CircuitPolynomial flagConstraint3(results_.flag_);
+    pb_->addGeneralConstraint(flagConstarint1, "(1 - flag) * (arg1_val + arg2_val)= 0", Opcode::CMPNE);
+	pb_->addGeneralConstraint(flagConstarint2 + flagConstraint3, "(arg1_val + arg2_val) * invResult = flag", Opcode::CMPNE);
+	// add isMemOp = 0
+	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::CMPNE);
+}
+
+void ALU_CMPNE_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	FElem arg1Val = pb_->val(inputs_.arg1_val_);
+	FElem arg2Val = pb_->val(inputs_.arg2_val_);
+	pb_->val(results_.flag_) = arg1Val == arg2Val ? Algebra::zero() : Algebra::one();
+	pb_->val(pInverse_) = arg1Val == arg2Val ? Algebra::zero() : (arg1Val + arg2Val).inverse();
+    
+	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
+}
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
 /*******************                         ALU_CMPA_Gadget                    ******************/
 /*******************                                                            ******************/
 /*************************************************************************************************/
@@ -1953,6 +1997,3 @@ void ALU_RESERVED_OPCODE_24_Gadget::generateWitness(){
 	unsigned int res = rand() - RAND_MAX/2;
 	val(results_.result_) = mapIntegerToFieldElement(0, REGISTER_LENGTH, res);
 }
-
-
-

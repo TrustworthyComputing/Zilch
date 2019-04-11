@@ -187,6 +187,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::CJMP:
 					case Opcode::CNJMP:
 					case Opcode::CMPE:
+					case Opcode::CMPNE:
 					case Opcode::CMPA:
 					case Opcode::CMPAE:
 					case Opcode::CMPG:
@@ -277,6 +278,7 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 			case Opcode::CJMP:
 			case Opcode::CNJMP:
 			case Opcode::CMPE:
+			case Opcode::CMPNE:
 			case Opcode::CMPA:
 			case Opcode::CMPAE:
 			case Opcode::CMPG:
@@ -360,5 +362,3 @@ void TraceConsistency::generateWitness(unsigned int programLine){
 	}
 	registersWitness(programLine);
 }
-
-

@@ -33,6 +33,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::SHR: return "SHR";
         case Opcode::SHAR: return "SHAR";
         case Opcode::CMPE: return "CMPE";
+        case Opcode::CMPNE: return "CMPNE";
         case Opcode::CMPA: return "CMPA";
         case Opcode::CMPAE: return "CMPAE";
         case Opcode::CMPG: return "CMPG";
@@ -76,6 +77,7 @@ Opcode opcodeFromString(const string op){
     if(op == "SHR") return Opcode::SHR;
     if(op == "SHAR") return Opcode::SHAR;
     if(op == "CMPE") return Opcode::CMPE;
+    if(op == "CMPNE") return Opcode::CMPNE;
     if(op == "CMPA") return Opcode::CMPA;
     if(op == "CMPAE") return Opcode::CMPAE;
     if(op == "CMPG") return Opcode::CMPG;

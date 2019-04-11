@@ -77,8 +77,8 @@ private:
 
 
 
-    // 34 constraints. To add more instructions, the numbe should be incremented!!!
-	Protoboard(ProtoboardParamsCPtr pParams) : opcodeConstraintSystem_(34, ConstraintSystem()), numInputs_(0), numConstratins_(0), pParams_(pParams) {};
+    // 35 constraints. To add more instructions, the numbe should be incremented!!!
+	Protoboard(ProtoboardParamsCPtr pParams) : opcodeConstraintSystem_(35, ConstraintSystem()), numInputs_(0), numConstratins_(0), pParams_(pParams) {};
 
 	void addBoundaryVariable(const Algebra::Variable& var) { boundaryVariables_.emplace_back(var); }
 	void addBoundaryTimestamp(const size_t timeStamp) { boundaryTimestamps_.emplace_back(timeStamp); }

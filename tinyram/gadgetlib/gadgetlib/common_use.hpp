@@ -56,7 +56,9 @@ enum class Opcode : int {
 	READ = 30,
 	SEEK = 31,
 	ANSWER = 32,
-	NUM_OPCODES = 33
+	CMPNE = 33,
+	
+	NUM_OPCODES = 35
 
 }; // enum Opcode
 
