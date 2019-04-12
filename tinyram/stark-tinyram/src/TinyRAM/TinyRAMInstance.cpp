@@ -4,6 +4,7 @@
 #include <regex>
 #include <map>
 #include <algorithm>    // For std::remove()
+#include <locale> // for toupper
 
 
 using std::string;
@@ -110,6 +111,10 @@ bool isReg(const string s){
     return (s.size()>1) && (s[0]=='r');
 }
 
+bool isMipsReg(const string s){
+    return (s.size()>2) && (s[0]=='$');
+}
+
 int getImmidiate(const string s){
     return std::stoul(s);
 }
@@ -123,6 +128,11 @@ int getRegNum(const string s){
     return stoul(idx);
 }
 
+string stringToUpper(string strToConvert) {
+    std::transform(strToConvert.begin(), strToConvert.end(), strToConvert.begin(), ::toupper);
+    return strToConvert;
+}
+
 MachineInstruction::MachineInstruction(const std::string line, const map<string, int> labels_map) {
     std::regex regex{R"([\s,]+)"}; // split on space and comma
     std::sregex_token_iterator it{line.begin(), line.end(), regex, -1};
@@ -132,8 +142,8 @@ MachineInstruction::MachineInstruction(const std::string line, const map<string,
         std::cout<<"Bad format of line, each line must contain exactly 4 words";
         throw("bad format");
     }
-
-    opcode_ = opcodeFromString(words[0]);
+	string words0 = stringToUpper(words[0]);
+    opcode_ = opcodeFromString(words0);
     destIdx_ = getRegNum(words[1]);
 	if (opcode_ == Opcode::SEEK) { // the first argument in SEEK can be either immediate or register
 		arg1isImmediate_ = !isReg(words[2]);

@@ -79,6 +79,9 @@ struct MachineInstruction {
     void print()const;
 };
 
+string stringToUpper(string);
+bool isReg(const string);
+bool isMipsReg(const string);
 vector<string> split(const string &s);
 string trim(const std::string& str, const std::string& whitespace = " \t");
 bool isLabel(const string &str);
