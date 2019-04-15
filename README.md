@@ -2,7 +2,7 @@
 ## A Framework for Building Zero-Knowledge Proofs for any Application
 
 ### Overview
-Hyperion is a framework that implements _scalable_ and _transparent_ (it does not need any trusted-party setup phase) _argument of _knowledge_ (STARKs).
+Hyperion is a framework that implements _scalable_ and _transparent_ (it does not need any trusted-party setup phase) _argument_ of _knowledge_ (STARKs).
 Hyperion consists of two main components: a front-end and a back-end.
 The [front-end](https://github.com/jimouris/zilch-compiler) supports our novel, high-level programming language (called _Zilch_) and our custom compiler for translating the Zilch code to _zMIPS_ assembly instructions; zMIPS is our extension to the MIPS ISA to support programming ZKPs.
 The front-end is complemented by our custom _code optimizer_ that performs static analysis, including live-range, dead-code, constant- and copy-propagation analyses, and optimizes the assembly code based on those results.
