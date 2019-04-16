@@ -156,6 +156,7 @@ string mapMipsRegister(string& r) {
     else if (r == "$fp" || r == "$30") { return "r30"; }
     else if (r == "$ra" || r == "$31") { return "r31"; }
     else if (r[0] == 'r') { return r; }
+    else if (r[0] == '$' && r[1] == 'r') { return r.substr(1); }
     else {
         std::cerr << r << " : Unknown register" << endl;
         exit(EXIT_FAILURE);
