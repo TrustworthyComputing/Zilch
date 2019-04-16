@@ -177,11 +177,9 @@ string parseZmips(const string assemblyFile) {
         vector<string> tokens{istream_iterator<string>{iss}, istream_iterator<string>{}};
         string instr;
         if (tokens.size() == 4) { // if instruction
-            if (isMipsReg(tokens[3])) {
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[2]), mapMipsRegister(tokens[3]));
-            } else {
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[2]), tokens[3]);
-            }
+            string imm = isMipsReg(tokens[3]) ? mapMipsRegister(tokens[3]) : tokens[3];
+            string reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : tokens[2];
+            instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), reg2, imm);
         } else if (tokens.size() == 3) { // if lw or sw
             if (isInteger(tokens[2])) {
                 instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), "r0", tokens[2]);
