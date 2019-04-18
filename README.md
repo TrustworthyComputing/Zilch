@@ -56,7 +56,7 @@ We have also added macros which are translated to a bunch of instructions automa
 1. __@INC register__ Increments `register` by one. (No use of extra registers)
 1. __@DEC register__ Decrements `register` by one. (No use of extra registers)
 1. __@MIN dest first-register second-register__ Uses `r0` as an intermediate register and puts to `dest` the minimum value of `first-register` and `second-register`.
-A simple example is [min_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/min_test.asm).
+A simple example is [min_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/min_test.asm).
 1. __@MAX dest first-register second-register__ Uses `r0` as an intermediate register and puts to `dest` the maximum value of `first-register` and `second-register`.
 1. __@SWAP first-register second-register__ Uses `r0` as an intermediate register and swaps values between `first-register` and `second-register`.
 1. __@READ_AND_STORE_ARRAY len index tape__ Uses `r0`, `r1` and `r2`.
@@ -73,9 +73,9 @@ __macro_0__
 CNJMP r1 r1 __macro_0__
 ```
 
-A simple example using `@MIN`, `@INC` and `@DEC` is [min_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/min_test.asm).
-Another simple example using `@SWAP` is [swap_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/swap_test.asm).
-An example using `@READ_AND_STORE_ARRAY` is presented in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/read_test_with_macros.asm).
+A simple example using `@MIN`, `@INC` and `@DEC` is [min_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/min_test.asm).
+Another simple example using `@SWAP` is [swap_test.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/swap_test.asm).
+An example using `@READ_AND_STORE_ARRAY` is presented in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/read_test_with_macros.asm).
 
 
 
@@ -92,17 +92,17 @@ For instance, a simple read from tapes example over the network:
 
 First run the verifier listening on port `2324`:
 ```
-./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape -V -rlocalhost:2324
+./stark-tinyram examples-zmips/read_test.asm -t10 -s120 -P./examples-zmips/read_test.pubtape -A./examples-zmips/read_test.auxtape -V -rlocalhost:2324
 ```
 And then the prover to connect to port `2324`:
 ```
-./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape -R -rlocalhost:2324
+./stark-tinyram examples-zmips/read_test.asm -t10 -s120 -P./examples-zmips/read_test.pubtape -A./examples-zmips/read_test.auxtape -R -rlocalhost:2324
 ```
 
 
 ### Example (Collatz Conjecture):
 ```
-./stark-tinyram examples-tinyram/collatz.asm -t10 -s120
+./stark-tinyram examples-zmips/collatz.asm -t10 -s120
 ```
 The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2<sup>10</sup>-1) machine steps, and soundness error at most 2<sup>-120</sup>.
 
@@ -125,9 +125,9 @@ CNJMP r0 r0 __loop__    ; if (!flag) then jump to __loop__
 
 ANSWER r0 r0 r2         ; result should be 312
 ```
-In order to execute the above program, simply run `./stark-tinyram examples-tinyram/read_test.asm -t10 -s120 -P./examples-tinyram/read_test.pubtape -A./examples-tinyram/read_test.auxtape`.
+In order to execute the above program, simply run `./stark-tinyram examples-zmips/read_test.asm -t10 -s120 -P./examples-zmips/read_test.pubtape -A./examples-zmips/read_test.auxtape`.
 
-We have also implemented the same example using macros in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/read_test_with_macros.asm).
+We have also implemented the same example using macros in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/read_test_with_macros.asm).
 This specific example is not a great use-case of using macros since it expands to three loops instead of just one, but is implemented for comparison.
 
 
@@ -135,7 +135,7 @@ This specific example is not a great use-case of using macros since it expands t
 A more interesting example would be to prove the knowledge of the factors of a number (e.g. 15) without disclosing them to the verifier.
 As we already mentioned, all the private inputs (i.e. the inputs that only the prover has knowledge of) are placed in the auxiliary tape.
 ```
-./stark-tinyram examples-tinyram/knowledge_of_factorization.asm -t10 -s120 -P./examples-tinyram/knowledge_of_factorization.pubtape -A./examples-tinyram/knowledge_of_factorization.auxtape
+./stark-tinyram examples-zmips/knowledge_of_factorization.asm -t10 -s120 -P./examples-zmips/knowledge_of_factorization.pubtape -A./examples-zmips/knowledge_of_factorization.auxtape
 ```
 
 #### TinyRAM code for the Knowledge of Factorization example:
@@ -152,14 +152,14 @@ __end__
 ANSWER r0 r0 r11    ; return r11 // return (r1 * r2 == 15)
 ```
 
-Also in file [knowledge_of_bignum_factorization.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/knowledge_of_bignum_factorization.asm) we have implemented the knowledge of factorization example for big numbers (e.g., 1024 bit arithmetic) based on block multiplication. Private inputs are located [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/knowledge_of_bignum_factorization.auxtape) while public inputs is [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-tinyram/knowledge_of_bignum_factorization.pubtape).
-To execute this example simply run `./stark-tinyram examples-tinyram/knowledge_of_bignum_factorization.asm -t14 -s120 -P./examples-tinyram/knowledge_of_bignum_factorization.pubtape -A./examples-tinyram/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
+Also in file [knowledge_of_bignum_factorization.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.asm) we have implemented the knowledge of factorization example for big numbers (e.g., 1024 bit arithmetic) based on block multiplication. Private inputs are located [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.auxtape) while public inputs is [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.pubtape).
+To execute this example simply run `./stark-tinyram examples-zmips/knowledge_of_bignum_factorization.asm -t14 -s120 -P./examples-zmips/knowledge_of_bignum_factorization.pubtape -A./examples-zmips/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
 
 
 ### Another interesting example (Knowledge of RSA Private Key):
 Prover claims he/she posseses the private RSA key of a verifier-chosen public key without revealing anything about the key to the verifier.
 ```
-./stark-tinyram examples-tinyram/knowledge_of_RSA_private_key.asm -t10 -s120 -P./examples-tinyram/knowledge_of_RSA_private_key.pubtape -A./examples-tinyram/knowledge_of_RSA_private_key.auxtape
+./stark-tinyram examples-zmips/knowledge_of_RSA_private_key.asm -t10 -s120 -P./examples-zmips/knowledge_of_RSA_private_key.pubtape -A./examples-zmips/knowledge_of_RSA_private_key.auxtape
 ```
 
 

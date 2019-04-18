@@ -8,58 +8,58 @@
 
 #include "TinyRAMtoBair/ConstraintSystemToBair/cs2Bair.hpp"
 #include "TinyRAMtoBair/RamToContraintSystem/ALU.hpp"
+#include "inputParser.hpp"
 #include "zMipsParser.hpp"
+#include <sys/stat.h>
 
-using std::cout;
-using std::endl;
-using std::to_string;
-using std::string;
-using std::stoul;
-using std::shared_ptr;
-using std::vector;
-using std::move;
+using namespace std;
 
-const string helpPrefix = "-h";
-const string timePrefix = "-t";
-const string securityPrefix = "-s";
-const string primaryTapePrefix = "-P";
-const string auxTapePrefix = "-A";
-const string verifierPrefix = "-V";
-const string proverPrefix = "-R";
-const string addressPrefix = "-r";
+const string zmips_file_prefix   = "--asm";
+const string timesteps_prefix    = "--tsteps";
+const string security_prefix     = "--security";
+const string primary_tape_prefix = "--pubtape";
+const string private_tape_prefix = "--auxtape";
+const string run_verifier_prefix = "--verifier";
+const string run_prover_prefix   = "--prover";
+const string address_port_prefix = "--address";
 
+inline bool exists(const std::string& name) {
+    struct stat buffer;   
+    return (stat (name.c_str(), &buffer) == 0); 
+}
 
-void printHelp(const string exeName) {
-    cout << YELLOW << "Usage:\n$ ";
-    cout << GREEN << exeName << RESET << " <TinyRAM assembly file path> " << YELLOW << timePrefix << RESET << "<trace length log_2> [" << YELLOW << securityPrefix << RESET << "<security parameter]> [" << YELLOW << primaryTapePrefix << RESET << "<primaryTapeFile>] [" << YELLOW << auxTapePrefix << RESET << "<auxTapeFile>] [" << YELLOW << verifierPrefix << RESET << "] [" << YELLOW << proverPrefix << RESET << "] [" << YELLOW << addressPrefix << RESET << "<address:port_number>]" << endl << endl;
+void printHelp(const string exeName, string errorMsg) {
+    if (errorMsg != "") cout << endl << YELLOW << errorMsg << RESET << endl << endl;
     
-    cout << YELLOW << "TinyRAM assembly file path" << RESET << ": Path to the TinyRAM assembly code (required)" << endl; 
-    cout << YELLOW << timePrefix << RESET << ": trace length log_2 (required)" << endl; 
-    cout << YELLOW << securityPrefix << RESET << ": security parameter (optional)" << endl;
-    cout << YELLOW << primaryTapePrefix << RESET << ": path to the primary tape file (optional)" << endl;
-    cout << YELLOW << auxTapePrefix << RESET << ": path to the auxiliary tape file (optional)" << endl;
+    cout << YELLOW << "Usage:\n$ ";
+    cout << GREEN << exeName << RESET << " " << zmips_file_prefix << " <zMIPS assembly file path> [" << YELLOW << timesteps_prefix << RESET << " <trace length log_2>] [" << YELLOW << security_prefix << RESET << " <security parameter]> [" << YELLOW << primary_tape_prefix << RESET << " <primaryTapeFile>] [" << YELLOW << private_tape_prefix << RESET << " <auxTapeFile>] [" << YELLOW << run_verifier_prefix << RESET << "] [" << YELLOW << run_prover_prefix << RESET << "] [" << YELLOW << address_port_prefix << RESET << " <address:port_number>]" << endl << endl;
+    
+    cout << YELLOW << "zMIPS assembly file path" << RESET << ": Path to the zMIPS assembly code (required)" << endl; 
+    cout << YELLOW << timesteps_prefix << RESET << ": trace length log_2 (required)" << endl; 
+    cout << YELLOW << security_prefix << RESET << ": security parameter (optional)" << endl;
+    cout << YELLOW << primary_tape_prefix << RESET << ": path to the primary tape file (optional)" << endl;
+    cout << YELLOW << private_tape_prefix << RESET << ": path to the auxiliary tape file (optional)" << endl;
     cout << endl << "The below flags enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first." << endl;
-    cout << YELLOW << addressPrefix << RESET << ": verifier-address:port-number (optional) (default = 'localhost:1234')" << endl;
-    cout << YELLOW << verifierPrefix << RESET << ": enables execution of the verifier, listening on port-number (optional)" << endl;
-    cout << YELLOW << proverPrefix << RESET << ": enables execution of the prover, transmitting to verifier-address:port-number (optional)" << endl;
+    cout << YELLOW << address_port_prefix << RESET << ": verifier-address:port-number (optional) (default = 'localhost:1234')" << endl;
+    cout << YELLOW << run_verifier_prefix << RESET << ": enables execution of the verifier, listening on port-number (optional)" << endl;
+    cout << YELLOW << run_prover_prefix << RESET << ": enables execution of the prover, transmitting to verifier-address:port-number (optional)" << endl;
     
     cout << endl << YELLOW << "Example:\n$ " << RESET;
-    cout << exeName << " examples-tinyram/collatz.asm " << timePrefix << "10 " << securityPrefix << "120" << endl;
-    cout << endl << "The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2^10-1) machine steps, and soundness error at most 2^-120."<< endl;
+    cout << exeName << " examples-zmips/collatz.asm " << timesteps_prefix << "10 " << security_prefix << "120" << endl;
+    cout << endl << "The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2^10-1) machine steps, and soundness error at most 2^-120." << endl;
     cout << endl << "In the simulation the Prover and Verify interact, the Prover generates a proof and the Verifier verifies it. During the executions the specifications of generated BAIR and APR, measurements, and Verifiers decision, are printed to the standard output." << endl;
     
     cout << endl << YELLOW << "A simple read from tapes example:\n$ " << RESET;
-    cout << exeName << " examples-tinyram/read_test.asm " << timePrefix << "10 " << securityPrefix << "120 " << primaryTapePrefix << "./examples-tinyram/read_test.pubtape " << auxTapePrefix <<"./examples-tinyram/read_test.auxtape" << endl;
+    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << primary_tape_prefix << "./examples-zmips/read_test.pubtape " << private_tape_prefix <<"./examples-zmips/read_test.auxtape" << endl;
     cout << endl << YELLOW << "The simple read from tapes example over the network:\n$ " << RESET;
-    cout << exeName << " examples-tinyram/read_test.asm " << timePrefix << "10 " << securityPrefix << "120 " << primaryTapePrefix << "./examples-tinyram/read_test.pubtape " << auxTapePrefix <<"./examples-tinyram/read_test.auxtape " << verifierPrefix << " " << addressPrefix << "localhost:2324"<< YELLOW << "\n$ " << RESET;
-    cout << exeName << " examples-tinyram/read_test.asm " << timePrefix << "10 " << securityPrefix << "120 " << primaryTapePrefix << "./examples-tinyram/read_test.pubtape " << auxTapePrefix <<"./examples-tinyram/read_test.auxtape " << proverPrefix << " " << addressPrefix << "localhost:2324"<< endl;
-    
+    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << primary_tape_prefix << "./examples-zmips/read_test.pubtape " << private_tape_prefix <<"./examples-zmips/read_test.auxtape " << run_verifier_prefix << " " << address_port_prefix << "localhost:2324" << YELLOW << "\n$ " << RESET;
+    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << primary_tape_prefix << "./examples-zmips/read_test.pubtape " << private_tape_prefix <<"./examples-zmips/read_test.auxtape " << run_prover_prefix << " " << address_port_prefix << "localhost:2324" << endl;
     
     cout << endl << YELLOW << "Knowledge of Factorization example:\n$ " << RESET;
-    cout << exeName << " examples-tinyram/knowledge_of_factorization.asm " << timePrefix << "10 " << securityPrefix << "120 " << auxTapePrefix << "./examples-tinyram/knowledge_of_factorization_auxtape.txt" << endl;
+    cout << exeName << " examples-zmips/knowledge_of_factorization.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << private_tape_prefix << "./examples-zmips/knowledge_of_factorization_auxtape.txt" << endl;
 }
 
-libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const unsigned int t, const vector<string>& public_lines){
+libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const size_t t, const vector<string>& public_lines){
     resetALU_GadgetGlobalState();
     shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 
@@ -72,7 +72,7 @@ libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const unsig
     return libstark::BairInstance(numVars, t, move(cs2bairConstraints_), move(cs2bairMemoryCS_), cs2bair_instance.getBoundaryConstraints(), vector<Algebra::FieldElement>(numVars,Algebra::zero()));
 }
 
-libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const unsigned int t, const vector<string>& public_lines, const vector<string>& private_lines){
+libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const size_t t, const vector<string>& public_lines, const vector<string>& private_lines){
     resetALU_GadgetGlobalState();
     shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 
@@ -84,7 +84,7 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const unsigne
     return libstark::BairWitness(move(cs2bairColoring_), move(cs2bairMemory_));
 }
 
-void executeLocally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter) {
+void executeLocally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter) {
     cout << "Executing simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n\n";
 
     //Initialize instance
@@ -110,7 +110,7 @@ void executeLocally(const string assemblyFile, const string primaryTapeFile, con
     libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true);
 }
 
-void executeNetwork(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const unsigned int t, const unsigned int securityParameter, bool prover, const string& address, unsigned short port_number) {
+void executeNetwork(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number) {
     if (prover) {
         cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
     } else {
@@ -145,66 +145,60 @@ void executeNetwork(const string assemblyFile, const string primaryTapeFile, con
 }
 
 int main(int argc, char *argv[]) {
-    if(argc < 2){
-        printHelp(argv[0]);
+    /* Parse arguments */
+    if (argc < 2){
+        printHelp(argv[0], "No input asm file given.");
         return EXIT_SUCCESS;
     }
-
-    string assemblyFile(argv[1]);
-    unsigned int executionLenLog = 0;
-    unsigned int securityParameter = 60;
-    string primaryTapeFile, auxTapeFile;
+    InputParser input(argc, argv);
+    /* Print help message */
+    if (input.cmdOptionExists("-h") || input.cmdOptionExists("--help")) {
+        printHelp(argv[0], "");
+        return EXIT_SUCCESS;
+    }
+    /* Input zMIPS file */
+    std::string assemblyFile = input.getCmdOption(zmips_file_prefix);
+    if (!input.cmdOptionExists(zmips_file_prefix) || !exists(assemblyFile) ) {
+        printHelp(argv[0], "No input asm file given. Use the " + zmips_file_prefix + " flag and then provide the asm file.");
+        return EXIT_FAILURE;
+    }
+    std::string primaryTapeFile;
+    if (input.cmdOptionExists(primary_tape_prefix)) {
+        primaryTapeFile = input.getCmdOption(primary_tape_prefix);
+        if (!exists(primaryTapeFile)) {
+            printHelp(argv[0], primaryTapeFile + " does not exist. Use a valid public tape file.");
+            return EXIT_FAILURE;
+        }
+    }
+    std::string auxTapeFile;
+    if (input.cmdOptionExists(private_tape_prefix)) {
+        auxTapeFile = input.getCmdOption(private_tape_prefix);
+        if (!exists(auxTapeFile)) {
+            printHelp(argv[0], auxTapeFile + " does not exist. Use a valid private tape file.");
+            return EXIT_FAILURE;
+        }
+    }
+    /* Timesteps 2^t*/
+    size_t executionLenLog = 5;
+    if (input.cmdOptionExists(timesteps_prefix)) {
+        executionLenLog = stol(input.getCmdOption(timesteps_prefix));
+    }
+    /* soundness error at most 2^(-sec) */
+    size_t securityParameter = 60;
+    if (input.cmdOptionExists(security_prefix)) {
+        securityParameter = stol(input.getCmdOption(security_prefix));
+    }
+    /* Run prover and verifier separately */
+    bool prover = input.cmdOptionExists(run_prover_prefix);
+    bool verifier = input.cmdOptionExists(run_verifier_prefix);
+    /* Parse address and port information */
     string address = "localhost";
-    unsigned short port_number = 1234;
-    bool prover = false;
-    bool verifier = false;
-    for (int i=2; i< argc; i++) {
-        const string currArg(argv[i]);
-        if (currArg.length()<2) {
-            continue;
-        }
-        const string prefix = currArg.substr(0,2);
-        if (prefix == auxTapePrefix) {
-            auxTapeFile = currArg.substr(2);
-            continue;
-        }
-        if (prefix == primaryTapePrefix) {
-            primaryTapeFile = currArg.substr(2);
-            continue;
-        }
-        if (prefix == helpPrefix) {
-            printHelp(argv[0]);
-            return EXIT_SUCCESS;
-        }
-        
-        if (prefix == addressPrefix) {
-            string arg_without_prefix = currArg.substr(2);
-            int pos = arg_without_prefix.find_first_of(':');
-            address = arg_without_prefix.substr(0, pos);
-            port_number = stoi(arg_without_prefix.substr(pos+1));
-            continue;
-        }
-        if (prefix == verifierPrefix) {
-            verifier = true;
-            continue;
-        }
-        if (prefix == proverPrefix) {
-            prover = true;
-            continue;
-        }
-        
-        const unsigned int num(stoul(currArg.substr(2)));
-        if (prefix == timePrefix) {
-            executionLenLog = num;
-        }
-        if (prefix == securityPrefix) {
-            securityParameter = num;
-        }
-    }
-
-    if ((executionLenLog == 0) || (securityParameter == 0)) {
-        printHelp(argv[0]);
-        return EXIT_SUCCESS;
+    uint16_t port_number = 1234;
+    if (input.cmdOptionExists(address_port_prefix)) {
+        string arg_without_prefix = input.getCmdOption(address_port_prefix);
+        int pos = arg_without_prefix.find_first_of(':');
+        address = arg_without_prefix.substr(0, pos);
+        port_number = stoi(arg_without_prefix.substr(pos+1));
     }
     
     string asmFile = parseZmips(assemblyFile); // assembly file can either be a Z-MIPS file or a Hyperion asm file
