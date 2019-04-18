@@ -346,10 +346,11 @@ void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
-	for (auto& l : lines){
-		std::cout << l << std::endl; // print program as is
-	}
 	unrollMacros(lines);
+	
+	// for (auto& l : lines){
+		// std::cout << l << std::endl; // print program as is
+	// }
 	// std::cout << "\nUnrolled Program:" << '\n';
 	// for (auto& l : lines){
 	// 	std::cout << l << std::endl; // print program as is

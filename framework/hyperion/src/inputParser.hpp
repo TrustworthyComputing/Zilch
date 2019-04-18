@@ -14,8 +14,8 @@ public:
     
     InputParser(int &argc, char **argv);
 
-    std::string getCmdOption(const std::string &option) const;
-    bool cmdOptionExists(const std::string &option) const;
+    std::string get_cmd_option(const std::string &option) const;
+    bool cmd_option_exists(const std::string &option) const;
     
 };
 

@@ -163,7 +163,7 @@ string mapMipsRegister(string& r) {
     }
 }
 
-string parseZmips(const string assemblyFile) {
+string parse_zmips(const string assemblyFile) {
     string parsedAsmFile = remove_extension(assemblyFile);
     ifstream ifs(assemblyFile);
     ofstream ofs(parsedAsmFile);
