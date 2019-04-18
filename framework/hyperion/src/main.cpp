@@ -45,18 +45,18 @@ void printHelp(const string exeName, string errorMsg) {
     cout << YELLOW << run_prover_prefix << RESET << ": enables execution of the prover, transmitting to verifier-address:port-number (optional)" << endl;
     
     cout << endl << YELLOW << "Example:\n$ " << RESET;
-    cout << exeName << " examples-zmips/collatz.asm " << timesteps_prefix << "10 " << security_prefix << "120" << endl;
-    cout << endl << "The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2^10-1) machine steps, and soundness error at most 2^-120." << endl;
+    cout << exeName << " examples-zmips/simple_add.asm " << timesteps_prefix << " 10 " << security_prefix << " 120" << endl;
+    cout << endl << "The above execution results in execution of STARK simulation over the simple_add program, using at most 1023 (which is 2^10-1) machine steps, and soundness error at most 2^-120." << endl;
     cout << endl << "In the simulation the Prover and Verify interact, the Prover generates a proof and the Verifier verifies it. During the executions the specifications of generated BAIR and APR, measurements, and Verifiers decision, are printed to the standard output." << endl;
     
     cout << endl << YELLOW << "A simple read from tapes example:\n$ " << RESET;
-    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << primary_tape_prefix << "./examples-zmips/read_test.pubtape " << private_tape_prefix <<"./examples-zmips/read_test.auxtape" << endl;
+    cout << exeName << " ./examples-zmips/read_test.asm " << timesteps_prefix << " 10 " << security_prefix << " 120 " << primary_tape_prefix << " ./examples-zmips/read_test.pubtape " << private_tape_prefix <<" ./examples-zmips/read_test.auxtape" << endl;
     cout << endl << YELLOW << "The simple read from tapes example over the network:\n$ " << RESET;
-    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << primary_tape_prefix << "./examples-zmips/read_test.pubtape " << private_tape_prefix <<"./examples-zmips/read_test.auxtape " << run_verifier_prefix << " " << address_port_prefix << "localhost:2324" << YELLOW << "\n$ " << RESET;
-    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << primary_tape_prefix << "./examples-zmips/read_test.pubtape " << private_tape_prefix <<"./examples-zmips/read_test.auxtape " << run_prover_prefix << " " << address_port_prefix << "localhost:2324" << endl;
+    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << " 10 " << security_prefix << " 120 " << primary_tape_prefix << " ./examples-zmips/read_test.pubtape " << private_tape_prefix <<" ./examples-zmips/read_test.auxtape " << run_verifier_prefix << " " << address_port_prefix << "localhost:2324" << YELLOW << "\n$ " << RESET;
+    cout << exeName << " examples-zmips/read_test.asm " << timesteps_prefix << " 10 " << security_prefix << " 120 " << primary_tape_prefix << " ./examples-zmips/read_test.pubtape " << private_tape_prefix <<" ./examples-zmips/read_test.auxtape " << run_prover_prefix << " " << address_port_prefix << "localhost:2324" << endl;
     
     cout << endl << YELLOW << "Knowledge of Factorization example:\n$ " << RESET;
-    cout << exeName << " examples-zmips/knowledge_of_factorization.asm " << timesteps_prefix << "10 " << security_prefix << "120 " << private_tape_prefix << "./examples-zmips/knowledge_of_factorization_auxtape.txt" << endl;
+    cout << exeName << " examples-zmips/knowledge_of_factorization.asm " << timesteps_prefix << " 10 " << security_prefix << " 120 " << private_tape_prefix << " ./examples-zmips/knowledge_of_factorization_auxtape.txt" << endl;
 }
 
 libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const size_t t, const vector<string>& public_lines){

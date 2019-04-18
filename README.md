@@ -23,20 +23,20 @@ make -j8
 
 ## Arguments format:
 ```
-./hyperion <TinyRAM assembly file path> -t<trace length log_2> [-s<security parameter]> [-p<0,1>] [-T<tapeFile>]
+$ ./hyperion --asm <zMIPS assembly file path> [--tsteps <trace length log_2>] [--security <security parameter]> [--pubtape <primaryTapeFile>] [--auxtape <auxTapeFile>] [--verifier] [--prover] [--address <address:port_number>]
 ```
 ## Prefixes
 ```
-TinyRAM assembly file path: Path to the TinyRAM assembly code (required)
--t: trace length log_2 (required)
--s: security parameter (optional)
--P: path to the primary tape file (file path containing public inputs) (optional)
--A: path to the auxiliary tape file (file path containing private inputs) (optional)
+zMIPS assembly file path: Path to the zMIPS assembly code (required)
+--tsteps: trace length log_2 (required)
+--security: security parameter (optional)
+--pubtape: path to the primary tape file (optional)
+--auxtape: path to the auxiliary tape file (optional)
 
 The below flags enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first.
--r: verifier-address:port-number (optional) (default = 'localhost:1234')
--V: enables execution of the verifier, listening on port-number (optional)
--R: enables execution of the prover, transmitting to verifier-address:port-number (optional)
+--address: verifier-address:port-number (optional) (default = 'localhost:1234')
+--verifier: enables execution of the verifier, listening on port-number (optional)
+--prover: enables execution of the prover, transmitting to verifier-address:port-number (optional)
 ```
 see examples below on how to use the prefixes.
 
@@ -84,25 +84,25 @@ The programmer is responsible of either moving those values to other registers o
 
 
 ## Over the Network Verification:
-The default behavior (without flags `-r`, `-V`, `-R`) of the `hyperion` executable results in a local execution. 
-In order to enable over the network verification first the verifier should be executed (`-V` flag) and then the prover (`-R` flag).
+The default behavior (without flags `--address`, `--verifier`, `--prover`) of the `hyperion` executable results in a local execution. 
+In order to enable over the network verification first the verifier should be executed (`--verifier` flag) and then the prover (`--prover` flag).
 The verifier acts as a server waiting for the prover to connect, executes and prints and returns its decision to the prover.
 
 For instance, a simple read from tapes example over the network:
 
 First run the verifier listening on port `2324`:
 ```
-./hyperion examples-zmips/read_test.asm -t10 -s120 -P./examples-zmips/read_test.pubtape -A./examples-zmips/read_test.auxtape -V -rlocalhost:2324
+./hyperion examples-zmips/read_test.asm --timesteps 10 --security 120 --pubtape ./examples-zmips/read_test.pubtape --auxtape ./examples-zmips/read_test.auxtape --verifier --address localhost:2324
 ```
 And then the prover to connect to port `2324`:
 ```
-./hyperion examples-zmips/read_test.asm -t10 -s120 -P./examples-zmips/read_test.pubtape -A./examples-zmips/read_test.auxtape -R -rlocalhost:2324
+./hyperion examples-zmips/read_test.asm --timesteps 10 --security 120 --pubtape ./examples-zmips/read_test.pubtape --auxtape ./examples-zmips/read_test.auxtape --prover --address localhost:2324
 ```
 
 
 ### Example (Collatz Conjecture):
 ```
-./hyperion examples-zmips/collatz.asm -t10 -s120
+./hyperion examples-zmips/collatz.asm --timesteps 10 --security 120
 ```
 The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2<sup>10</sup>-1) machine steps, and soundness error at most 2<sup>-120</sup>.
 
@@ -125,7 +125,7 @@ CNJMP r0 r0 __loop__    ; if (!flag) then jump to __loop__
 
 ANSWER r0 r0 r2         ; result should be 312
 ```
-In order to execute the above program, simply run `./hyperion examples-zmips/read_test.asm -t10 -s120 -P./examples-zmips/read_test.pubtape -A./examples-zmips/read_test.auxtape`.
+In order to execute the above program, simply run `./hyperion examples-zmips/read_test.asm --timesteps 10 --security 120 --pubtape ./examples-zmips/read_test.pubtape --auxtape ./examples-zmips/read_test.auxtape`.
 
 We have also implemented the same example using macros in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/read_test_with_macros.asm).
 This specific example is not a great use-case of using macros since it expands to three loops instead of just one, but is implemented for comparison.
@@ -135,7 +135,7 @@ This specific example is not a great use-case of using macros since it expands t
 A more interesting example would be to prove the knowledge of the factors of a number (e.g. 15) without disclosing them to the verifier.
 As we already mentioned, all the private inputs (i.e. the inputs that only the prover has knowledge of) are placed in the auxiliary tape.
 ```
-./hyperion examples-zmips/knowledge_of_factorization.asm -t10 -s120 -P./examples-zmips/knowledge_of_factorization.pubtape -A./examples-zmips/knowledge_of_factorization.auxtape
+./hyperion examples-zmips/knowledge_of_factorization.asm --timesteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_factorization.auxtape
 ```
 
 #### TinyRAM code for the Knowledge of Factorization example:
@@ -153,13 +153,13 @@ ANSWER r0 r0 r11    ; return r11 // return (r1 * r2 == 15)
 ```
 
 Also in file [knowledge_of_bignum_factorization.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.asm) we have implemented the knowledge of factorization example for big numbers (e.g., 1024 bit arithmetic) based on block multiplication. Private inputs are located [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.auxtape) while public inputs is [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.pubtape).
-To execute this example simply run `./hyperion examples-zmips/knowledge_of_bignum_factorization.asm -t14 -s120 -P./examples-zmips/knowledge_of_bignum_factorization.pubtape -A./examples-zmips/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
+To execute this example simply run `./hyperion examples-zmips/knowledge_of_bignum_factorization.asm -t14 --security 120 --pubtape ./examples-zmips/knowledge_of_bignum_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
 
 
 ### Another interesting example (Knowledge of RSA Private Key):
 Prover claims he/she posseses the private RSA key of a verifier-chosen public key without revealing anything about the key to the verifier.
 ```
-./hyperion examples-zmips/knowledge_of_RSA_private_key.asm -t10 -s120 -P./examples-zmips/knowledge_of_RSA_private_key.pubtape -A./examples-zmips/knowledge_of_RSA_private_key.auxtape
+./hyperion examples-zmips/knowledge_of_RSA_private_key.asm --timesteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_RSA_private_key.pubtape --auxtape ./examples-zmips/knowledge_of_RSA_private_key.auxtape
 ```
 
 
