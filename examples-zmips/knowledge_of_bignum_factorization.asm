@@ -1,4 +1,4 @@
-; ./stark-tinyram examples-zmips/knowledge_of_bignum_factorization.asm -t14 -s120 -P./examples-zmips/knowledge_of_bignum_factorization.pubtape -A./examples-zmips/knowledge_of_bignum_factorization.auxtape
+; ./hyperion examples-zmips/knowledge_of_bignum_factorization.asm -t14 -s120 -P./examples-zmips/knowledge_of_bignum_factorization.pubtape -A./examples-zmips/knowledge_of_bignum_factorization.auxtape
 
 ; Read the number of blocks from public tape 
 READ r1 r1 0                            ; the number of blocks of each number (l1)

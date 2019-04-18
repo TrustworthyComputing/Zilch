@@ -5,33 +5,33 @@ WD					:= $(shell $(PWD))
 BUILD_DIR			:= bin
 EXE_DIR				:= $(WD)
 BLDDIR				:= $(WD)/$(BUILD_DIR)
-GADGETLIB3_SRC_DIR	:= tinyram/gadgetlib/gadgetlib
+GADGETLIB3_SRC_DIR	:= framework/gadgetlib/gadgetlib
 FFTLIB_SRC_DIR		:= algebra/FFT/src
 
 ALGEBRALIB_DIR		:= $(WD)/algebra/algebralib
 LIBSTARK_DIR		:= $(WD)/libstark
 GADGETLIB3_DIR		:= $(WD)/$(GADGETLIB3_SRC_DIR)
-TINYRAM_DIR			:= $(WD)/tinyram/stark-tinyram
+HYPERION_DIR		:= $(WD)/framework/hyperion
 FFTLIB_DIR			:= $(WD)/algebra/FFT
 
 .PHONY: \
 		libstark libstark-clean \
-		stark-tinyram stark-tinyram-clean \
+		hyperion hyperion-clean \
 		fft fft-clean \
 		algebralib algebralib-clean \
 		gadgetlib gadgetlib-clean \
 		clean
 
-default: stark-tinyram
+default: hyperion
 
 help:
-	./stark-tinyram -h
+	./hyperion -h
 
 run-prover:
-	./stark-tinyram $(ARGS) -t10 -R
+	./hyperion $(ARGS) --tsteps 10 --prover
 
 run-verifier:
-	./stark-tinyram $(ARGS) -t10 -V
+	./hyperion $(ARGS) --tsteps 10 --verifier
 
 libstark:
 	$(MAKE) -C $(LIBSTARK_DIR) \
@@ -42,9 +42,9 @@ libstark:
 libstark-clean:
 	$(MAKE) clean -C $(LIBSTARK_DIR) BLDDIR=$(BLDDIR)/libstark
 
-stark-tinyram: gadgetlib fft algebralib libstark
-	$(MAKE) -C $(TINYRAM_DIR) \
-		BLDDIR=$(BLDDIR)/stark-tinyram                       \
+hyperion: gadgetlib fft algebralib libstark
+	$(MAKE) -C $(HYPERION_DIR) \
+		BLDDIR=$(BLDDIR)/hyperion                       \
 		EXEDIR=$(EXE_DIR) \
 		FFTINC=$(FFTLIB_DIR)/src \
 		FFTLIBLNKDIR=$(BLDDIR)/fft					\
@@ -55,9 +55,9 @@ stark-tinyram: gadgetlib fft algebralib libstark
 		GADGET3INC=$(GADGETLIB3_DIR)/../.			\
 		GADGET3LNKDIR=$(BLDDIR)/gadgetlib
 
-stark-tinyram-clean:
-	$(MAKE) clean -C $(TINYRAM_DIR) \
-		BLDDIR=$(BLDDIR)/stark-tinyram \
+hyperion-clean:
+	$(MAKE) clean -C $(HYPERION_DIR) \
+		BLDDIR=$(BLDDIR)/hyperion \
 		EXEDIR=$(EXE_DIR)
 
 fft:
@@ -85,5 +85,5 @@ gadgetlib:
 gadgetlib-clean:
 	$(MAKE) -C $(GADGETLIB3_DIR) BLDDIR=$(BLDDIR)/gadgetlib clean
 
-clean: gadgetlib-clean stark-tinyram-clean libstark-clean fft-clean algebralib-clean
+clean: gadgetlib-clean hyperion-clean libstark-clean fft-clean algebralib-clean
 	$(RM) -r $(BLDDIR)

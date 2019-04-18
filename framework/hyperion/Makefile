@@ -18,8 +18,8 @@ SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
 SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
 OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 
-TARGET=$(BLDDIR)/stark-tinyram
-DST=$(EXEDIR)/stark-tinyram
+TARGET=$(BLDDIR)/hyperion
+DST=$(EXEDIR)/hyperion
 all: $(TARGET)
 
 $(TARGET): buildrepo $(OBJS)
