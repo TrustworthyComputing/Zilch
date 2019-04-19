@@ -94,7 +94,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "STOREW") {
         return "STOREW " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SW" || instr == "SWU" || instr == "SUI") {
-        if (stoi(r2) == 0) {
+        if (isInteger(r2) && stoi(r2) == 0) {
             return "STOREW " + r0 + " " + r1 + " " + r1;
         } else {
             return "ADD " + r1 + " " + r1 + " " + r2 + "\nSTOREW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
@@ -102,7 +102,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "LOADW") {
         return "LOADW " + r0 + " " + r1 + " " + r2;
     } else if (instr == "LW" || instr == "LWU" || instr == "LUI") {
-        if (stoi(r2) == 0) {
+        if (isInteger(r2) && stoi(r2) == 0) {
             return "LOADW " + r0 + " " + r1 + " " + r1;
         } else {
             return "ADD " + r1 + " " + r1 + " " + r2 + "\nLOADW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
@@ -163,7 +163,7 @@ string mapMipsRegister(string& r) {
     }
 }
 
-string parse_zmips(const string assemblyFile) {
+string parse_zmips(const string assemblyFile, const bool show_asm) {
     string parsedAsmFile = remove_extension(assemblyFile);
     ifstream ifs(assemblyFile);
     ofstream ofs(parsedAsmFile);
@@ -171,7 +171,11 @@ string parse_zmips(const string assemblyFile) {
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
+    if (show_asm) std::cout << '\n';
     for (auto& l : lines){
+        if (show_asm) {
+            std::cout << l << '\n'; // print line
+        }
         l.erase(std::remove(l.begin(), l.end(), ','), l.end());
         istringstream iss(l);
         vector<string> tokens{istream_iterator<string>{iss}, istream_iterator<string>{}};
@@ -186,8 +190,15 @@ string parse_zmips(const string assemblyFile) {
             } else {
                 tokens[2].erase(std::remove(tokens[2].begin(), tokens[2].end(), ')'), tokens[2].end());
                 int pos = tokens[2].find_first_of('(');
-                std::string reg = tokens[2].substr(pos+1), addr = tokens[2].substr(0, pos);
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), addr);
+                std::string reg = tokens[2].substr(pos+1);
+                std::string addr = tokens[2].substr(0, pos);
+                
+                std::cout << "\t/* message */ "<< reg << " " << addr << '\n';
+                if (isInteger(addr)) {
+                    instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), addr);
+                } else {
+                    instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), mapMipsRegister(addr));
+                }
             }
         } else if (tokens.size() == 2) { // if j
             instr = fromZMips(tokens[0], "r0", "r0", tokens[1]);

@@ -23,20 +23,25 @@ make -j8
 
 ## Arguments format:
 ```
-$ ./hyperion --asm <zMIPS assembly file path> [--tsteps <trace length log_2>] [--security <security parameter]> [--pubtape <primaryTapeFile>] [--auxtape <auxTapeFile>] [--verifier] [--prover] [--address <address:port_number>]
+$ ./hyperion --asm <zMIPS assembly file path> [--tsteps <trace length log_2>] [--security <security parameter]> [--pubtape <primaryTapeFile>] [--auxtape <auxTapeFile>] [--verifier | --prover] [--address <address:port_number>]
 ```
 ## Prefixes
 ```
-zMIPS assembly file path: Path to the zMIPS assembly code (required)
---tsteps: trace length log_2 (required)
---security: security parameter (optional)
---pubtape: path to the primary tape file (optional)
---auxtape: path to the auxiliary tape file (optional)
+--help      : Display this help message
+--examples  : Display some usage examples
+--show-asm  : Display zMIPS assembly input
+--verbose   : Verbose output, print BAIR, ACSP, APR and FRI specifications
 
-The below flags enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first.
---address: verifier-address:port-number (optional) (default = 'localhost:1234')
---verifier: enables execution of the verifier, listening on port-number (optional)
---prover: enables execution of the prover, transmitting to verifier-address:port-number (optional)
+--asm       : Path to the zMIPS assembly code (required)
+--tsteps    : trace length log_2 (optional, default = 5)
+--security  : security parameter (optional, default = 60)
+--pubtape   : path to the primary tape file (optional, default = none)
+--auxtape   : path to the auxiliary tape file (optional, default = none)
+
+The flags below enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first.
+--address  : verifier-address:port-number (optional, default = 'localhost:1234')
+--verifier : enables execution of the verifier, listening on port-number (optional, default = false)
+--prover   : enables execution of the prover, transmitting to verifier-address:port-number (optional, default = false)
 ```
 see examples below on how to use the prefixes.
 

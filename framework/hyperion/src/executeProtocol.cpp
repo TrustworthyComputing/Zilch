@@ -25,9 +25,7 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const size_t 
     return libstark::BairWitness(move(cs2bairColoring_), move(cs2bairMemory_));
 }
 
-void execute_locally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter) {
-    cout << "\nExecuting simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n";
-
+void execute_locally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose) {
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
 	TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
@@ -48,16 +46,10 @@ void execute_locally(const string assemblyFile, const string primaryTapeFile, co
 
     const auto bairWitness = constructWitness(program, t, public_lines, private_lines);     // witness is generated from the prover
     const auto bairInstance = constructInstance(program, t, public_lines);                  // instance is generated from the verifier
-    libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true);
+    libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true, verbose);
 }
 
-void execute_network(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number) {
-    if (prover) {
-        cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
-    } else {
-        cout << "Verifier:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(t) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+" and public inputs from '" << primaryTapeFile <<"'. Verifier listens to port " << port_number<< ".\n\n";
-    }
-    
+void execute_network(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose) {    
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
     TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
@@ -79,8 +71,8 @@ void execute_network(const string assemblyFile, const string primaryTapeFile, co
         sregex_token_iterator pr_it{private_inputs.begin(), private_inputs.end(), regex, -1};
         vector<string> private_lines{pr_it, {}};
         const auto bairWitness = constructWitness(program, t, public_lines, private_lines);     // witness is generated from the prover
-        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number);
+        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose);
     } else {
-        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number);
+        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose);
     }
 }

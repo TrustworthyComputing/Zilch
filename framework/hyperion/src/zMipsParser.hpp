@@ -14,6 +14,6 @@ string remove_extension(const string&);
 string fromZMips(string instr, const string&, const string&, const string&);
 inline bool isInteger(const string&);
 string mapMipsRegister(string&);
-string parse_zmips(const string);
+string parse_zmips(const string, const bool);
 
 #endif // ZMIPS_PARSER_HPP

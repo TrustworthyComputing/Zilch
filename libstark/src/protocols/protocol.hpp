@@ -20,6 +20,8 @@ namespace Protocols{
 //
 //
 
+extern bool verbose_;
+
 enum phase_t{START_PROTOCOL, UNIVARIATE_COMMITMENTS, VERIFIER_RANDOMNESS, RS_PROXIMITY, QUERY, RESULTS, DONE};
 
 template<class T>
@@ -114,10 +116,10 @@ public:
 // Protocol execution algorithm
 //
 bool executeProtocolLocally(PartieInterface& prover, verifierInterface& verifier);
-bool executeProtocol(const BairInstance& instance, const BairWitness& witness, const unsigned short securityParameter, bool testBair = false, bool testAcsp = false, bool testPCP = false);
+bool executeProtocol(const BairInstance& instance, const BairWitness& witness, const unsigned short securityParameter, bool testBair = false, bool testAcsp = false, bool testPCP = false, bool verbose = false);
 
-bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const std::string& address, unsigned short port_number);
-bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number);
+bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const std::string& address, unsigned short port_number, bool verbose);
+bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose);
 
 void simulateProtocol(const BairInstance& instance, const unsigned short securityParameter);
 

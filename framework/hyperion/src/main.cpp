@@ -12,6 +12,8 @@ using namespace std;
 
 const string help_msg_prefix     = "--help";
 const string examples_prefix     = "--examples";
+const string verbose_prefix      = "--verbose";
+const string show_asm_prefix     = "--show-asm";
 const string zmips_file_prefix   = "--asm";
 const string timesteps_prefix    = "--tsteps";
 const string security_prefix     = "--security";
@@ -29,13 +31,16 @@ inline bool file_exists(const string& name) {
 void print_help(const string exeName, string errorMsg) {
     if (errorMsg != "") cout << endl << YELLOW << errorMsg << RESET << endl << endl;
     cout << YELLOW << "Usage:\n$ ";
-    cout << GREEN << exeName << YELLOW << " " << zmips_file_prefix << RESET << " <zMIPS assembly file path> [" << YELLOW << timesteps_prefix << RESET << " <trace length log_2>] [" << YELLOW << security_prefix << RESET << " <security parameter]> [" << YELLOW << primary_tape_prefix << RESET << " <primaryTapeFile>] [" << YELLOW << private_tape_prefix << RESET << " <auxTapeFile>] [" << YELLOW << run_verifier_prefix << RESET << "] [" << YELLOW << run_prover_prefix << RESET << "] [" << YELLOW << address_port_prefix << RESET << " <address:port_number>]" << endl << endl;
+    cout << GREEN << exeName << YELLOW << " " << zmips_file_prefix << RESET << " <zMIPS assembly file path> [" << YELLOW << timesteps_prefix << RESET << " <trace length log_2>] [" << YELLOW << security_prefix << RESET << " <security parameter]> [" << YELLOW << primary_tape_prefix << RESET << " <primaryTapeFile>] [" << YELLOW << private_tape_prefix << RESET << " <auxTapeFile>] [" << YELLOW << run_verifier_prefix << RESET << " | " << YELLOW << run_prover_prefix << RESET << "] [" << YELLOW << address_port_prefix << RESET << " <address:port_number>]" << endl << endl;
     
     cout << YELLOW << help_msg_prefix   << RESET << "      : Display this help message" << endl;
-    cout << YELLOW << examples_prefix   << RESET << "  : Display some usage examples" << endl << endl;
+    cout << YELLOW << examples_prefix   << RESET << "  : Display some usage examples" << endl;
+    cout << YELLOW << show_asm_prefix   << RESET << "  : Display zMIPS assembly input" << endl;
+    cout << YELLOW << verbose_prefix    << RESET << "   : Verbose output, print BAIR, ACSP, APR and FRI specifications" << endl << endl;
+    
     cout << YELLOW << zmips_file_prefix << RESET << "       : Path to the zMIPS assembly code " << YELLOW << "(required)" << RESET << endl;
     cout << YELLOW << timesteps_prefix  << RESET << "    : trace length log_2 (optional, default = 5)" << endl; 
-    cout << YELLOW << security_prefix   << RESET << "  : security parameter (optional, default = 10)" << endl;
+    cout << YELLOW << security_prefix   << RESET << "  : security parameter (optional, default = 60)" << endl;
     cout << YELLOW << primary_tape_prefix << RESET << "   : path to the primary tape file (optional, default = none)" << endl;
     cout << YELLOW << private_tape_prefix << RESET << "   : path to the auxiliary tape file (optional, default = none)" << endl;
     cout << endl << "The flags below enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first." << endl;
@@ -112,6 +117,12 @@ int main(int argc, char *argv[]) {
     /* Run prover and verifier separately */
     bool prover = input.cmd_option_exists(run_prover_prefix);
     bool verifier = input.cmd_option_exists(run_verifier_prefix);
+    if (prover == verifier && prover == true) {
+        print_help(argv[0], "Cannot be both prover and verifier at the same time.");
+        return EXIT_FAILURE;
+    }
+    bool verbose = input.cmd_option_exists(verbose_prefix);
+    bool show_asm = input.cmd_option_exists(show_asm_prefix);
     /* Parse address and port information */
     string address = "localhost";
     uint16_t port_number = 1234;
@@ -123,11 +134,19 @@ int main(int argc, char *argv[]) {
     }
     
     /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
-    string asmFile = parse_zmips(assemblyFile);
-    if (verifier || prover) {
-        execute_network(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number);
+    string asmFile;
+    if (prover) {
+        cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
+        asmFile = parse_zmips(assemblyFile, show_asm);
+        execute_network(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number, verbose);
+    } else if (verifier) {
+        cout << "Verifier:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+" and public inputs from '" << primaryTapeFile <<"'. Verifier listens to port " << port_number<< ".\n\n";
+        asmFile = parse_zmips(assemblyFile, show_asm);
+        execute_network(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, false, address, port_number, verbose);
     } else { // run local simulation
-        execute_locally(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter);
+        cout << "\nExecuting simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n";
+        asmFile = parse_zmips(assemblyFile, show_asm);
+        execute_locally(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, verbose);
     }
     std::remove(asmFile.c_str());
 

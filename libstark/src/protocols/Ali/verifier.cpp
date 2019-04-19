@@ -483,7 +483,9 @@ void verifier_t::generateQueries(const RS_verifierFactory_t& RS_verifierFactory)
             for(const auto& s: combSoundness_){
                 specsPrinter witnessFriSpecs("FRI for witness (f) specifications #" + std::to_string(RS_verifier_witness_.size()+1));
                 RS_verifier_witness_.push_back(RS_verifierFactory(PCPP_Basis.basis, s, deg_log_composition,true, witnessFriSpecs));
-                witnessFriSpecs.print();
+                if (verbose_) {
+                    witnessFriSpecs.print();
+                }
             }
         }
     }
@@ -497,7 +499,9 @@ void verifier_t::generateQueries(const RS_verifierFactory_t& RS_verifierFactory)
             for(const auto& s: combSoundness_){
                 specsPrinter compFriSpecs("FRI for constraints (g) specifications #" + std::to_string(RS_verifier_composition_.size()+1));
                 RS_verifier_composition_.push_back(RS_verifierFactory(PCPP_Basis.basis, s, deg_log_composition,false,compFriSpecs));
-                compFriSpecs.print();
+                if (verbose_) {
+                    compFriSpecs.print();
+                }
             }
         }
     }
