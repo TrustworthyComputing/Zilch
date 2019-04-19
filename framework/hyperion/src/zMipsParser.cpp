@@ -192,8 +192,6 @@ string parse_zmips(const string assemblyFile, const bool show_asm) {
                 int pos = tokens[2].find_first_of('(');
                 std::string reg = tokens[2].substr(pos+1);
                 std::string addr = tokens[2].substr(0, pos);
-                
-                std::cout << "\t/* message */ "<< reg << " " << addr << '\n';
                 if (isInteger(addr)) {
                     instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), addr);
                 } else {
