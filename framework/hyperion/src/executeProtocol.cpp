@@ -25,7 +25,7 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const size_t 
     return libstark::BairWitness(move(cs2bairColoring_), move(cs2bairMemory_));
 }
 
-void execute_locally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose) {
+void execute_locally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose, bool no_proof) {
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
 	TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
@@ -45,6 +45,7 @@ void execute_locally(const string assemblyFile, const string primaryTapeFile, co
     vector<string> private_lines{pr_it, {}};
 
     const auto bairWitness = constructWitness(program, t, public_lines, private_lines);     // witness is generated from the prover
+    if (no_proof) return;
     const auto bairInstance = constructInstance(program, t, public_lines);                  // instance is generated from the verifier
     libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true, verbose);
 }

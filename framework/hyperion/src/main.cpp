@@ -20,6 +20,7 @@ const string security_prefix     = "--security";
 const string primary_tape_prefix = "--pubtape";
 const string private_tape_prefix = "--auxtape";
 const string run_verifier_prefix = "--verifier";
+const string no_proof_prefix     = "--no-proof";
 const string run_prover_prefix   = "--prover";
 const string address_port_prefix = "--address";
 
@@ -36,14 +37,16 @@ void print_help(const string exeName, string errorMsg) {
     cout << YELLOW << help_msg_prefix   << RESET << "      : Display this help message" << endl;
     cout << YELLOW << examples_prefix   << RESET << "  : Display some usage examples" << endl;
     cout << YELLOW << show_asm_prefix   << RESET << "  : Display zMIPS assembly input" << endl;
-    cout << YELLOW << verbose_prefix    << RESET << "   : Verbose output, print BAIR, ACSP, APR and FRI specifications" << endl << endl;
+    cout << YELLOW << verbose_prefix    << RESET << "   : Verbose output, print BAIR, ACSP, APR and FRI specifications" << endl;
+    cout << YELLOW << no_proof_prefix   << RESET << "  : Run the zMIPS execution engine (i.e., without generating a proof)." << endl << endl;
     
     cout << YELLOW << zmips_file_prefix << RESET << "       : Path to the zMIPS assembly code " << YELLOW << "(required)" << RESET << endl;
     cout << YELLOW << timesteps_prefix  << RESET << "    : trace length log_2 (optional, default = 5)" << endl; 
     cout << YELLOW << security_prefix   << RESET << "  : security parameter (optional, default = 60)" << endl;
     cout << YELLOW << primary_tape_prefix << RESET << "   : path to the primary tape file (optional, default = none)" << endl;
-    cout << YELLOW << private_tape_prefix << RESET << "   : path to the auxiliary tape file (optional, default = none)" << endl;
-    cout << endl << "The flags below enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first." << endl;
+    cout << YELLOW << private_tape_prefix << RESET << "   : path to the auxiliary tape file (optional, default = none)" << endl << endl;
+    
+    cout << "The flags below enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first." << endl;
     cout << YELLOW << address_port_prefix << RESET << "  : verifier-address:port-number (optional, default = 'localhost:1234')" << endl;
     cout << YELLOW << run_verifier_prefix << RESET << " : enables execution of the verifier, listening on port-number (optional, default = false)" << endl;
     cout << YELLOW << run_prover_prefix   << RESET << "   : enables execution of the prover, transmitting to verifier-address:port-number (optional, default = false)" << endl;
@@ -114,11 +117,16 @@ int main(int argc, char *argv[]) {
     if (input.cmd_option_exists(security_prefix)) {
         securityParameter = stol(input.get_cmd_option(security_prefix));
     }
+    bool no_proof = input.cmd_option_exists(no_proof_prefix);
     /* Run prover and verifier separately */
     bool prover = input.cmd_option_exists(run_prover_prefix);
     bool verifier = input.cmd_option_exists(run_verifier_prefix);
     if (prover == verifier && prover == true) {
         print_help(argv[0], "Cannot be both prover and verifier at the same time.");
+        return EXIT_FAILURE;
+    }
+    if ((prover || verifier) && no_proof) {
+        print_help(argv[0], "Cannot run the zMIPS execution engine remotely.");
         return EXIT_FAILURE;
     }
     bool verbose = input.cmd_option_exists(verbose_prefix);
@@ -146,7 +154,7 @@ int main(int argc, char *argv[]) {
     } else { // run local simulation
         cout << "\nExecuting simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n";
         asmFile = parse_zmips(assemblyFile, show_asm);
-        execute_locally(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, verbose);
+        execute_locally(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, verbose, no_proof);
     }
     std::remove(asmFile.c_str());
 

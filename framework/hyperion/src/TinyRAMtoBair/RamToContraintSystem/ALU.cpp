@@ -1821,12 +1821,9 @@ void ALU_ANSWER_Gadget::generateWitness(){
 	static bool flag = true;
 	if (flag) {
 		flag = false;
-		if (Algebra::one() == program_output)
-			program_output = pb_->val(inputs_.arg2_val_);
-
-        /**
-         * Uncomment the following lines to print the result of ANSWER
-        **/
+		if (Algebra::one() == program_output) {
+            program_output = pb_->val(inputs_.arg2_val_);
+        }
 
         size_t a = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
         std::cout << "\n*** TIMESTEPS=" << max_timestep << YELLOW << " ANSWER=" << a << RESET << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
