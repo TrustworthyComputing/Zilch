@@ -1,5 +1,0 @@
-MOV r7 r7 17
-MOV r8 r8 42
-@SWAP r7 r8
-
-ANSWER r0 r0 r11
