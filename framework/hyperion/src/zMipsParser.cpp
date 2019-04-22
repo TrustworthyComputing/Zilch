@@ -3,6 +3,7 @@
 using namespace std;
 
 int labelcnt_ = 1000;
+bool answer_instruction = false;
 
 std::string remove_extension(const std::string& filename) {
     size_t lastdot = filename.find_last_of(".");
@@ -108,6 +109,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
             return "ADD " + r1 + " " + r1 + " " + r2 + "\nLOADW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
         }
     } else if (instr == "ANSWER") {
+        answer_instruction = true;
         return "ANSWER " + r0 + " " + r1 + " " + r2;
     } else if (instr == "NUM_OPCODES") {
         return "NUM_OPCODES " + r0 + " " + r1 + " " + r2;
@@ -213,6 +215,11 @@ string parse_zmips(const string assemblyFile, const bool show_asm) {
             exit(EXIT_FAILURE);
         }
         ofs << instr << "\n";
+    }
+    if (!answer_instruction) {
+        std::remove(parsedAsmFile.c_str());
+        std::cerr << endl << "zMIPS assembly file should have an answer instruction." << endl << endl;
+        exit(EXIT_FAILURE);
     }
     return parsedAsmFile;
 }
