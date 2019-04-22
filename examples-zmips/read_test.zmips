@@ -1,0 +1,11 @@
+__loop__
+    read $r0, $r0, 0        ; consume next word from public tape and store it to r0
+    read $r1, $r1, 1        ; consume next word from auxiliary tape and store it to r1
+
+    add $r2, $r0, $r2        ; add them together
+    add $r2, $r1, $r2        ; r2 = r0 + r1 + r2
+
+    add $r3, $r3,  1        ; r3++
+bne $r3, 3, __loop__    ; if (r3 != 3) then jump to __loop__
+
+answer $r2, $r2, $r2    ; result should be 312

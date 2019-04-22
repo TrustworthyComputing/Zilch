@@ -1,5 +1,5 @@
 MOV r0 r0 100       ; r0 = 100
-MOV r0 r0 0         ; r1 = 0
+MOV r1 r1 0         ; r1 = 0
 __loop__
 ADD r0 r0 5         ; r0 += 5
 ADD r1 r1 1         ; r1 += 1

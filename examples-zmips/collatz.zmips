@@ -1,0 +1,14 @@
+move $r8, $r0, 3
+__loop__
+beq $r8, 1, __loop_end__
+add $r9, $r9, 1
+and $r7, $r8, 1
+beq $r7, 0, __is_zero__
+sll $r7, $r8, 1
+add $r7, $r7, $r8
+add $r8, $r7, 1
+__is_zero__
+srl $r8, $r8, 1
+j __loop__
+__loop_end__
+answer $r9, $r9, $r9
