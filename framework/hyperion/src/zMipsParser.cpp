@@ -172,7 +172,13 @@ string parse_zmips(const string assemblyFile, const bool show_asm) {
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
     if (show_asm) std::cout << '\n';
-    for (auto& l : lines){
+    for (auto& l : lines) {
+        std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
+        instr_without_comment = trim(instr_without_comment);
+        instr_without_comment = instr_without_comment.substr(0, instr_without_comment.find("#")); // keep only the instruction before comment
+        instr_without_comment = trim(instr_without_comment);
+        l = instr_without_comment; // update instructions vector
+        if (instr_without_comment.empty()) continue; // if instruction is empty, skip it
         if (show_asm) {
             std::cout << l << '\n'; // print line
         }
