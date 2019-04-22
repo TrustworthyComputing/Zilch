@@ -10,6 +10,7 @@
 #include <protocols/print_helpers.hpp>
 #endif
 
+// #define DEBUG
 
 //#include <algebraLib/SelectorSum.hpp>
 #define EXTDIM Algebra::ExtensionDegree
@@ -373,6 +374,14 @@ void ALU_XOR_Gadget::generateWitness(){
 	pb_->val(results_.flag_) = (res == Algebra::zero()) ? Algebra::one() : Algebra::zero();
 	pb_->val(pInverse_) = (res != Algebra::zero()) ? res.inverse() : Algebra::one();
 	GADGETLIB_ASSERT(unpackedArg1_.size() == unpackedArg2_.size(), "XOR_GADGET: Unpacked1.size() == Unpacked2.size()");
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_XOR_Gadget witness\nALUInput XOR:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput XOR" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -442,6 +451,14 @@ void ALU_AND_Gadget::generateWitness(){
 		pb_->val(opcodeResult_[i]) = Algebra::zero();
 		pb_->val(opcodeCarry_[i]) = Algebra::zero();
 	}
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_AND_Gadget witness\nALUInput AND:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput AND" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -519,6 +536,14 @@ void ALU_OR_Gadget::generateWitness(){
 		pb_->val(opcodeResult_[i]) = Algebra::zero();
 		pb_->val(opcodeCarry_[i]) = Algebra::zero();
 	}
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_OR_Gadget witness\nALUInput OR:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput OR" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -584,6 +609,14 @@ void ALU_NOT_Gadget::generateWitness(){
 		pb_->val(opcodeResult_[i]) = Algebra::zero();
 		pb_->val(opcodeCarry_[i]) = Algebra::zero();
 	}
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_NOT_Gadget witness\nALUInput NOT:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput NOT" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 
@@ -630,6 +663,14 @@ void ALU_ADD_Gadget::generateWitness(){
 	unpackArg2_g_->generateWitness();
 	add_g_->generateWitness();
 	packResult_g_->generateWitness();
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_ADD_Gadget witness\nALUInput ADD:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput ADD" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -677,6 +718,14 @@ void ALU_SUB_Gadget::generateWitness(){
 	unpackArg2_g_->generateWitness();
 	add_g_->generateWitness();
 	//don't do: packResult_g_->generateWitness();
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SUB_Gadget witness\nALUInput SUB:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SUB" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -752,6 +801,14 @@ void ALU_MULL_Gadget::generateWitness(){
 		pb_->val(pInverse_) = (val(multPartials1_[0])).inverse();
 		pb_->val(results_.flag_) = Algebra::one();
 	}
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_MULL_Gadget witness\nALUInput MULL:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput MULL" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -824,6 +881,14 @@ void ALU_UMULH_Gadget::generateWitness(){
 		pb_->val(pInverse_) = (val(results_.result_)).inverse();
 		pb_->val(results_.flag_) = Algebra::one();
 	}
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_UMULH_Gadget witness\nALUInput UMULH:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput UMULH" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -905,6 +970,14 @@ void ALU_SMULH_Gadget::generateWitness(){
 	}
 	pb_->val(invNegative) = (val(results_.result_) + allOnes).inverse();
 	pb_->val(results_.flag_) = Algebra::zero();
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SMULH_Gadget witness\nALUInput SMULH:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SMULH" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 
@@ -995,6 +1068,14 @@ void ALU_UDIV_Gadget::generateWitness(){
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(multPackArg1_g_)->generateWitness();
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(multPackRemainder_g_)->generateWitness();
 	GEQ_g_->generateWitness();
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_UDIV_Gadget witness\nALUInput UDIV:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput UDIV" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1089,6 +1170,14 @@ void ALU_UMOD_Gadget::generateWitness(){
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(multPackRemainder_g_)->generateWitness();
 	GEQ_g_->generateWitness();
 	packResult_g_->generateWitness();
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_UMOD_Gadget witness\nALUInput UMOD:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput UMOD" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1128,6 +1217,14 @@ void ALU_CMPE_Gadget::generateWitness(){
 	pb_->val(results_.flag_) = arg1Val == arg2Val ? Algebra::one() : Algebra::zero();
 	pb_->val(pInverse_) = arg1Val == arg2Val ? Algebra::one() : (arg1Val + arg2Val).inverse();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CMPE_Gadget witness\nALUInput CMPE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CMPE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1168,6 +1265,14 @@ void ALU_CMPNE_Gadget::generateWitness(){
 	pb_->val(pInverse_) = arg1Val == arg2Val ? Algebra::zero() : (arg1Val + arg2Val).inverse();
     
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CMPNE_Gadget witness\nALUInput CMPNE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CMPNE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1218,7 +1323,14 @@ void ALU_CMPA_Gadget::generateWitness(){
 	FElem arg2Val = pb_->val(inputs_.arg2_val_);
 	pb_->val(results_.flag_) = (Algebra::one()==val(isGEQ_)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CMPA_Gadget witness\nALUInput CMPA:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CMPA" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1270,6 +1382,14 @@ void ALU_CMPAE_Gadget::generateWitness(){
 	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
 	pb_->val(results_.flag_) = ((Algebra::one()==flag)||(g==flag)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CMPAE_Gadget witness\nALUInput CMPAE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CMPAE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1320,7 +1440,14 @@ void ALU_CMPG_Gadget::generateWitness(){
 	FElem arg2Val = pb_->val(inputs_.arg2_val_);
 	pb_->val(results_.flag_) = (Algebra::one()==val(isGEQ_)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CMPG_Gadget witness\nALUInput CMPG:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CMPG" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1372,6 +1499,14 @@ void ALU_CMPGE_Gadget::generateWitness(){
 	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
 	pb_->val(results_.flag_) = ((Algebra::one()==flag)||(g==flag)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CMPGE_Gadget witness\nALUInput CMPGE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CMPGE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1489,7 +1624,14 @@ void ALU_SHL_Gadget::generateWitness(){
 	}
 	unpackDouble_g_->generateWitness();
 	packResult_g_->generateWitness();
-
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SHL_Gadget witness\nALUInput SHL:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SHL" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1606,7 +1748,14 @@ void ALU_SHR_Gadget::generateWitness(){
 
 	 unpackDouble_g_->generateWitness();
 	packResult_g_->generateWitness();
-
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SHR_Gadget witness\nALUInput SHR:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SHR" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 
@@ -1639,6 +1788,14 @@ void ALU_JMP_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_JMP_Gadget witness\nALUInput JMP:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput JMP" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1670,6 +1827,14 @@ void ALU_CJMP_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CJMP_Gadget witness\nALUInput CJMP:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CJMP" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1701,6 +1866,14 @@ void ALU_CNJMP_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_CNJMP_Gadget witness\nALUInput CNJMP:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput CNJMP" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
@@ -1740,6 +1913,14 @@ void ALU_STOREW_Gadget::generateWitness(){
 	pb_->val(results_.value_) = value;
 	pb_->val(results_.address_) = memoryAddress;
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_STOREW_Gadget witness\nALUInput STOREW:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput STOREW" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*********************************/
@@ -1778,13 +1959,21 @@ void ALU_LOADW_Gadget::generateWitness(){
 	FElem address = pb_->val(inputs_.arg2_val_); // stores [A] to r_1 - check traceConsistency
 	FElem value = pb_->loadValue(address);
     
-    // int v = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), value);
-    // int a = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), address);
-    // std::cout << "\tLoaded " << v << " from " << a<< '\n';
-    
 	pb_->val(results_.address_) = address;
 	pb_->val(results_.value_) = value;
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
+    
+    #ifdef DEBUG
+        // int v = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), value);
+        // int a = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), address);
+        // std::cout << "\tLoaded " << v << " from " << a<< '\n';
+    
+        std::cout << "\n\nALU_LOADW_Gadget witness\nALUInput LOADW:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput LOADW" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 
@@ -1827,8 +2016,15 @@ void ALU_ANSWER_Gadget::generateWitness(){
 
         size_t a = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
         std::cout << "\n*** TIMESTEPS=" << max_timestep << YELLOW << " ANSWER=" << a << RESET << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
-
 	}
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_ANSWER_Gadget witness\nALUInput ANSWER:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput ANSWER" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
 }
 
 /*************************************************************************************************/
