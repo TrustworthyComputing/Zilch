@@ -1,3 +1,4 @@
 bin/
 /hyperion
 *.out
+*.asm
