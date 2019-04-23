@@ -244,110 +244,12 @@ void TinyRAMProgram::arg2isImmediateToFalse(const size_t pc) {
 	this->code_[pc].arg2isImmediate_ = false;	
 }
 
-void TinyRAMProgram::unrollMacros(vector<std::string>& lines) {
-	size_t macros_cnt = 0;
-	std::vector<string>::size_type size = lines.size();
-    for (std::vector<string>::size_type i = 0; i < size; ) {
-		string& str = lines[i];
-		str = str.substr(0, str.find(";")); 	// remove comment if exists
-		str = trim(str);
-		if (str.empty()) { 						// remove blank lines
-			lines.erase(lines.begin() + i);
-			size--;
-			continue;
-		}
-		vector<string> args_vec = split(str); 	// tokenize the instruction
-		if (args_vec[0] == "@READ_AND_STORE_ARRAY") { // @READ_AND_STORE_ARRAY len idx tape
-			if (args_vec.size() != 4) {
-				cout << "@READ_AND_STORE_ARRAY takes exactly 3 arguments!\n@READ_AND_STORE_ARRAY length-of-array index-to-store tape\n";
-				exit(EXIT_FAILURE);
-			}
-			size_t len = stoi(args_vec[1]);
-			size_t idx = stoi(args_vec[2]);
-			size_t tape = stoi(args_vec[3]);
-			string label = "__macro_" + to_string(macros_cnt++) + "__";
-			lines[i++] = "MOV r1 r1 0";
-			lines.insert(lines.begin() + (i++), label);
-			lines.insert(lines.begin() + (i++), "READ r0 r0 " + to_string(tape));
-			lines.insert(lines.begin() + (i++), "ADD r2 r1 " + to_string(idx));
-			lines.insert(lines.begin() + (i++), "STOREW r0 r0 r2");
-			lines.insert(lines.begin() + (i++), "ADD r1 r1 1");
-			lines.insert(lines.begin() + (i++), "CMPE r1 r1 " + to_string(len));
-			lines.insert(lines.begin() + (i), "CNJMP r1 r1 " + label);
-			size += 7;
-		} else if (args_vec[0] == "@SWAP") {
-			if (args_vec.size() != 3) {
-				cout << "@SWAP takes exactly 2 arguments!\n@SWAP first-register second-register\n";
-				exit(EXIT_FAILURE);
-			}
-			string reg1 = args_vec[1];
-			string reg2 = args_vec[2];
-			lines[i++] = "MOV r0 r0 " + reg1;
-			lines.insert(lines.begin() + (i++), "MOV " + reg1 + " " + reg1 + " " + reg2);
-			lines.insert(lines.begin() + (i++), "MOV " + reg2 + " " + reg2 + " r0");
-			size += 2;
-		} else if (args_vec[0] == "@MIN") {
-			if (args_vec.size() != 4) {
-				cout << "@MIN takes exactly 3 arguments!\n@MIN dest first-register second-register\n";
-				exit(EXIT_FAILURE);
-			}
-			string dest = args_vec[1];
-			string reg1 = args_vec[2];
-			string reg2 = args_vec[3];
-			string label = "__macro_" + to_string(macros_cnt++) + "__";
-			
-			lines[i++] = "MOV r0 r0 " + reg1;
-			lines.insert(lines.begin() + (i++), "CMPG " + reg2 + " " + reg2 + " " + reg1);
-			lines.insert(lines.begin() + (i++), "CJMP r0 r0 " + label);
-			lines.insert(lines.begin() + (i++), "MOV r0 r0 " + reg2);
-			lines.insert(lines.begin() + (i++), label);
-			lines.insert(lines.begin() + (i++), "MOV " + dest + " " + dest + " r0");
-			size += 5;
-		} else if (args_vec[0] == "@MAX") {
-			if (args_vec.size() != 4) {
-				cout << "@MAX takes exactly 3 arguments!\n@MAX dest first-register second-register\n";
-				exit(EXIT_FAILURE);
-			}
-			string dest = args_vec[1];
-			string reg1 = args_vec[2];
-			string reg2 = args_vec[3];
-			string label = "__macro_" + to_string(macros_cnt++) + "__";
-			
-			lines[i++] = "MOV r0 r0 " + reg1;
-			lines.insert(lines.begin() + (i++), "CMPG " + reg1 + " " + reg1 + " " + reg2);
-			lines.insert(lines.begin() + (i++), "CJMP r0 r0 " + label);
-			lines.insert(lines.begin() + (i++), "MOV r0 r0 " + reg2);
-			lines.insert(lines.begin() + (i++), label);
-			lines.insert(lines.begin() + (i++), "MOV " + dest + " " + dest + " r0");
-			size += 5;
-		} else if (args_vec[0] == "@INC") {
-			if (args_vec.size() != 2) {
-				cout << "@INC takes exactly 1 arguments!\n@INC register\n";
-				exit(EXIT_FAILURE);
-			}
-			string reg1 = args_vec[1];
-			lines[i] = "ADD " + reg1 + " " + reg1 + " 1";
-		} else if (args_vec[0] == "@DEC") {
-			if (args_vec.size() != 2) {
-				cout << "@DEC takes exactly 1 arguments!\n@DEC register\n";
-				exit(EXIT_FAILURE);
-			}
-			string reg1 = args_vec[1];
-			lines[i] = "SUB " + reg1 + " " + reg1 + " 1";
-		}
-		
-		i++;
-    }
-}
-
 void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
     ifstream ifs(filename);
     string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
-	unrollMacros(lines);
-	
 	// for (auto& l : lines){
 	// 	std::cout << l << std::endl; // print program as is
 	// }
