@@ -92,20 +92,32 @@ int main(int argc, char *argv[]) {
         print_help(argv[0], "No input asm file given. Use the " + zmips_file_prefix + " flag and then provide the asm file.");
         return EXIT_FAILURE;
     }
-    string primaryTapeFile;
+    string primaryTapeFile = "";
     if (input.cmd_option_exists(primary_tape_prefix)) {
         primaryTapeFile = input.get_cmd_option(primary_tape_prefix);
         if (!file_exists(primaryTapeFile)) {
             print_help(argv[0], primaryTapeFile + " does not exist. Use a valid public tape file.");
             return EXIT_FAILURE;
         }
+    } else {
+        string rawname = assemblyFile.substr(0, assemblyFile.find_last_of(".")); 
+        if (file_exists(rawname+".pubtape")) {
+            primaryTapeFile = rawname+".pubtape";
+            std::cout << "No primary tape file is given, using " << primaryTapeFile << '\n';
+        }
     }
-    string auxTapeFile;
+    string auxTapeFile = "";
     if (input.cmd_option_exists(private_tape_prefix)) {
         auxTapeFile = input.get_cmd_option(private_tape_prefix);
         if (!file_exists(auxTapeFile)) {
             print_help(argv[0], auxTapeFile + " does not exist. Use a valid private tape file.");
             return EXIT_FAILURE;
+        }
+    } else {
+        string rawname = assemblyFile.substr(0, assemblyFile.find_last_of(".")); 
+        if (file_exists(rawname+".auxtape")) {
+            auxTapeFile = rawname+".auxtape";
+            std::cout << "No private tape file is given, using " << auxTapeFile << '\n';
         }
     }
     /* Timesteps 2^t*/
