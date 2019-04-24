@@ -1,14 +1,10 @@
 {
     "inc": {
         "reg1": "$x",
-        "reg2": "$y",
-        "reg3": "$z",
         "macro": "add $x, $x, 1"
     },
     "dec": {
         "reg1": "$x",
-        "reg2": "$y",
-        "reg3": "$z",
         "macro": "sub $x, $x, 1"
     },
     "min": {
