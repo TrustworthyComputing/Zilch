@@ -16,7 +16,8 @@ Finally, Hyperion supports over-the-network ZKPs without trusted third parties.
 
 ## Compilation and Dependencies:
 ```
-apt-get install libjsoncpp-dev
+apt install libjsoncpp-dev
+apt install libboost-all-dev
 ```
 
 ```
