@@ -3,16 +3,15 @@
 ### Knowledge of factorization
 Prover claims he/she knows the prime factors of a verifier-chosen number (e.g. 15), without revealing the factors to the verifier.
 ```
-READ r1 r1 1        ; r1 is filled with a private value from auxiliary tape (e.g. 3)
-READ r2 r2 1        ; r2 is filled with a private value from auxiliary tape (e.g. 5)
-MOV r11 r0 1        ; r11 = 1
-MULL r3 r1 r2       ; r3 = r1 * r2
-READ r5 r5 0        ; r5 is filled with a public value from primary tape (e.g. 15)
-CMPE r0 r3 r5       ; flag = (r3 == 15)
-CJMP r0 r0 __end__  ; if (flag) then jump to __end__ (PC = 7)
-MOV r11 r0 0        ; r11 = 0
+read $r1, $r1, 1        ; $r1 is filled with a private value from auxiliary tape (e.g. 3)
+read $r2, $r2, 1        ; $r2 is filled with a private value from auxiliary tape (e.g. 5)
+move $r11, $r0, 1       ; $r11 = 1
+mult $r3, $r1, $r2      ; $r3 = $r1 * $r2
+read $r5, $r5, 0        ; $r5 is filled with a public value from primary tape (e.g. 15)
+beq $r3, $r5, __end__   ; if (r3 == 15) then jump to __end__ (pc = 7)
+move $r11, $r0, 0       ; $r11 = 0
 __end__
-ANSWER r0 r0 r11    ; return r11 // return (r1 * r2 == 15)
+answer $r11, $r11, $r11 ; return $r11 // $return (r1 * $r2 == 15)
 ```
 
 ### Knowledge of RSA private key
@@ -39,14 +38,14 @@ Proof of correctness:
 
 In TinyRAM:
 ```
-READ r0 r0 1        ; r0 is filled with a private value from auxiliary tape (e.g. p = 17)
-READ r1 r1 1        ; r1 is filled with a private value from auxiliary tape (e.g. q = 11)
-SUB r3 r0 1         ; p - 1 = 16
-SUB r4 r1 1         ; q - 1 = 10
-MULL r5 r3 r4       ; phi(n) = (p - 1) * (q - 1) = 160
-READ r7 r7 1        ; r7 is filled with a private value from auxiliary tape (e.g. d = 23)
-READ r8 r8 0        ; public e = 7
-MULL r9 r7 r8       ; compute d * e
-UMOD r11 r9 r5      ; compute (d * e) mod phi(n)
-ANSWER r0 r0 r11    ; Answer should be 1
+read $r0, $r0, 1        ; r0 is filled with a private value from auxiliary tape (e.g. p = 17)
+read $r1, $r1, 1        ; r1 is filled with a private value from auxiliary tape (e.g. q = 11)
+sub $r3, $r0, 1         ; p - 1 = 16
+sub $r4, $r1, 1         ; q - 1 = 10
+mult $r5, $r3, $r4      ; phi(n) = (p - 1) * (q - 1) = 160
+read $r7, $r7, 1        ; r7 is filled with a private value from auxiliary tape (e.g. d = 23)
+read $r8, $r8, 0        ; public e = 7
+mult $r9, $r7, $r8      ; compute d * e
+umod $r11, $r9, $r5     ; compute (d * e) mod phi(n)
+answer $r11, $r11, $r11 ; answer should be 1
 ```
