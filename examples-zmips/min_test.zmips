@@ -1,0 +1,10 @@
+move $r7, $r7, 17
+inc $r7
+inc $r7
+move $r8, $r8, 42
+dec $r8
+
+# min $r11, $r7, $r8
+min $r11 $r8 $r7
+
+answer $r11, $r11, $r11

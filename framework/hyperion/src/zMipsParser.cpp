@@ -165,6 +165,60 @@ string mapMipsRegister(string& r) {
     }
 }
 
+std::vector<std::string> split_string_to_lines(const std::string& str) {
+    std::vector<std::string> strings;
+    std::string::size_type pos = 0;
+    std::string::size_type prev = 0;
+    while ((pos = str.find("\n", prev)) != std::string::npos) {
+        strings.push_back(str.substr(prev, pos - prev));
+        prev = pos + 1;
+    }
+    strings.push_back(str.substr(prev));
+    return strings;
+}
+
+void unrollMacros(vector<std::string>& lines) {
+	std::vector<string>::size_type size = lines.size();
+	ifstream ifs("./framework/hyperion/src/macros.json");
+	Json::Reader reader;
+	Json::Value macros;
+	reader.parse(ifs, macros);
+    size_t label_cnt = 0;
+	for (std::vector<string>::size_type i = 0 ; i < size ; ) {
+		string& str = lines[i];
+		str = str.substr(0, str.find(";")); 	// remove comment if exists
+		str = trim(str);
+		if (str.empty()) { 						// remove blank lines
+			lines.erase(lines.begin() + i);
+			size--;
+			continue;
+		}
+		vector<string> args_vec = split(str); 	// tokenize the instruction
+        for (auto const& id : macros.getMemberNames()) {
+            if (args_vec[0] == id) {
+                string macro = macros[id]["macro"].asString();
+                
+                for (size_t k = 1 ; k <= args_vec.size() ; k++) {
+                    boost::replace_all(macro, macros[id]["reg"+to_string(k)].asString(), args_vec[k]);
+                }
+                if (macros[id]["uses_label"].asString() == "true") {
+                    label_cnt++;
+                    boost::replace_all(macro, "__", "__"+to_string(label_cnt)+"__");
+                }
+                vector<std::string> m_instructions = split_string_to_lines(macro);
+                
+                lines[i++] = m_instructions[0];
+                for (size_t k = 1 ; k < m_instructions.size() ; k++) {
+                    lines.insert(lines.begin() + (i++), m_instructions[k]);
+                }
+                i--;
+            }
+        }
+		i++;
+	}
+	
+}
+
 string parse_zmips(const string assemblyFile, const bool show_asm) {
     string parsedAsmFile = remove_extension(assemblyFile);
     ifstream ifs(assemblyFile);
@@ -173,6 +227,11 @@ string parse_zmips(const string assemblyFile, const bool show_asm) {
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
+    
+    
+    unrollMacros(lines);
+    
+    
     if (show_asm) std::cout << '\n';
     for (auto& l : lines) {
         std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment

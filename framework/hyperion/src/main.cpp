@@ -8,9 +8,6 @@
 #include <protocols/print_helpers.hpp>
 #endif
 
-#include <jsoncpp/json/json.h>
-#include <fstream>
-
 using namespace std;
 
 const string help_msg_prefix     = "--help";
@@ -157,19 +154,6 @@ int main(int argc, char *argv[]) {
         address = arg_without_prefix.substr(0, pos);
         port_number = stoi(arg_without_prefix.substr(pos+1));
     }
-    
-    
-
-    ifstream ifs("/home/jimouris/repos/Hyperion/framework/hyperion/src/macros.json");
-    Json::Reader reader;
-    Json::Value obj;
-    reader.parse(ifs, obj);     // Reader can also read strings
-    cout << "Last name: " << obj["inc x"].asString() << endl;
-    cout << "First name: " << obj["dec x"].asString() << endl;
-    cout << "First name: " << obj["min x y z"].asString() << endl;
-    return 1;
-
-    
     
     /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
     string asmFile;

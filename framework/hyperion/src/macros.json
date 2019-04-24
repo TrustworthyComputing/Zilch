@@ -1,0 +1,26 @@
+{
+    "inc": {
+        "reg1": "$x",
+        "reg2": "$y",
+        "reg3": "$z",
+        "macro": "add $x, $x, 1"
+    },
+    "dec": {
+        "reg1": "$x",
+        "reg2": "$y",
+        "reg3": "$z",
+        "macro": "sub $x, $x, 1"
+    },
+    "min": {
+        "reg1": "$x",
+        "reg2": "$y",
+        "reg3": "$z",
+        "uses_label" : "true",
+        "macro" : "blt $y, $z, __min_label__
+                move $x, $x, $z
+                j __end_min_label__
+                __min_label__
+                move $x, $x, $y
+                __end_min_label__"
+        }
+}

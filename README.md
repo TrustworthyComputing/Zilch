@@ -14,7 +14,11 @@ Zilch further supports MACRO instructions and custom labels, which enhances the 
 Finally, Hyperion supports over-the-network ZKPs without trusted third parties.
 
 
-## Compilation:
+## Compilation and Dependencies:
+```
+apt-get install libjsoncpp-dev
+```
+
 ```
 git clone https://github.com/TrustworthyComputing/Hyperion
 cd Hyperion
