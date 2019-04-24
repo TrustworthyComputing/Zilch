@@ -59,6 +59,48 @@ In our implementation, both the prefix and the suffix of a the label should be `
 * `seek $ri, B, A` : `seek` is a random access `read` command. `seek` consumes the word in offset `B` from tape `A`. Both `A` and `B` can be either registers or immediate values.
 
 
+## User-defined Macros
+In [macros.json](https://github.com/TrustworthyComputing/Hyperion/blob/master/framework/hyperion/src/macros.json) the user can define her own custom zMIPS macro-instructions.
+
+For instance, we have defined `inc`, `dec` and `min` macro-instructions as shown below :
+```
+"inc": {
+    "reg1": "$x",
+    "macro": "add $x, $x, 1"
+}
+```
+This means that `inc` uses one register. A zMIPS program can use the inc instruction as
+```
+move $r0, $r0, 5
+inc $r0
+answer $r0, $r0, $r0
+```
+the answer would be 6.
+
+The `min` macro-instruction uses three registers and also labels:
+``` 
+"min": {
+    "reg1": "$x",
+    "reg2": "$y",
+    "reg3": "$z",
+    "uses_label" : "true",
+    "macro" : "blt $y, $z, __min_label__
+            move $x, $x, $z
+            j __end_min_label__
+            __min_label__
+            move $x, $x, $y
+            __end_min_label__"
+    }
+``` 
+```
+move $r0, $r0, 5
+move $r1, $r1, 9
+min $r2, $r0, $r1
+answer $r2, $r2, $r2
+```
+the answer would be 5.
+
+
 ## Over the Network Verification:
 The default behavior (without flags `--address`, `--verifier`, `--prover`) of the `hyperion` executable results in a local execution. 
 In order to enable over the network verification first the verifier should be executed (`--verifier` flag) and then the prover (`--prover` flag).
