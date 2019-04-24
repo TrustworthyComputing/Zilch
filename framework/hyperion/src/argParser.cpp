@@ -1,12 +1,12 @@
-#include "inputParser.hpp"
+#include "argParser.hpp"
 
-InputParser::InputParser(int &argc, char **argv){
+ArgParser::ArgParser(int &argc, char **argv){
     for (int i = 1; i < argc; ++i) {
         this->tokens.push_back(std::string(argv[i]));
     }
 }
 
-std::string InputParser::get_cmd_option(const std::string &option) const {
+std::string ArgParser::get_cmd_option(const std::string &option) const {
     std::vector<std::string>::const_iterator itr;
     itr =  std::find(this->tokens.begin(), this->tokens.end(), option);
     if (itr != this->tokens.end() && ++itr != this->tokens.end()) {
@@ -16,6 +16,6 @@ std::string InputParser::get_cmd_option(const std::string &option) const {
     return empty_string;
 }
 
-bool InputParser::cmd_option_exists(const std::string &option) const {
+bool ArgParser::cmd_option_exists(const std::string &option) const {
     return std::find(this->tokens.begin(), this->tokens.end(), option) != this->tokens.end();
 }

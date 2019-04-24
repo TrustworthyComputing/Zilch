@@ -2,11 +2,14 @@
 #include <string>
 #include <sys/stat.h>
 #include "executeProtocol.hpp"
-#include "inputParser.hpp"
+#include "argParser.hpp"
 #include "zMipsParser.hpp"
 #ifndef PRINT_HELPERS_HPP__  
 #include <protocols/print_helpers.hpp>
 #endif
+
+#include <jsoncpp/json/json.h>
+#include <fstream>
 
 using namespace std;
 
@@ -75,26 +78,26 @@ int main(int argc, char *argv[]) {
         print_help(argv[0], "No input asm file given.");
         return EXIT_SUCCESS;
     }
-    InputParser input(argc, argv);
+    ArgParser args(argc, argv);
     /* Print help message */
-    if (input.cmd_option_exists("-h") || input.cmd_option_exists(help_msg_prefix)) {
+    if (args.cmd_option_exists("-h") || args.cmd_option_exists(help_msg_prefix)) {
         print_help(argv[0], "");
         return EXIT_SUCCESS;
     }
     /* Print usage examples */
-    if (input.cmd_option_exists("-e") || input.cmd_option_exists(examples_prefix)) {
+    if (args.cmd_option_exists("-e") || args.cmd_option_exists(examples_prefix)) {
         print_examples(argv[0]);
         return EXIT_SUCCESS;
     }
     /* Input zMIPS file */
-    string assemblyFile = input.get_cmd_option(zmips_file_prefix);
-    if (!input.cmd_option_exists(zmips_file_prefix) || !file_exists(assemblyFile) ) {
+    string assemblyFile = args.get_cmd_option(zmips_file_prefix);
+    if (!args.cmd_option_exists(zmips_file_prefix) || !file_exists(assemblyFile) ) {
         print_help(argv[0], "No input asm file given. Use the " + zmips_file_prefix + " flag and then provide the asm file.");
         return EXIT_FAILURE;
     }
     string primaryTapeFile = "";
-    if (input.cmd_option_exists(primary_tape_prefix)) {
-        primaryTapeFile = input.get_cmd_option(primary_tape_prefix);
+    if (args.cmd_option_exists(primary_tape_prefix)) {
+        primaryTapeFile = args.get_cmd_option(primary_tape_prefix);
         if (!file_exists(primaryTapeFile)) {
             print_help(argv[0], primaryTapeFile + " does not exist. Use a valid public tape file.");
             return EXIT_FAILURE;
@@ -107,8 +110,8 @@ int main(int argc, char *argv[]) {
         }
     }
     string auxTapeFile = "";
-    if (input.cmd_option_exists(private_tape_prefix)) {
-        auxTapeFile = input.get_cmd_option(private_tape_prefix);
+    if (args.cmd_option_exists(private_tape_prefix)) {
+        auxTapeFile = args.get_cmd_option(private_tape_prefix);
         if (!file_exists(auxTapeFile)) {
             print_help(argv[0], auxTapeFile + " does not exist. Use a valid private tape file.");
             return EXIT_FAILURE;
@@ -122,18 +125,18 @@ int main(int argc, char *argv[]) {
     }
     /* Timesteps 2^t*/
     size_t executionLenLog = 5;
-    if (input.cmd_option_exists(timesteps_prefix)) {
-        executionLenLog = stol(input.get_cmd_option(timesteps_prefix));
+    if (args.cmd_option_exists(timesteps_prefix)) {
+        executionLenLog = stol(args.get_cmd_option(timesteps_prefix));
     }
     /* soundness error at most 2^(-sec) */
     size_t securityParameter = 60;
-    if (input.cmd_option_exists(security_prefix)) {
-        securityParameter = stol(input.get_cmd_option(security_prefix));
+    if (args.cmd_option_exists(security_prefix)) {
+        securityParameter = stol(args.get_cmd_option(security_prefix));
     }
-    bool no_proof = input.cmd_option_exists(no_proof_prefix);
+    bool no_proof = args.cmd_option_exists(no_proof_prefix);
     /* Run prover and verifier separately */
-    bool prover = input.cmd_option_exists(run_prover_prefix);
-    bool verifier = input.cmd_option_exists(run_verifier_prefix);
+    bool prover = args.cmd_option_exists(run_prover_prefix);
+    bool verifier = args.cmd_option_exists(run_verifier_prefix);
     if (prover == verifier && prover == true) {
         print_help(argv[0], "Cannot be both prover and verifier at the same time.");
         return EXIT_FAILURE;
@@ -142,18 +145,31 @@ int main(int argc, char *argv[]) {
         print_help(argv[0], "Cannot run the zMIPS execution engine remotely.");
         return EXIT_FAILURE;
     }
-    bool verbose = input.cmd_option_exists(verbose_prefix);
-    bool show_asm = input.cmd_option_exists(show_asm_prefix);
-    bool no_parser = input.cmd_option_exists(no_parser_prefix);
+    bool verbose = args.cmd_option_exists(verbose_prefix);
+    bool show_asm = args.cmd_option_exists(show_asm_prefix);
+    bool no_parser = args.cmd_option_exists(no_parser_prefix);
     /* Parse address and port information */
     string address = "localhost";
     uint16_t port_number = 1234;
-    if (input.cmd_option_exists(address_port_prefix)) {
-        string arg_without_prefix = input.get_cmd_option(address_port_prefix);
+    if (args.cmd_option_exists(address_port_prefix)) {
+        string arg_without_prefix = args.get_cmd_option(address_port_prefix);
         int pos = arg_without_prefix.find_first_of(':');
         address = arg_without_prefix.substr(0, pos);
         port_number = stoi(arg_without_prefix.substr(pos+1));
     }
+    
+    
+
+    ifstream ifs("/home/jimouris/repos/Hyperion/framework/hyperion/src/macros.json");
+    Json::Reader reader;
+    Json::Value obj;
+    reader.parse(ifs, obj);     // Reader can also read strings
+    cout << "Last name: " << obj["inc x"].asString() << endl;
+    cout << "First name: " << obj["dec x"].asString() << endl;
+    cout << "First name: " << obj["min x y z"].asString() << endl;
+    return 1;
+
+    
     
     /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
     string asmFile;
