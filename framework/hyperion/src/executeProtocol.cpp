@@ -25,7 +25,7 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const size_t 
     return libstark::BairWitness(move(cs2bairColoring_), move(cs2bairMemory_));
 }
 
-void execute_locally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose, bool no_proof) {
+void execute_locally(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose, bool no_proof, bool tsteps_provided) {
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
 	TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
@@ -44,10 +44,33 @@ void execute_locally(const string assemblyFile, const string primaryTapeFile, co
     sregex_token_iterator pr_it{private_inputs.begin(), private_inputs.end(), regex, -1};
     vector<string> private_lines{pr_it, {}};
 
-    const auto bairWitness = constructWitness(program, t, public_lines, private_lines);     // witness is generated from the prover
-    if (no_proof) return;
-    const auto bairInstance = constructInstance(program, t, public_lines);                  // instance is generated from the verifier
-    libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true, verbose);
+    /* If the user provided an input for tsteps, use that */
+    if (tsteps_provided) {
+        const auto bairWitness = constructWitness(program, t, public_lines, private_lines);     // witness is generated from the prover
+        if (no_proof) return;
+        if (found_answer_) {
+            const auto bairInstance = constructInstance(program, t, public_lines);                  // instance is generated from the verifier
+            libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true, verbose);
+            return;
+        } else {
+            std::cout << "\nProgram could not finish within 2^" << t << "-1 instrucitons\n";
+            return;
+        }
+    } else { /* Find smallest parameter for tsteps */
+        for (int i = 2 ; i < 15 ; i++) {
+            const auto bairWitness = constructWitness(program, i, public_lines, private_lines);     // witness is generated from the prover
+            if (found_answer_) {
+                if (no_proof) return;
+                const auto bairInstance = constructInstance(program, i, public_lines);                  // instance is generated from the verifier
+                libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true, verbose);
+                return;
+            }
+        }
+        if (!found_answer_) {
+            std::cout << "\nTried for 2^15-1 timesteps and did not find answer.\n";
+            return;
+        }
+    }
 }
 
 void execute_network(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose) {    

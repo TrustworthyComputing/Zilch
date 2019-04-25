@@ -39,6 +39,7 @@ UnpackedWord opcodeAux7_(REGISTER_LENGTH, "opcodeAux7_");
 //lame, move all to TinyRAMProtoboardParams?
 unsigned int prngseed;
 bool standAlone_ = false;
+bool found_answer_ = false;
 FElem program_output = Algebra::one(); //use any incorrect != -1 value to test soundness
 int max_timestep = 1;
 unsigned int ROMSIZE = 0;
@@ -2016,6 +2017,7 @@ void ALU_ANSWER_Gadget::generateWitness(){
 
         size_t a = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
         std::cout << "\n*** TIMESTEPS=" << max_timestep << YELLOW << " ANSWER=" << a << RESET << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
+        found_answer_ = true;
 	}
     
     #ifdef DEBUG

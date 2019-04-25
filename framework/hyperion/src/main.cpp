@@ -122,8 +122,10 @@ int main(int argc, char *argv[]) {
     }
     /* Timesteps 2^t*/
     size_t executionLenLog = 5;
+    bool tsteps_provided = false;
     if (args.cmd_option_exists(timesteps_prefix)) {
         executionLenLog = stol(args.get_cmd_option(timesteps_prefix));
+        tsteps_provided = true;
     }
     /* soundness error at most 2^(-sec) */
     size_t securityParameter = 60;
@@ -156,19 +158,16 @@ int main(int argc, char *argv[]) {
     }
     
     /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
-    string asmFile;
+    string asmFile = (no_parser) ? assemblyFile : parse_zmips(assemblyFile, show_asm);
     if (prover) {
-        cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
-        asmFile = (no_parser) ? assemblyFile : parse_zmips(assemblyFile, show_asm);
+        // cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
         execute_network(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number, verbose);
     } else if (verifier) {
-        cout << "Verifier:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+" and public inputs from '" << primaryTapeFile <<"'. Verifier listens to port " << port_number<< ".\n\n";
-        asmFile = (no_parser) ? assemblyFile : parse_zmips(assemblyFile, show_asm);
+        // cout << "Verifier:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+" and public inputs from '" << primaryTapeFile <<"'. Verifier listens to port " << port_number<< ".\n\n";
         execute_network(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, false, address, port_number, verbose);
     } else { // run local simulation
-        cout << "\nExecuting simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n";
-        asmFile = (no_parser) ? assemblyFile : parse_zmips(assemblyFile, show_asm);
-        execute_locally(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, verbose, no_proof);
+        // cout << "\nExecuting simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n";
+        execute_locally(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, verbose, no_proof, tsteps_provided);
     }
     if (!no_parser) std::remove(asmFile.c_str());
 

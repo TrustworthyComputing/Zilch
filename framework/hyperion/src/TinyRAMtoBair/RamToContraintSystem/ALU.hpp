@@ -31,7 +31,9 @@ extern UnpackedWord memAux7_;
 extern UnpackedWord memAux8_;
 
 extern unsigned int prngseed;
+extern int max_timestep;
 extern bool standAlone_;
+extern bool found_answer_;
 extern FElem program_output;
 extern unsigned int ROMSIZE;
 
