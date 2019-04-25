@@ -10,6 +10,11 @@
 
 using namespace std;
 
+inline bool file_exists(const string&);
+void print_help(const string, string);
+void print_examples(const string);
+void printHeader(void);
+
 const string help_msg_prefix     = "--help";
 const string examples_prefix     = "--examples";
 const string verbose_prefix      = "--verbose";
@@ -67,6 +72,17 @@ void print_examples(const string exeName) {
 
     cout << endl << YELLOW << "Knowledge of Factorization example:\n$ " << RESET;
     cout << exeName << " examples-zmips/knowledge_of_factorization.asm " << timesteps_prefix << " 10 " << security_prefix << " 120 " << private_tape_prefix << " ./examples-zmips/knowledge_of_factorization_auxtape.txt" << endl;
+}
+
+void printHeader(void) {
+    cout <<YELLOW <<" _   _                       _";
+    cout << endl << "| | | |                     (_)";
+    cout << endl << "| |_| |_   _ _ __   ___ _ __ _  ___  _ __";
+    cout << endl << "|  _  | | | | \'_ \\ / _ \\ '__| |/ _ \\| '_  \\";
+    cout << endl << "| | | | |_| | |_) |  __/ |  | | (_) | | | |";
+    cout << endl << "\\_| |_/\\__, | .__/ \\___|_|  |_|\\___/|_| |_|";
+    cout << endl << "        __/ | |";
+    cout << endl << "       |___/|_|" << RESET << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -156,7 +172,7 @@ int main(int argc, char *argv[]) {
         address = arg_without_prefix.substr(0, pos);
         port_number = stoi(arg_without_prefix.substr(pos+1));
     }
-    
+    printHeader();
     /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
     string asmFile = (no_parser) ? assemblyFile : parse_zmips(assemblyFile, show_asm);
     if (prover) {
