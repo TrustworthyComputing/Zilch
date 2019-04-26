@@ -1,0 +1,9 @@
+move $r0, $r0, 0
+move $r2, $r2, 13
+sw $r2, 3000($r0)
+move $r2, $r2, 14
+add $r0, $r0, 1
+sw $r2, 3000($r0)
+sub $r0, $r0, 1
+lw $r2, 3000($r0)
+answer $r2, $r2, $r2
