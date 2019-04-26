@@ -1,4 +1,5 @@
 bin/
 /hyperion
+/hyperion-tests
 *.out
 *.asm
