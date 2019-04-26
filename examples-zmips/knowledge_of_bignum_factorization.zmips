@@ -1,0 +1,94 @@
+# ./hyperion --asm ./examples-zmips/knowledge_of_bignum_factorization.zmips --no-proof
+
+# read the number of blocks from public tape 
+read $r1, $r1, 0                            # the number of blocks of each number (l1)
+mult $r13, $r1, 2                           # the number of blocks of the product
+
+# initialize memory to store blocks of product with zero
+move $r5, $r5, 0
+__init_mult_mem__
+    sw $r0, 3000($r5)                       # init mem with zero
+    add $r5, $r5, 1                         # i++
+bne $r5, $r13 __init_mult_mem__             # if (r5 != 42) then jump to __init_mult_mem__
+
+# read p and store it to memory (21 16-bit blocks)
+move $r5, $r5, 0
+__read_p__
+    read $r0, $r0, 1                       # consume next word from auxtape
+    sw $r0, 1000($r5)                       # store it
+    add $r5, $r5, 1                         # i++
+bne $r5, $r1 __read_p__                     # if (r5 != 21) then jump to __read_p__
+
+# now read q (21 16-bit blocks)
+move $r5, $r5, 0
+__read_q__
+    read $r0, $r0, 1                       # consume next word from auxtape
+    sw $r0, 2000($r5)                       # store it
+    add $r5, $r5, 1                         # i++
+bne $r5, $r1 __read_q__                     # if (r5 != 21) then jump to __read_q__
+
+# multiply p and q block per block and check with $results, from primary tape
+move $r2, $r2, 0                             # ii = 0
+__for_all_pi__
+    sub $r3, $r1, 1                         # $r3, gets l1 - 1
+    sub $r3, $r3, $r2                       # i = 21 - 1 - ii
+
+    # load p16[i] to $r6
+    lw $r6, 1000($r3)                       # p16[i]
+
+    move $r4, $r4, 0                         # jj = 0
+    __for_all_qi__
+        sub $r5, $r1, 1                     # $r5, gets l1 - 1
+        sub $r5, $r5, $r4                   # j = 21 - 1 - jj
+
+        # load q16[j] to $r7
+        lw $r7, 2000($r5)                   # q16[i]
+        
+        mult $r8, $r6, $r7                  # mult = p16[i] * q16[j]
+        srl $r7, $r8, 8                     # hi = (mult >> bits_per_block)
+        and $r8, $r8, 255                   # lo = mult & ((1<<bits_per_block) - 1)
+
+        add $r12, $r3, $r5                  # i + j
+        # add $r12, $r12, 3000              # i + j + 3000 // calc index to store it
+        # num_blocks[i + j] += hi
+        lw $r10, 3000($r12)                 # load num_blocks[i + j]
+        
+        add $r10, $r10, $r7                 # num_blocks[i + j] += hi
+        sw $r10, 3000($r12)                 # store num_blocks[i + j]
+        # num_blocks[i + j + 1] += lo
+        add $r12, $r12, 1                   # i + j + 1 + 3000 // calc next index 
+        lw $r10, 3000($r12)                 # load num_blocks[i + j + 1]
+        
+        add $r10, $r10, $r8                 # num_blocks[i + j + 1] += lo
+        sw $r10, 3000($r12)                 # store num_blocks[i + j + 1]
+
+        add $r4, $r4, 1                     # jj++ 
+    bne $r4, $r1 __for_all_qi__             # if (jj != 21) then jump to __for_all_qi__
+
+    add $r2, $r2, 1                         # ii++ 
+bne $r2, $r1 __for_all_pi__                 # if (ii != 21) then jump to __for_all_pi__
+
+sub $r3, $r13, 1                            # i = (2 * 21) - 1
+__check_overflows__
+    move $r2, $r2, $r3                      
+    lw $r10, 3000($r2)                      # load num_blocks[i]
+    sub $r3, $r3, 1                         # i--
+    move $r5, $r5, 255
+    ble $r10, $r5 __no_overflow__           # if (! (num_blocks[i] > ((1 << bits_per_block)-1)) ) then jump to __no_overflow__
+
+        srl $r8, $r10, 8                    # carry = num_blocks[i] >> bits_per_block
+        and $r10, $r10, 255                 # num_blocks[i] &= ((1 << bits_per_block)-1)
+        sub $r2, $r2, 1                     # $r2,-- // $r2, = 3000 + i - 1
+        
+        lw $r9, 3000($r2)                   # load num_blocks[i - 1]
+        add $r9, $r9, $r8                   # num_blocks[i-1] += carry
+        sw $r9, 3000($r2)                   # store num_blocks[i + j + 1]
+    __no_overflow__
+    # check equality between computed block and the next from public tape
+    read $r4, $r4, 0                        # consume next word from primary tape
+    bne $r4, $r10 __not_equal__             # if ($r4 != $r10) then jump to __not_equal__
+bne $r3, 1 __check_overflows__              # if (r3 != 1) then jump to __check_overflows__
+
+answer $r0, $r0, 1                          # all sub-results were equal
+__not_equal__
+answer $r0, $r0, 0                          # at least one sub-result was not equal
