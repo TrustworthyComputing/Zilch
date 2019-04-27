@@ -27,7 +27,7 @@ DST=$(EXEDIR)/hyperion-tests
 $(TARGET): $(OBJS)
 #	@echo 'Building target: $@'
 #	@echo 'Invoking: GCC Linker'
-	$(CC) -o "$@" $(OBJS) $(HYPERIONOBJS) -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lntl -lgf2x -lgmp -lm -lpthread -lcrypto -ljsoncpp
+	$(CC) -o "$@" $(OBJS) $(HYPERIONOBJS) -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lgmp -lm -lpthread -lcrypto -ljsoncpp
 #	@echo 'Finished building target: $@'
 	cp $(TARGET) $(DST)
 

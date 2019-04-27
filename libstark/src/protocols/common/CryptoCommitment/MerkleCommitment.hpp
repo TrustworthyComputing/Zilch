@@ -6,62 +6,10 @@
 #include <cstring>
 #include <map>
 #include <set>
-#include <NTL/GF2XFactoring.h>
-#include <NTL/matrix.h>
-#include <NTL/GF2EX.h>
-
 
 namespace libstark{
 namespace Protocols{
 namespace CryptoCommitment{
-using namespace NTL;
-
-#define ROUNDS 10
-
-
-class Jarvis {
-private:
-    GF2X irreducible; /* irreducible is the irreducible polynomial x^128 + x^7 + x^2 + x + 1 */
-    Vec<GF2X> affineA;
-    Vec<GF2X> affineInvA;
-    GF2X Ac;
-    std::vector<GF2X> round_constants; // [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-    
-    void A_full(GF2X&);
-    void A_inv_full(GF2X&);
-    
-    void fillAc(GF2X&);
-    void fillAffineVec(Vec<GF2X>&);
-    void fillInvAffineVec(Vec<GF2X>&);
-    
-public:
-    
-    Jarvis() {
-        SetCoeff(irreducible, 128, 1); SetCoeff(irreducible, 7, 1); SetCoeff(irreducible, 2, 1); SetCoeff(irreducible, 1, 1); SetCoeff(irreducible, 0, 1);
-
-        GF2E::init(irreducible);
-
-        GF2X gf;
-        for (size_t i = 0; i <= ROUNDS; i++) {
-            SetCoeff(gf, 0, i % 2);
-            round_constants.push_back( gf );
-        }
-        
-        /* Initialize the affine polynomial A and A^(-1) */
-        fillAffineVec(affineA);
-        fillInvAffineVec(affineInvA);
-        fillAc(Ac);
-    }
-
-    void jarvis_key_schedule(std::vector<GF2X>&, GF2X&);
-
-    GF2X jarvis_encrypt_field(GF2X, GF2X);
-    GF2X jarvis_decrypt_field(GF2X, GF2X);
-
-    void bytesFromGF2X(char*, GF2X&, int);
-    GF2X bytesToGF2X(const char*, int);
-
-};
 
 struct hashDigest_t{
     char buffer[128/8];
