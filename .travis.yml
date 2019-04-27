@@ -1,24 +1,28 @@
-os:
-  - linux
-  
-sudo: required
-before_install:
-  - sudo apt-get install libgtest-dev
-  - sudo apt-get install libboost-all-dev
-  - sudo apt-get install libjsoncpp-dev
-  - sudo apt-get install libssl-dev
-
-  
-# Enable C++ support
 language: cpp
+compiler: g++
+os: linux
+dist: xenial
+sudo: required
 
-# Compiler selection
-compiler:
-  - g++
-  
-# Build steps
+before_install:
+    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    - sudo apt-get update -qq
+
+install: 
+    - sudo apt-get install -qq libjsoncpp-dev
+    - sudo apt-get install -qq libboost-all-dev
+    - sudo apt-get install -qq libgtest-dev
+    - sudo apt-get install -qq g++-6 cmake
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
+
 script:
-  - make -j8
-  - make hyperion-tests -j8
-  - ./hyperion-tests
-
+    # install gtest 
+    - cd /usr/src/gtest
+    - sudo cmake CMakeLists.txt
+    - sudo make
+    - sudo cp *.a /usr/lib
+    - cd -
+    # Compile Hyperion 
+    - make -j8
+    - make hyperion-tests -j8
+    - ./hyperion-tests
