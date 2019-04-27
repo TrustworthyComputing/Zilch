@@ -40,6 +40,7 @@ UnpackedWord opcodeAux7_(REGISTER_LENGTH, "opcodeAux7_");
 unsigned int prngseed;
 bool standAlone_ = false;
 bool found_answer_ = false;
+size_t answer_ = -1;
 FElem program_output = Algebra::one(); //use any incorrect != -1 value to test soundness
 int max_timestep = 1;
 unsigned int ROMSIZE = 0;
@@ -2001,23 +2002,23 @@ GadgetPtr ALU_ANSWER_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, co
 }
 void ALU_ANSWER_Gadget::init(){}
 void ALU_ANSWER_Gadget::generateConstraints(){
+    found_answer_ = false;
 	if (max_timestep > 1) {
 		pb_->addBoundaryConstraint(inputs_.arg2_val_, max_timestep, program_output);
 	}
 }
+
 void ALU_ANSWER_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	static bool flag = true;
-	if (flag) {
-		flag = false;
+	if (!found_answer_) {
+        found_answer_ = true;
 		if (Algebra::one() == program_output) {
             program_output = pb_->val(inputs_.arg2_val_);
         }
 
-        size_t a = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
-        std::cout << "\n*** TIMESTEPS=" << max_timestep << YELLOW << " ANSWER=" << a << RESET << " (binary " << std::bitset<REGISTER_LENGTH>(a) << ")\n" << std::endl;
-        found_answer_ = true;
+        answer_ = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
+        std::cout << "\n*** TIMESTEPS=" << max_timestep << YELLOW << " ANSWER=" << answer_ << RESET << " (binary " << std::bitset<REGISTER_LENGTH>(answer_) << ")\n" << std::endl;
 	}
     
     #ifdef DEBUG

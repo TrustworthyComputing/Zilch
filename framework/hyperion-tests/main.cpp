@@ -2,6 +2,6 @@
 
 int main(int argc, char *argv[]) {
     testing::InitGoogleTest(&argc, argv);
-	size_t res = RUN_ALL_TESTS();
-    return res;
+    ::testing::GTEST_FLAG(filter) = "zMIPS*";
+    return RUN_ALL_TESTS();
 }

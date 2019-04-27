@@ -34,6 +34,7 @@ extern unsigned int prngseed;
 extern int max_timestep;
 extern bool standAlone_;
 extern bool found_answer_;
+extern size_t answer_;
 extern FElem program_output;
 extern unsigned int ROMSIZE;
 

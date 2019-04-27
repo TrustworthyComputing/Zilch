@@ -6,4 +6,4 @@ __loop__
     beq $r1, 7, __end__ ; if ($r1 == 7) then jump to __end__
     j __loop__          ; jump to __loop__
 __end__
-answer $r0, $r0, $r0    ; return $r0 // 35
+answer $r0, $r0, $r0    ; return $r0 // 135
