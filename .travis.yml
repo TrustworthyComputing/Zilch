@@ -1,0 +1,19 @@
+sudo: required
+before_install:
+  - sudo apt-get install libgtest-dev
+  - sudo apt-get install libboost-all-dev
+  - sudo apt-get install libjsoncpp-dev
+  
+# Enable C++ support
+language: cpp
+
+# Compiler selection
+compiler:
+  - g++
+  
+# Build steps
+script:
+  - make -j8
+  - make hyperion-tests -j8
+  - ./hyperion-tests
+
