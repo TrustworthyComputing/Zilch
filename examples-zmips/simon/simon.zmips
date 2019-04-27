@@ -1,0 +1,42 @@
+move $r6, $r6, 32
+move $r7, $r7, 1000
+move $r1, $r1, 0
+__L1__
+cmpg $r6, $r6, $r1
+cnjmp $r6, $r6, __L2__
+read $r2, $r2, 0
+move $r8, $r8, $r2
+sw $r8, $r1($r7)
+add $r1, $r1, 1
+j $r0, $r0, __L1__
+__L2__
+read $r2, $r2, 1
+read $r3, $r3, 1
+move $r1, $r1, 0
+__L3__
+cmpg $r6, $r6, $r1
+cnjmp $r6, $r6, __L4__
+move $r4, $r4, $r2
+srl $r9, $r4, 15
+sll $r11, $r4, 1
+or $r10, $r9, $r11
+move $r2, $r2, $r10
+srl $r12, $r4, 8
+sll $r14, $r4, 8
+or $r13, $r12, $r14
+move $r5, $r5, $r13
+and $r2, $r2, $r5
+xor $r2, $r2, $r3
+srl $r15, $r4, 14
+sll $r17, $r4, 2
+or $r16, $r15, $r17
+move $r5, $r5, $r16
+xor $r2, $r2, $r5
+lw $r18, $r1($r7)
+xor $r2, $r2, $r18
+move $r3, $r3, $r4
+add $r1, $r1, 1
+j $r0, $r0, __L3__
+__L4__
+answer $r3, $r3, $r3
+

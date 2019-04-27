@@ -1,0 +1,12 @@
+read $r3, $r3, 0
+move $r1, $r1, 1
+move $r2, $r2, 1
+__L1__
+cmpge $r3, $r3, $r2
+cnjmp $r3, $r3, __L2__
+mult $r1, $r1, $r2
+add $r2, $r2, 1
+j $r0, $r0, __L1__
+__L2__
+answer $r1, $r1, $r1
+
