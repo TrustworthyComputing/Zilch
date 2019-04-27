@@ -14,23 +14,33 @@ Zilch further supports MACRO instructions and custom labels, which enhances the 
 Finally, Hyperion supports over-the-network ZKPs without trusted third parties.
 
 
-## Compilation and Dependencies:
-```
-apt install libjsoncpp-dev
-apt install libboost-all-dev
-```
+### Dependencies:
+
+* OpenMP (https://en.wikipedia.org/wiki/OpenMP)
+* googletest (https://github.com/google/googletest) `apt-get install libgtest-dev`
+* libboost (https://github.com/google/googletest) `apt install libboost-all-dev`
+* libjson (https://github.com/open-source-parsers/jsoncpp) `apt install libjsoncpp-dev`
+
+
+### Compilation 
 
 ```
 git clone https://github.com/TrustworthyComputing/Hyperion
 cd Hyperion
 make -j8
+make hyperion-tests -j8
 ```
 
-## Arguments format:
+To verify the installation type `./hyperion-tests`.
+
+
+### Execution:
+
 ```
 $ ./hyperion --asm <zMIPS assembly file path> [--tsteps <trace length log_2>] [--security <security parameter]> [--pubtape <primaryTapeFile>] [--auxtape <auxTapeFile>] [--verifier | --prover] [--address <address:port_number>]
 ```
-## Prefixes
+
+#### Prefixes
 ```
 --help      : Display this help message
 --examples  : Display some usage examples
@@ -50,17 +60,22 @@ The flags below enable verification over the network; if neither is enabled, the
 ```
 see examples below on how to use the prefixes.
 
-## Labels
-In our implementation, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
+If the public tape is in the same directory as the zMIPS assembly file and has the same name but has the `.pubtape` extension the flag `--pubtape` may be omitted. The same applies for the private tape with the extension `.auxtape`. For instance the command `./hyperion --asm ./foo.zmips --pubtape foo.pubtape --auxtape foo.auxtape` is the same as `./hyperion --asm ./foo.zmips`, since Hyperion automatically locates the tapes that end with `.pubtape` and `.auxtape` extensions.
 
 
-## Enhanced READ instructions
+## ZMIPS ISA
+zMIPS is our extension to the MIPS ISA to support programming ZKPs. In [zMIPS.md](https://github.com/TrustworthyComputing/Hyperion/blob/master/zMIPS.md) we elaborate on the zMIPS enhanced ISA.
+
+### Labels
+In Hyperion, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
+
+### Enhanced READ instructions
 * `read $ri, $rj, A` : Consume the next word from the [A]-th tape (0 or 1) if it has remaining words and store it in `$ri`. A can be either a register or an immediate value. For consuming the next word from the public tape A must be `0`, while for consuming from the private tape `A` must be `1`. In `read` instruction, register `$rj` is not used.
 
 * `seek $ri, B, A` : `seek` is a random access `read` command. `seek` consumes the word in offset `B` from tape `A`. Both `A` and `B` can be either registers or immediate values.
 
 
-## User-defined Macros
+### User-defined Macros
 In [macros.json](https://github.com/TrustworthyComputing/Hyperion/blob/master/framework/hyperion/src/macros.json) the user can define her own custom zMIPS macro-instructions.
 
 For instance, we have defined `inc`, `dec` and `min` macro-instructions as shown below :
@@ -111,11 +126,11 @@ For instance, a simple read from tapes example over the network:
 
 First run the verifier listening on port `2324`:
 ```
-./hyperion --asm ./examples-zmips/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test.pubtape --auxtape ./examples-zmips/read_test.auxtape --verifier --address localhost:2324
+./hyperion --asm ./examples-zmips/read_test/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape --verifier --address localhost:2324
 ```
 And then the prover to connect to port `2324`:
 ```
-./hyperion --asm ./examples-zmips/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test.pubtape --auxtape ./examples-zmips/read_test.auxtape --prover --address localhost:2324
+./hyperion --asm ./examples-zmips/read_test/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape --prover --address localhost:2324
 ```
 
 
@@ -129,7 +144,7 @@ The above execution results in execution of STARK simulation over the collatz pr
 ### An example for testing labels and read instruction:
 Perform a loop 3 times, each time reading one word from the primary tape and another one from the auxiliary tape.
 Primary tape is filled with `1, 2, 3, 4, ...`, while aux tape contains `101, 102, 103, 104, ...`.
-In simple terms, the below TinyRAM program adds 1+101+2+102+3+103 and prints it through the `answer` instruction. 
+In simple terms, the below zMIPS program adds 1+101+2+102+3+103 and prints it through the `answer` instruction. 
 ```
 __loop__
     read $r0, $r0, 0        ; consume next word from public tape and store it to r0
@@ -143,20 +158,17 @@ bne $r3, 3, __loop__    ; if (r3 != 3) then jump to __loop__
 
 answer $r2, $r2, $r2    ; result should be 312
 ```
-In order to execute the above program, simply run `./hyperion --asm ./examples-zmips/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test.pubtape --auxtape ./examples-zmips/read_test.auxtape`.
-
-We have also implemented the same example using macros in [read_test_with_macros.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/read_test_with_macros.asm).
-This specific example is not a great use-case of using macros since it expands to three loops instead of just one, but is implemented for comparison.
+In order to execute the above program, simply run `./hyperion --asm ./examples-zmips/read_test/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape`.
 
 
 ### A more interesting example (Knowledge of Factorization):
 A more interesting example would be to prove the knowledge of the factors of a number (e.g. 15) without disclosing them to the verifier.
 As we already mentioned, all the private inputs (i.e. the inputs that only the prover has knowledge of) are placed in the auxiliary tape.
 ```
-./hyperion --asm ./examples-zmips/knowledge_of_factorization.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_factorization.auxtape
+./hyperion --asm ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.auxtape
 ```
 
-#### TinyRAM code for the Knowledge of Factorization example:
+#### zMIPS code for the Knowledge of Factorization example:
 ```
 read $r1, $r1, 1        ; $r1 is filled with a private value from auxiliary tape (e.g. 3)
 read $r2, $r2, 1        ; $r2 is filled with a private value from auxiliary tape (e.g. 5)
@@ -169,16 +181,15 @@ __end__
 answer $r11, $r11, $r11 ; return $r11 // $return (r1 * $r2 == 15)
 ```
 
-Also in file [knowledge_of_bignum_factorization.asm](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.asm) we have implemented the knowledge of factorization example for big numbers (e.g., 1024 bit arithmetic) based on block multiplication. Private inputs are located [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.auxtape) while public inputs is [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization.pubtape).
-To execute this example simply run `./hyperion --asm ./examples-zmips/knowledge_of_bignum_factorization.asm -t14 --security 120 --pubtape ./examples-zmips/knowledge_of_bignum_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
+Also in file [knowledge_of_bignum_factorization.zmips](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.zmips) we have implemented the knowledge of factorization example for big numbers (e.g., 1024 bit arithmetic) based on block multiplication. Private inputs are located [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.auxtape) while public inputs is [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.pubtape).
+To execute this example simply run `./hyperion --asm ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.zmips -t14 --security 120 --pubtape ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
 
 
 ### Another interesting example (Knowledge of RSA Private Key):
 Prover claims he/she posseses the private RSA key of a verifier-chosen public key without revealing anything about the key to the verifier.
 ```
-./hyperion --asm ./examples-zmips/knowledge_of_RSA_private_key.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_RSA_private_key.pubtape --auxtape ./examples-zmips/knowledge_of_RSA_private_key.auxtape
+./hyperion --asm ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.pubtape --auxtape ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.auxtape
 ```
-
 
 RSA example:
 ```
@@ -199,7 +210,7 @@ Proof of correctness:
     (23 * 7) mod 160 = 1 ==> 161 mod 160 = 1
 ```
 
-#### TinyRAM code for the knowledge of RSA private key example:
+#### zMIPS code for the knowledge of RSA private key example:
 ```
 read $r0, $r0, 1        ; r0 is filled with a private value from auxiliary tape (e.g. p = 17)
 read $r1, $r1, 1        ; r1 is filled with a private value from auxiliary tape (e.g. q = 11)
