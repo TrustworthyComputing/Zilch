@@ -1,4 +1,5 @@
-# The Hyperion Framework [![License MIT][badge-license]](LICENSE)
+# The Hyperion Framework [![License MIT][badge-license]](LICENSE) [![Build Status](https://travis-ci.com/TrustworthyComputing/Hyperion.svg?token=gZwZQ8qzAHzETuTPZFp7&branch=master)](https://travis-ci.com/TrustworthyComputing/Hyperion)
+
 ## A Framework for Building Zero-Knowledge Proofs for any Application
 
 ### Overview
