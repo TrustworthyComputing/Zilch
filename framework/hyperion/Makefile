@@ -18,25 +18,19 @@ SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
 SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
 OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 
-TARGET=$(BLDDIR)/hyperion
-DST=$(EXEDIR)/hyperion
+TARGET=$(BLDDIR)/libhyperion.a
 all: $(TARGET)
 
 $(TARGET): buildrepo $(OBJS)
-#	@echo 'Building target: $@'
-#	@echo 'Invoking: GCC Linker'
-	$(CC) -o "$@" $(OBJS) -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
-#	@echo 'Finished building target: $@'
-	cp $(TARGET) $(DST)
+#	@echo 'Create Hyperion library'
+	ar -r $(TARGET) $(OBJS)
 
 $(OBJDIR)/%.o: %.$(SRCEXT)
-#	@echo "$(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS) -c -o "$@" "$<""
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS) -c -o "$@" "$<"
 
 clean:
 	$(RM) -f $(TARGET) $(OBJS) $(DEPS)
 	$(RM) -rf $(OBJDIR)
-	$(RM) $(DST)
 
 buildrepo:
 	$(call make-repo)

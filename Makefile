@@ -1,3 +1,5 @@
+include ./flags.mk
+
 WHICH				:= $(shell which which)
 PWD					:= $(shell $(WHICH) pwd)
 
@@ -24,27 +26,26 @@ HYPERION_TESTS_DIR 	:= $(WD)/framework/hyperion-tests
 		gadgetlib gadgetlib-clean 	\
 		clean
 
+INCFLAGS=-Isrc -I$(GADGET3INC) -I$(LIBSTARKINC) -I$(ALGEBRAINC) -I$(FFTINC)
+LIBFLAGS= -lhyperion -lgadgetlib -lstark -lalgebralib -lFFT
+LNKFLAGS=-L"$(BLDDIR)/algebralib" -L"$(BLDDIR)/fft" -L"$(BLDDIR)/gadgetlib" -L"$(BLDDIR)/libstark" -L"$(BLDDIR)/hyperion"
+TARGET=hyperion
+
 default: hyperion
 
 help:
-	./hyperion -h
+	./$(TARGET) --help
 
-run-prover:
-	./hyperion $(ARGS) --tsteps 10 --prover
+hyperion: hyperion-lib main
+	$(CC) -o $(TARGET) $(WD)/$(BUILD_DIR)/main.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
-run-verifier:
-	./hyperion $(ARGS) --tsteps 10 --verifier
+main:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(HYPERION_DIR)/src -c -o $(WD)/$(BUILD_DIR)/main.o $(HYPERION_DIR)/main.cpp
 
-libstark:
-	$(MAKE) -C $(LIBSTARK_DIR) 		\
-	BLDDIR=$(BLDDIR)/libstark 		\
-	FFTINC=$(FFTLIB_DIR)/src		\
-	ALGEBRAINC=$(ALGEBRALIB_DIR)/headers
+main-clean:
+	$(RM) $(WD)/$(BUILD_DIR)/main.o
 
-libstark-clean:
-	$(MAKE) clean -C $(LIBSTARK_DIR) BLDDIR=$(BLDDIR)/libstark
-
-hyperion: gadgetlib fft algebralib libstark
+hyperion-lib: gadgetlib fft algebralib libstark
 	$(MAKE) -C $(HYPERION_DIR) 					\
 		BLDDIR=$(BLDDIR)/hyperion               \
 		EXEDIR=$(EXE_DIR) 						\
@@ -57,11 +58,20 @@ hyperion: gadgetlib fft algebralib libstark
 		GADGET3INC=$(GADGETLIB3_DIR)/../.		\
 		GADGET3LNKDIR=$(BLDDIR)/gadgetlib
 
-hyperion-clean:
+hyperion-lib-clean:
 	$(MAKE) clean -C $(HYPERION_DIR) 	\
 		BLDDIR=$(BLDDIR)/hyperion 		\
 		EXEDIR=$(EXE_DIR)
 
+libstark:
+	$(MAKE) -C $(LIBSTARK_DIR) 		\
+	BLDDIR=$(BLDDIR)/libstark 		\
+	FFTINC=$(FFTLIB_DIR)/src		\
+	ALGEBRAINC=$(ALGEBRALIB_DIR)/headers
+
+libstark-clean:
+	$(MAKE) clean -C $(LIBSTARK_DIR) BLDDIR=$(BLDDIR)/libstark
+	
 fft:
 	$(MAKE) -C $(FFTLIB_DIR)  BLDDIR=$(BLDDIR)/fft
 
