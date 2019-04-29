@@ -21,6 +21,8 @@ HYPERION_TESTS_DIR 	:= $(WD)/framework/hyperion-tests
 .PHONY: 							\
 		libstark libstark-clean 	\
 		hyperion hyperion-clean 	\
+		hyperion-lib hyperion-lib-clean \
+		hyperion-tests hyperion-tests-clean 	\
 		fft fft-clean 				\
 		algebralib algebralib-clean \
 		gadgetlib gadgetlib-clean 	\
@@ -39,6 +41,10 @@ help:
 hyperion: hyperion-lib main
 	$(CC) -o $(TARGET) $(WD)/$(BUILD_DIR)/main.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
+hyperion-clean: hyperion-lib-clean main-clean hyperion-tests-clean
+	$(RM) $(WD)/hyperion
+	$(RM) $(WD)/hyperion-tests
+		
 main:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(HYPERION_DIR)/src -c -o $(WD)/$(BUILD_DIR)/main.o $(HYPERION_DIR)/main.cpp
 
