@@ -11,6 +11,8 @@ j $r0, $r0, __L1__
 __L2__
 read $r2, $r2, 1
 read $r3, $r3, 1
+move $r15, $r15, $r2
+move $r16, $r16, $r3
 move $r1, $r1, 0
 __L3__
 cmpg $r4, $r4, $r1
@@ -30,4 +32,8 @@ j $r0, $r0, __L3__
 __L4__
 print $r2, $r2, $r2
 print $r3, $r3, $r3
+xor $r15, $r15, $r2
+xor $r16, $r16, $r3
+print $r15, $r15, $r15
+print $r16, $r16, $r16
 answer $r3, $r3, 1
