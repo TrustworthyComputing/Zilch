@@ -53,6 +53,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::STOREW: return "STOREW";
         case Opcode::LOADW: return "LOADW";
         case Opcode::ANSWER: return "ANSWER";
+        case Opcode::PRINT: return "PRINT";
         case Opcode::NUM_OPCODES: return "NUM_OPCODES";
         default :
                   std::cout<<"unfamiliar instruction";
@@ -97,6 +98,7 @@ Opcode opcodeFromString(const string op){
     if(op == "STOREW") return Opcode::STOREW;
     if(op == "LOADW") return Opcode::LOADW;
     if(op == "ANSWER") return Opcode::ANSWER;
+    if(op == "PRINT") return Opcode::PRINT;
     if(op == "NUM_OPCODES") return Opcode::NUM_OPCODES;
 
     std::cout<<"unfamiliar instruction";

@@ -82,7 +82,7 @@ void printHeader(void) {
     cout << endl << "| | | | |_| | |_) |  __/ |  | | (_) | | | |";
     cout << endl << "\\_| |_/\\__, | .__/ \\___|_|  |_|\\___/|_| |_|";
     cout << endl << "        __/ | |";
-    cout << endl << "       |___/|_|" << RESET << endl;
+    cout << endl << "       |___/|_|" << RESET << endl << endl;
 }
 
 int main(int argc, char *argv[]) {

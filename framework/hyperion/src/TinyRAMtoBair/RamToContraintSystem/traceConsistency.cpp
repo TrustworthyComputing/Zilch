@@ -194,6 +194,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::CMPGE:
 					case Opcode::STOREW:
 					case Opcode::ANSWER:
+					case Opcode::PRINT:
 						selectorToConstraint[j] = 1;
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
 						break;
@@ -285,6 +286,7 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 			case Opcode::CMPGE:
 			case Opcode::STOREW:
 			case Opcode::ANSWER:
+			case Opcode::PRINT:
 				pb_->val(regiSecond) = pb_->val(regiFirst);
 				break;
 			case Opcode::LOADW:

@@ -57,6 +57,7 @@ enum class Opcode : int {
 	SEEK = 31,
 	ANSWER = 32,
 	CMPNE = 33,
+	PRINT = 34,
 	
 	NUM_OPCODES = 35
 

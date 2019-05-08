@@ -111,6 +111,8 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "ANSWER") {
         answer_instruction = true;
         return "ANSWER " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "PRINT") {
+        return "PRINT " + r0 + " " + r1 + " " + r2;
     } else if (instr == "NUM_OPCODES") {
         return "NUM_OPCODES " + r0 + " " + r1 + " " + r2;
     } else {
@@ -228,9 +230,7 @@ string parse_zmips(const string assemblyFile, const bool show_asm) {
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
     
-    
     unrollMacros(lines);
-    
     
     if (show_asm) std::cout << '\n';
     for (auto& l : lines) {
