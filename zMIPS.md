@@ -30,6 +30,7 @@ zMIPS is our extension to the MIPS ISA to support programming ZKPs. Below we pro
 | cnjmp $ri, $rj, A  | if (!flag) then goto label A                             |
 | sw $ri, A($rj)     | [A+$rj] = $ri                                            |
 | lw $ri, A($rj)     | $ri = [A+$rj]                                            |
+| print $ri, $rj, A  | print A                                                  |
 | answer $ri, $rj, A | return A                                                 |
 
 
