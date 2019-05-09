@@ -1,7 +1,7 @@
 #include "hyperion-api.hpp"
 
 int hyperion_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t securityParameter, bool verbose, bool no_proof) {
-    string asmFile = parse_zmips(assemblyFile, false);
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
 	TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
@@ -36,7 +36,7 @@ int hyperion_local_prover_verifier(const string assemblyFile, const string prima
 }
 
 int hyperion_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& address, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
-    string asmFile = parse_zmips(assemblyFile, false);
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
     TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
@@ -66,7 +66,7 @@ int hyperion_prover(const string assemblyFile, const string primaryTapeFile, con
 }
 
 void hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
-    string asmFile = parse_zmips(assemblyFile, false);
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
     TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
