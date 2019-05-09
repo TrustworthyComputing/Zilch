@@ -199,7 +199,6 @@ void unrollMacros(vector<std::string>& lines) {
         for (auto const& id : macros.getMemberNames()) {
             if (args_vec[0] == id) {
                 string macro = macros[id]["macro"].asString();
-                
                 for (size_t k = 1 ; k <= args_vec.size() ; k++) {
                     boost::replace_all(macro, macros[id]["reg"+to_string(k)].asString(), args_vec[k]);
                 }
@@ -212,6 +211,7 @@ void unrollMacros(vector<std::string>& lines) {
                 lines[i++] = m_instructions[0];
                 for (size_t k = 1 ; k < m_instructions.size() ; k++) {
                     lines.insert(lines.begin() + (i++), m_instructions[k]);
+                    size++;
                 }
                 i--;
             }

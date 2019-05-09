@@ -33,6 +33,15 @@
         "reg1": "$x",
         "macro": "answer $x, $x, $x"
     },
+    "swap": {
+        "comment_": "$z is used as intermediate. This macro swaps x with y",
+        "reg1": "$z",
+        "reg2": "$x",
+        "reg3": "$y",
+        "macro" : "move $z, $z, $x
+                move $x, $x, $y
+                move $y, $y, $z"
+    },
     "min": {
         "reg1": "$x",
         "reg2": "$y",

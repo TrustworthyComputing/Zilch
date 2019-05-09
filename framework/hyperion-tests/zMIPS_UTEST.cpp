@@ -175,3 +175,11 @@ TEST(zMIPS, simple_loop) {
 	EXPECT_EQ(answer_, 135);
 }
 
+TEST(zMIPS, swap_test) {
+	string assembly_file = "./examples-zmips/swap_test.zmips";
+	string asm_parsed = parse_zmips(assembly_file, "", false);
+	execute_locally(asm_parsed, "", 0, securityParameter, false, true, false);
+	std::remove(asm_parsed.c_str());
+	EXPECT_EQ(answer_, 22);
+}
+
