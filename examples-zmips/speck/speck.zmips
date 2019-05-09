@@ -4,13 +4,13 @@ move $r1, $r1, 0
 __L1__
 cmpg $r4, $r4, $r1
 cnjmp $r4, $r4, __L2__
-pubread $r2, $r2, 0
+pubread $r2
 sw $r2, $r1($r5)
 add $r1, $r1, 1
 j $r0, $r0, __L1__
 __L2__
-secread $r2, $r2, 1
-secread $r3, $r3, 1
+secread $r2
+secread $r3
 move $r1, $r1, 0
 __L3__
 cmpg $r4, $r4, $r1
@@ -28,6 +28,6 @@ xor $r2, $r12, $r3
 add $r1, $r1, 1
 j $r0, $r0, __L3__
 __L4__
-print $r2, $r2, $r2
-print $r3, $r3, $r3
+print $r2
+print $r3
 answer $r3, $r3, $r3

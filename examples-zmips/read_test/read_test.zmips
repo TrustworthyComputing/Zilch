@@ -1,6 +1,6 @@
 __loop__
-    pubread $r0, $r0, $r0    ; consume next word from public tape and store it to r0
-    secread $r1, $r1, $r1    ; consume next word from auxiliary tape and store it to r1
+    pubread $r0             ; consume next word from public tape and store it to r0
+    secread $r1             ; consume next word from auxiliary tape and store it to r1
 
     add $r2, $r0, $r2        ; add them together
     add $r2, $r1, $r2        ; r2 = r0 + r1 + r2

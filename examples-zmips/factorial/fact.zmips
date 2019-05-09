@@ -1,4 +1,4 @@
-pubread $r3, $r3, 0
+pubread $r3
 move $r1, $r1, 1
 move $r2, $r2, 1
 __L1__

@@ -1,6 +1,6 @@
-pubread $r1, $r1, 0
-pubread $r2, $r2, 0
-secread $r3, $r3, 1
+pubread $r1
+pubread $r2
+secread $r3
 cmpge $r3, $r3, $r1
 cnjmp $r3, $r3, __L2__
 cmpge $r2, $r2, $r3

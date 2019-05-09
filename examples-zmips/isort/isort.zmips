@@ -1,10 +1,10 @@
-pubread $r6, $r6, 0
+pubread $r6
 move $r7, $r7, 1000
 move $r1, $r1, 0
 __L1__
 cmpg $r6, $r6, $r1
 cnjmp $r6, $r6, __L2__
-secread $r4, $r4, 1
+secread $r4
 move $r8, $r8, $r4
 sw $r8, $r1($r7)
 add $r1, $r1, 1
