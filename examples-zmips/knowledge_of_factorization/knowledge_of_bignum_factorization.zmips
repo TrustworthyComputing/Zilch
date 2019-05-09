@@ -1,7 +1,7 @@
 # ./hyperion --asm ./examples-zmips/knowledge_of_bignum_factorization.zmips --no-proof
 
 # read the number of blocks from public tape 
-read $r1, $r1, 0                            # the number of blocks of each number (l1)
+pubread $r1, $r1, 0                            # the number of blocks of each number (l1)
 mult $r13, $r1, 2                           # the number of blocks of the product
 
 # initialize memory to store blocks of product with zero
@@ -14,7 +14,7 @@ bne $r5, $r13 __init_mult_mem__             # if (r5 != 42) then jump to __init_
 # read p and store it to memory (21 16-bit blocks)
 move $r5, $r5, 0
 __read_p__
-    read $r0, $r0, 1                       # consume next word from auxtape
+    secread $r0, $r0, 1                       # consume next word from auxtape
     sw $r0, 1000($r5)                       # store it
     add $r5, $r5, 1                         # i++
 bne $r5, $r1 __read_p__                     # if (r5 != 21) then jump to __read_p__
@@ -22,7 +22,7 @@ bne $r5, $r1 __read_p__                     # if (r5 != 21) then jump to __read_
 # now read q (21 16-bit blocks)
 move $r5, $r5, 0
 __read_q__
-    read $r0, $r0, 1                       # consume next word from auxtape
+    secread $r0, $r0, 1                       # consume next word from auxtape
     sw $r0, 2000($r5)                       # store it
     add $r5, $r5, 1                         # i++
 bne $r5, $r1 __read_q__                     # if (r5 != 21) then jump to __read_q__
@@ -85,7 +85,7 @@ __check_overflows__
         sw $r9, 3000($r2)                   # store num_blocks[i + j + 1]
     __no_overflow__
     # check equality between computed block and the next from public tape
-    read $r4, $r4, 0                        # consume next word from primary tape
+    pubread $r4, $r4, 0                        # consume next word from primary tape
     bne $r4, $r10 __not_equal__             # if ($r4 != $r10) then jump to __not_equal__
 bne $r3, 1 __check_overflows__              # if (r3 != 1) then jump to __check_overflows__
 

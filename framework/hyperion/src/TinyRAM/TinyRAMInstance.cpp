@@ -40,8 +40,8 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::CMPG: return "CMPG";
         case Opcode::CMPGE: return "CMPGE";
         case Opcode::MOV: return "MOV";
-        case Opcode::READ: return "READ";
-        case Opcode::SEEK: return "SEEK";
+        case Opcode::SECREAD: return "SECREAD";
+        case Opcode::SECSEEK: return "SECSEEK";
         case Opcode::CMOV: return "CMOV";
         case Opcode::JMP: return "JMP";
         case Opcode::CJMP: return "CJMP";
@@ -85,8 +85,8 @@ Opcode opcodeFromString(const string op){
     if(op == "CMPG") return Opcode::CMPG;
     if(op == "CMPGE") return Opcode::CMPGE;
     if(op == "MOV") return Opcode::MOV;
-    if(op == "READ") return Opcode::READ;
-    if(op == "SEEK") return Opcode::SEEK;
+    if(op == "SECREAD") return Opcode::SECREAD;
+    if(op == "SECSEEK") return Opcode::SECSEEK;
     if(op == "CMOV") return Opcode::CMOV;
     if(op == "JMP") return Opcode::JMP;
     if(op == "CJMP") return Opcode::CJMP;
@@ -147,7 +147,7 @@ MachineInstruction::MachineInstruction(const std::string line, const map<string,
 	string words0 = stringToUpper(words[0]);
     opcode_ = opcodeFromString(words0);
     destIdx_ = getRegNum(words[1]);
-	if (opcode_ == Opcode::SEEK) { // the first argument in SEEK can be either immediate or register
+	if (opcode_ == Opcode::SECSEEK) { // the first argument in SECSEEK can be either immediate or register
 		arg1isImmediate_ = !isReg(words[2]);
 		if (!arg1isImmediate_) {
             arg1Idx_ = getRegNum(words[2]);

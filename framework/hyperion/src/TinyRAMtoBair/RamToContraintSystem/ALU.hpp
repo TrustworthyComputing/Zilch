@@ -959,14 +959,14 @@ public:
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
-/*******************                         ALU_SEEK_Gadget                  ******************/
+/*******************                         ALU_SECSEEK_Gadget                  ******************/
 /*******************                                                            ******************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-class ALU_SEEK_Gadget : public ALU_Component_Gadget{
+class ALU_SECSEEK_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_SEEK_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	ALU_SECSEEK_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 
 public:
@@ -974,7 +974,7 @@ public:
     void generateConstraints();
 	void generateWitness();
 
-	DISALLOW_COPY_AND_ASSIGN(ALU_SEEK_Gadget);
+	DISALLOW_COPY_AND_ASSIGN(ALU_SECSEEK_Gadget);
 };
 
 /*************************************************************************************************/

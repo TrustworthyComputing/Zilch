@@ -1,6 +1,6 @@
-read $r7, $r7, 0
-read $r8, $r8, 0
-read $r9, $r9, 0
+pubread $r7, $r7, 0
+pubread $r8, $r8, 0
+pubread $r9, $r9, 0
 mult $r13, $r7, $r8
 move $r10, $r10, 1000
 mult $r14, $r8, $r9
@@ -12,7 +12,7 @@ __L1__
 mult $r16, $r7, $r8
 cmpg $r16, $r16, $r1
 cnjmp $r16, $r16, __L2__
-read $r4, $r4, 1
+secread $r4, $r4, 1
 move $r17, $r17, $r4
 sw $r17, $r1($r10)
 add $r1, $r1, 1
@@ -23,7 +23,7 @@ __L3__
 mult $r18, $r8, $r9
 cmpg $r18, $r18, $r1
 cnjmp $r18, $r18, __L4__
-read $r4, $r4, 1
+secread $r4, $r4, 1
 move $r19, $r19, $r4
 sw $r19, $r1($r11)
 add $r1, $r1, 1

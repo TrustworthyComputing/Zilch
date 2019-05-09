@@ -37,13 +37,13 @@ void ALUInputConsistency::generateConstraints(){
 		unsigned int arg2 = program_.code()[i].arg2IdxOrImmediate_;
 		unsigned int dest = program_.code()[i].destIdx_;
 		Opcode opcode = program_.code()[i].opcode_;
-		if (Opcode::READ == opcode || Opcode::SEEK == opcode) {
+		if (Opcode::SECREAD == opcode || Opcode::SECSEEK == opcode) {
 			program_.arg2isImmediateToFalse(i);
-			arg2 = READ_RESERVED_REGISTER;
+			arg2 = SECREAD_RESERVED_REGISTER;
 		}
 		bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 		CircuitPolynomial arg2Poly;
-		if (!arg2IsImmediate) { // if not immediate -- READ uses reg READ_RESERVED_REGISTER DO NOT USE IN PROGRAM
+		if (!arg2IsImmediate) { // if not immediate -- SECREAD uses reg SECREAD_RESERVED_REGISTER DO NOT USE IN PROGRAM
 			arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
 		} else {
 			Algebra::FElem valArg2 = mapIntegerToFieldElement(0, params->registerLength(), arg2);
@@ -73,35 +73,20 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 	unsigned int arg2 = program_.code()[i].arg2IdxOrImmediate_;
 	unsigned int dest = program_.code()[i].destIdx_;
 	Opcode opcode = program_.code()[i].opcode_;
-	if (Opcode::READ == opcode) {
+	if (Opcode::SECREAD == opcode) {
 		unsigned int read_from_tape_result;
-
-		if (arg2 == 0) {
-			if (public_lines[0].empty()) { // check if tapefile is empty
-				std::cerr << "\nPrimary tapefile is empty or does not exist.\n";
-				exit(EXIT_FAILURE);
-			} else if (public_lines.size() <= pubread_cnt) { // check if there exists a word to consume
-				std::cerr << "\nPrimary tapefile has no other word to consume.\n";
-				exit(EXIT_FAILURE);
-			}
-			read_from_tape_result = stoi( public_lines[pubread_cnt++] ); // read from tape
-		} else if (arg2 == 1) {
-			if (private_lines[0].empty()) { // check if tapefile is empty
-				std::cerr << "\nAuxiliary tapefile is empty or does not exist.\n";
-				exit(EXIT_FAILURE);
-			} else if (private_lines.size() <= secread_cnt) { // check if there exists a word to consume
-				std::cerr << "\nAuxiliary tapefile has no other word to consume.\n";
-				exit(EXIT_FAILURE);
-			}
-			read_from_tape_result = stoi( private_lines[secread_cnt++] ); // read from tape
-		} else {
-			std::cerr << "\nMOVIFILE error: last argument should be either 0 for primary tape or 1 for auxiliary tape.\n";
+		if (private_lines[0].empty()) { // check if tapefile is empty
+			std::cerr << "\nAuxiliary tapefile is empty or does not exist.\n";
+			exit(EXIT_FAILURE);
+		} else if (private_lines.size() <= secread_cnt) { // check if there exists a word to consume
+			std::cerr << "\nAuxiliary tapefile has no other word to consume.\n";
 			exit(EXIT_FAILURE);
 		}
+		read_from_tape_result = stoi( private_lines[secread_cnt++] ); // read from tape
 		program_.arg2isImmediateToFalse(i);
-		arg2 = READ_RESERVED_REGISTER;
-		pb_->val(input_.registers_[READ_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
-	} else if (Opcode::SEEK == opcode) {
+		arg2 = SECREAD_RESERVED_REGISTER;
+		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
+	} else if (Opcode::SECSEEK == opcode) {
 		unsigned int read_from_tape_result;
 		
 		bool arg1IsImmediate = program_.code()[i].arg1isImmediate_; // check if arg1 is immediate
@@ -136,8 +121,8 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 		}
 		// std::cout << "Read from offset " << arg1 << " value " << read_from_tape_result << '\n';
 		program_.arg2isImmediateToFalse(i);
-		arg2 = READ_RESERVED_REGISTER;
-		pb_->val(input_.registers_[READ_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
+		arg2 = SECREAD_RESERVED_REGISTER;
+		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
 	}
 		
 	

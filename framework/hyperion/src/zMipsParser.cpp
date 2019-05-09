@@ -72,10 +72,15 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "MOV " + r0 + " " + r0 + " 0\n" + "CMPA " + r1 + " " + r1 + " " + r2 + "\nCMJMP " + r1 + " " + r1 + " " + l1 + "\nMOV " + r0 + " " + r0 + " 1\n" + l1;
     } else if (instr == "MOV" || instr == "MOVE" || instr == "LI" || instr == "MFHI" || instr == "MFLO" || instr == "MTHI" || instr == "MTLO") {
         return "MOV " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "READ") {
-        return "READ " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SEEK") {
-        return "SEEK " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "SECREAD") {
+        return "SECREAD " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "PUBREAD") {
+        string base = "r" + to_string(MEMORY_RESERVED_REGISTER);
+        return "LOADW " + r0 + " " + r0 + " " + base + "\nADD " + base + " "  + base + " 1";
+    } else if (instr == "SECSEEK") {
+        return "SECSEEK " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "PUBSEEK") {
+        return "LOADW " + r0 + " " + r0 + " " + r1;
     } else if (instr == "CMOV") {
         return "CMOV " + r0 + " " + r1 + " " + r2;
     } else if (instr == "JMP" || instr == "J") {
@@ -128,40 +133,21 @@ inline bool isInteger(const std::string & s) {
    return (*p == 0);
 }
 
+/* Registers r0-r4 are reserverd:
+ * $zero is r0
+ * SECSECREAD_RESERVED_REGISTER is r1
+ * MEMORY_RESERVED_REGISTER is r2
+ * r3 and r4 are spare for now.
+ * When a user programs with r0, this funciton will return r5. r6 for r1 and so on.
+**/
 string mapMipsRegister(string& r) {
-    if (r == "$zero" || r == "$0") { return "r0"; }
-    else if (r == "$at" || r == "$1") { return "r1"; }
-    else if (r == "$v0" || r == "$2") { return "r2"; }
-    else if (r == "$v1" || r == "$3") { return "r3"; }
-    else if (r == "$a0" || r == "$4") { return "r4"; }
-    else if (r == "$a1" || r == "$5") { return "r5"; }
-    else if (r == "$a2" || r == "$6") { return "r6"; }
-    else if (r == "$a3" || r == "$7") { return "r7"; }
-    else if (r == "$t0" || r == "$8") { return "r8"; }
-    else if (r == "$t1" || r == "$9") { return "r9"; }
-    else if (r == "$t2" || r == "$10") { return "r10"; }
-    else if (r == "$t3" || r == "$11") { return "r11"; }
-    else if (r == "$t4" || r == "$12") { return "r12"; }
-    else if (r == "$t5" || r == "$13") { return "r13"; }
-    else if (r == "$t6" || r == "$14") { return "r14"; }
-    else if (r == "$t7" || r == "$15") { return "r15"; }
-    else if (r == "$s0" || r == "$16") { return "r16"; }
-    else if (r == "$s1" || r == "$17") { return "r17"; }
-    else if (r == "$s2" || r == "$18") { return "r18"; }
-    else if (r == "$s3" || r == "$19") { return "r19"; }
-    else if (r == "$s4" || r == "$20") { return "r20"; }
-    else if (r == "$s5" || r == "$21") { return "r21"; }
-    else if (r == "$s6" || r == "$22") { return "r22"; }
-    else if (r == "$s7" || r == "$23") { return "r23"; }
-    else if (r == "$t8" || r == "$24") { return "r24"; }
-    else if (r == "$t9" || r == "$25") { return "r25"; }
-    else if (r == "$gp" || r == "$28") { return "r28"; }
-    else if (r == "$sp" || r == "$29") { return "r29"; }
-    else if (r == "$fp" || r == "$30") { return "r30"; }
-    else if (r == "$ra" || r == "$31") { return "r31"; }
-    else if (r[0] == 'r') { return r; }
-    else if (r[0] == '$' && r[1] == 'r') { return r.substr(1); }
-    else {
+    if (r == "$zero" || r == "$0") { 
+        return "r0";
+    } else if (r[0] == '$' && r[1] == 'r') { 
+        int reg_num = stoi(r.substr(2));
+        string reg = "r" + to_string(reg_num+5);
+        return reg; 
+    } else {
         std::cerr << r << " : Unknown register" << endl;
         exit(EXIT_FAILURE);
     }
@@ -177,6 +163,20 @@ std::vector<std::string> split_string_to_lines(const std::string& str) {
     }
     strings.push_back(str.substr(prev));
     return strings;
+}
+
+vector<std::string> initPublicTape(const vector<string> public_lines) {
+    vector<string> store_tape;
+    string reg = "r" + to_string(MEMORY_RESERVED_REGISTER);
+    for (size_t i = 0 ; i < public_lines.size() ; i++) {
+        string instr1 = "MOV " + reg + " " + reg + " " + public_lines[i];
+        string instr2 = "STOREW " + reg + " r0 " + to_string(i);
+        store_tape.push_back(instr1);
+        store_tape.push_back(instr2);
+    }
+    string instr = "MOV " + reg + " " + reg + " 0";
+    store_tape.push_back(instr);
+    return store_tape;
 }
 
 void unrollMacros(vector<std::string>& lines) {
@@ -221,7 +221,7 @@ void unrollMacros(vector<std::string>& lines) {
 	
 }
 
-string parse_zmips(const string assemblyFile, const bool show_asm) {
+string parse_zmips(const string assemblyFile, const string primaryTapeFile, const bool show_asm) {
     string parsedAsmFile = remove_extension(assemblyFile);
     ifstream ifs(assemblyFile);
     ofstream ofs(parsedAsmFile);
@@ -232,7 +232,23 @@ string parse_zmips(const string assemblyFile, const bool show_asm) {
     
     unrollMacros(lines);
     
-    if (show_asm) std::cout << '\n';
+    // Read public inputs (primaryTapeFile) to public_lines vector
+    ifstream primarytapefs(primaryTapeFile);
+    string public_inputs((std::istreambuf_iterator<char>(primarytapefs)),std::istreambuf_iterator<char>());
+    sregex_token_iterator pub_it{public_inputs.begin(), public_inputs.end(), regex, -1};
+    vector<string> public_lines{pub_it, {}};
+    if (primaryTapeFile != "") {
+        vector<string> store_tape = initPublicTape(public_lines);
+        for (auto& l : store_tape) {
+            ofs << l << "\n";
+        }
+    }
+    if (show_asm) {
+        std::cout << '\n';
+        // for (auto& l : store_tape) {
+        //     std::cout << l << '\n'; // print line
+        // }
+    }
     for (auto& l : lines) {
         std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
         instr_without_comment = trim(instr_without_comment);
@@ -274,7 +290,7 @@ string parse_zmips(const string assemblyFile, const bool show_asm) {
             exit(EXIT_FAILURE);
         }
         ofs << instr << "\n";
-    }
+    }    
     if (!answer_instruction) {
         std::remove(parsedAsmFile.c_str());
         std::cerr << endl << "zMIPS assembly file should have an answer instruction." << endl << endl;

@@ -158,8 +158,8 @@ void TraceConsistency::registerConsistency(){
 			unsigned int dest = program_.code()[j].destIdx_;
 			if (dest == i){
 				switch (opcode) {
-					case Opcode::READ:
-					case Opcode::SEEK:
+					case Opcode::SECREAD:
+					case Opcode::SECSEEK:
 						// program_.arg2isImmediateToFalse(j);
 						selectorToConstraint[j] = 0;
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
@@ -255,8 +255,8 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 		else{
 			switch (opcode)
 			{
-			case Opcode::READ:
-			case Opcode::SEEK:
+			case Opcode::SECREAD:
+			case Opcode::SECSEEK:
 			case Opcode::ADD:
 			case Opcode::SUB:
 			case Opcode::AND:

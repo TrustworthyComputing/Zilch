@@ -146,8 +146,8 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::READ] = ALU_READ_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::SEEK] = ALU_SEEK_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SECREAD] = ALU_READ_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SECSEEK] = ALU_SECSEEK_Gadget::create(pb_, inputVariables_, resultVariables_);
 }
 
 void ALU_Gadget::setProgram(const TinyRAMProgram& program){
@@ -295,11 +295,11 @@ void ALU_Gadget::generateWitness(unsigned int i) {
 	case gadgetlib::Opcode::MOV:
 		components_[Opcode::MOV]->generateWitness();
 		break;
-    case gadgetlib::Opcode::READ:
-        components_[Opcode::READ]->generateWitness();
+    case gadgetlib::Opcode::SECREAD:
+        components_[Opcode::SECREAD]->generateWitness();
         break;
-    case gadgetlib::Opcode::SEEK:
-        components_[Opcode::SEEK]->generateWitness();
+    case gadgetlib::Opcode::SECSEEK:
+        components_[Opcode::SECSEEK]->generateWitness();
         break;
 	case gadgetlib::Opcode::CMOV:
 		break;
@@ -2129,8 +2129,8 @@ GadgetPtr ALU_READ_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, cons
 void ALU_READ_Gadget::init() {}
 
 void ALU_READ_Gadget::generateConstraints() {
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::READ);
-	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::READ);
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::SECREAD);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::SECREAD);
 }
 
 void ALU_READ_Gadget::generateWitness() {
@@ -2140,9 +2140,9 @@ void ALU_READ_Gadget::generateWitness() {
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
 
 #ifdef DEBUG
-    std::cout << "\n\nALU_READ_Gadget witness\nALUInput READ:\n";
+    std::cout << "\n\nALU_READ_Gadget witness\nALUInput SECREAD:\n";
     inputs_.printALUInput(pb_);
-    std::cout << "ALUOutput READ" << '\n';
+    std::cout << "ALUOutput SECREAD" << '\n';
     results_.printALUOutput(pb_);
     std::cout << '\n';
 #endif
@@ -2152,36 +2152,36 @@ void ALU_READ_Gadget::generateWitness() {
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
-/*******************         ALU_SEEK_Gadget : Random Access Read 		    ******************/
+/*******************         ALU_SECSEEK_Gadget : Random Access Read 		    ******************/
 /*******************                                                            ******************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-ALU_SEEK_Gadget::ALU_SEEK_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+ALU_SECSEEK_Gadget::ALU_SECSEEK_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
-GadgetPtr ALU_SEEK_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_SEEK_Gadget(pb, inputs, results));
+GadgetPtr ALU_SECSEEK_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_SECSEEK_Gadget(pb, inputs, results));
 	pGadget->init();
 	return pGadget;
 }
 
-void ALU_SEEK_Gadget::init() {}
+void ALU_SECSEEK_Gadget::init() {}
 
-void ALU_SEEK_Gadget::generateConstraints() {
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::SEEK);
-	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::SEEK);
+void ALU_SECSEEK_Gadget::generateConstraints() {
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::SECSEEK);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::SECSEEK);
 }
 
-void ALU_SEEK_Gadget::generateWitness() {
+void ALU_SECSEEK_Gadget::generateWitness() {
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
 
 #ifdef DEBUG
-    std::cout << "\n\nALU_SEEK_Gadget witness\nALUInput SEEK:\n";
+    std::cout << "\n\nALU_SECSEEK_Gadget witness\nALUInput SECSEEK:\n";
     inputs_.printALUInput(pb_);
-    std::cout << "ALUOutput SEEK" << '\n';
+    std::cout << "ALUOutput SECSEEK" << '\n';
     results_.printALUOutput(pb_);
     std::cout << '\n';
 #endif

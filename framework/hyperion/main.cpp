@@ -28,7 +28,7 @@ const string run_verifier_prefix = "--verifier";
 const string no_proof_prefix     = "--no-proof";
 const string run_prover_prefix   = "--prover";
 const string address_port_prefix = "--address";
-const string no_parser_prefix    = "--no-parser";
+const string debug_prefix        = "--debug";
 
 inline bool file_exists(const string& name) {
     struct stat buffer;   
@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
     }
     bool verbose = args.cmd_option_exists(verbose_prefix);
     bool show_asm = args.cmd_option_exists(show_asm_prefix);
-    bool no_parser = args.cmd_option_exists(no_parser_prefix);
+    bool debug = args.cmd_option_exists(debug_prefix);
     /* Parse address and port information */
     string address = "localhost";
     uint16_t port_number = 1234;
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
     }
     printHeader();
     /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
-    string asmFile = (no_parser) ? assemblyFile : parse_zmips(assemblyFile, show_asm);
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, show_asm);
     if (prover) {
         // cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
         execute_network(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number, verbose);
@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
         // cout << "\nExecuting simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'\n";
         execute_locally(asmFile, primaryTapeFile, auxTapeFile, executionLenLog, securityParameter, verbose, no_proof, tsteps_provided);
     }
-    if (!no_parser) std::remove(asmFile.c_str());
+    if (!debug) std::remove(asmFile.c_str());
 
     return EXIT_SUCCESS;
 }

@@ -18,6 +18,6 @@ string fromZMips(string instr, const string&, const string&, const string&);
 inline bool isInteger(const string&);
 string mapMipsRegister(string&);
 void unrollMacros(vector<std::string>&);
-string parse_zmips(const string, const bool);
+string parse_zmips(const string, const string, const bool);
 
 #endif // ZMIPS_PARSER_HPP

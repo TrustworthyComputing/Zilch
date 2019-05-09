@@ -1,4 +1,4 @@
-read $r5, $r5, 0
+pubread $r5, $r5, 0
 move $r2, $r2, 0
 move $r3, $r3, 1
 move $r1, $r1, 0
