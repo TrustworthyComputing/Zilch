@@ -36,4 +36,4 @@ xor $r15, $r15, $r2
 xor $r16, $r16, $r3
 print $r15, $r15, $r15
 print $r16, $r16, $r16
-answer $r3, $r3, 1
+answer $r15, $r15, $r15

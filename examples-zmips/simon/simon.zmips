@@ -39,4 +39,4 @@ j $r0, $r0, __L3__
 __L4__
 print $r2, $r2, $r2
 print $r3, $r3, $r3
-answer $r3, $r3, 1
+answer $r3, $r3, $r3

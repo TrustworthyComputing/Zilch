@@ -45,4 +45,4 @@ xor $r19, $r19, $r2
 xor $r20, $r20, $r3
 print $r19, $r19, $r19
 print $r20, $r20, $r20
-answer $r3, $r3, 1
+answer $r19, $r19, $r19
