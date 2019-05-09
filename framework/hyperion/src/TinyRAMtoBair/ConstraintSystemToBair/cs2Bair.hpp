@@ -26,8 +26,7 @@ private:
 	ProtoboardPtr pb_;
 	TinyRAMProgram program_;
 	
-	// tapefiles 
-	const vector<string> public_lines_;
+	// private tapefile
 	const vector<string> private_lines_;
 	// Internal Variables
 	int transcript_len;
@@ -67,8 +66,8 @@ private:
     VariableAssignment vectorToAssignment(const std::vector<Algebra::FieldElement>& vec)const;
 
 public:
-	cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, int transcriptLen, bool constructWitness, const vector<string>& public_lines);
-	cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, int transcriptLen, bool constructWitness, const vector<string>& public_lines, const vector<string>& private_lines);
+	cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, int transcriptLen, bool constructWitness);
+	cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, int transcriptLen, bool constructWitness, const vector<string>& private_lines);
 
 	ConstraintSystem getConstraints() const { return pb_->constraintSystem(Opcode::NONE); }
 	ConstraintSystem getMemoryConstraints() const;

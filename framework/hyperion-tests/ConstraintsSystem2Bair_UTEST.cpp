@@ -20,8 +20,6 @@ using namespace gadgetlib;
 
 
 namespace{
-    const vector<string> public_lines;
-
     const unsigned short securityParameter = 60;
 	//static const unsigned short TRANSCRIPT_LEN_LOG = 7;
 
@@ -104,7 +102,7 @@ void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::Protobo
     //
     gadgetlib::ProtoboardPtr pb_instance = Protoboard::create(archParams_);
     // Init cs2Bair
-    cs2Bair cs2bair_instance(pb_instance, prog, int(gadgetlib::POW2(transcript_len_log) - 1), false, public_lines);
+    cs2Bair cs2bair_instance(pb_instance, prog, int(gadgetlib::POW2(transcript_len_log) - 1), false);
     //
 
 	unique_ptr<cs2BairConstraints> cs2bairConstraints_(new cs2BairConstraints(cs2bair_instance));
@@ -131,7 +129,7 @@ void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::Protobo
         gadgetlib::ProtoboardPtr pb_witness = Protoboard::create(archParams_); //replace with pb_instance ?
         if (initWitnessMem != nullptr) initWitnessMem(pb_witness);
         // Init cs2Bair
-        cs2Bair cs2bair_witness(pb_witness, prog, int(gadgetlib::POW2(transcript_len_log) - 1), true, public_lines);
+        cs2Bair cs2bair_witness(pb_witness, prog, int(gadgetlib::POW2(transcript_len_log) - 1), true);
         unique_ptr<cs2BairColoring> cs2bairColoring_(new cs2BairColoring(cs2bair_witness));
         unique_ptr<cs2BairMemory> cs2bairMemory_(new cs2BairMemory(cs2bair_witness));
         

@@ -66,7 +66,7 @@ void ALUInputConsistency::generateConstraints(){
 	pb_->addGeneralConstraint(SDest, "SelectorSum_Dest", Opcode::NONE);
 };
 
-void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& public_lines, const vector<string>& private_lines, size_t& pubread_cnt, size_t& secread_cnt) {
+void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& private_lines, size_t& secread_cnt) {
 	GADGETLIB_ASSERT(i < program_.size(), "ALUInputConsistency: in order to generate witness i should be less the the program size");
 	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
 	unsigned int arg1 = program_.code()[i].arg1Idx_;
@@ -96,29 +96,14 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 		} else {
 			offset = mapFieldElementToInteger(0,64,pb_->val(input_.registers_[arg1]));
 		}
-		
-		if (arg2 == 0) {
-			if (public_lines[0].empty()) { // check if tapefile is empty
-				std::cerr << "\nPrimary tapefile is empty or does not exist.\n";
-				exit(EXIT_FAILURE);
-			} else if (public_lines.size() <= offset) { // check if there exists a word to consume
-				std::cerr << "\nPrimary tapefile has no other word to consume.\n";
-				exit(EXIT_FAILURE);
-			}
-			read_from_tape_result = stoi( public_lines[offset] ); // read from tape
-		} else if (arg2 == 1) {
-			if (private_lines[0].empty()) { // check if tapefile is empty
-				std::cerr << "\nAuxiliary tapefile is empty or does not exist.\n";
-				exit(EXIT_FAILURE);
-			} else if (private_lines.size() <= offset) { // check if there exists a word to consume
-				std::cerr << "\nAuxiliary tapefile has no other word to consume.\n";
-				exit(EXIT_FAILURE);
-			}
-			read_from_tape_result = stoi( private_lines[offset] ); // read from tape
-		} else {
-			std::cerr << "\nMOVIFILE error: last argument should be either 0 for primary tape or 1 for auxiliary tape.\n";
+		if (private_lines[0].empty()) { // check if tapefile is empty
+			std::cerr << "\nAuxiliary tapefile is empty or does not exist.\n";
+			exit(EXIT_FAILURE);
+		} else if (private_lines.size() <= offset) { // check if there exists a word to consume
+			std::cerr << "\nAuxiliary tapefile has no other word to consume.\n";
 			exit(EXIT_FAILURE);
 		}
+		read_from_tape_result = stoi( private_lines[offset] ); // read from tape
 		// std::cout << "Read from offset " << arg1 << " value " << read_from_tape_result << '\n';
 		program_.arg2isImmediateToFalse(i);
 		arg2 = SECREAD_RESERVED_REGISTER;

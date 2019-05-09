@@ -11,16 +11,13 @@
 using namespace gadgetlib;
 
 namespace {
-	const vector<string> public_lines;
 	const vector<string> private_lines;
-	size_t pubread_cnt = 0;
 	size_t secread_cnt = 0;
 	
 	TEST(ALU, inputConsistencyTEST){
 		//Initialize pb and gadget parameters
 		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
-			trOpcodeLen, 16, 1));
+		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		TraceVariables traceVariables(trRegisterLen,trNumRegisters);
 		ALUInput aluInput;
@@ -57,7 +54,7 @@ namespace {
 		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->setProgram(program);
 		inputConsistency->generateConstraints();
 
-		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(0, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(0, private_lines, secread_cnt);
 		EXPECT_EQ(pb->val(aluInput.dest_val_), registerValues[1]);
 		EXPECT_EQ(pb->val(aluInput.arg1_val_), registerValues[2]);
 		EXPECT_EQ(pb->val(aluInput.arg2_val_), registerValues[3]);
@@ -65,7 +62,7 @@ namespace {
 		
 		// Update pc to be 1
 		pb->val(traceVariables.pc_[0]) = Algebra::one();
-		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(1, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(1, private_lines, secread_cnt);
 		EXPECT_EQ(pb->val(aluInput.dest_val_), registerValues[0]);
 		EXPECT_EQ(pb->val(aluInput.arg1_val_), registerValues[1]);
 		EXPECT_EQ(pb->val(aluInput.arg2_val_), registerValues[2]);
@@ -74,7 +71,7 @@ namespace {
 		// Update pc to be 2
 		pb->val(traceVariables.pc_[0]) = Algebra::zero();
 		pb->val(traceVariables.pc_[1]) = Algebra::one();
-		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(2, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(2, private_lines, secread_cnt);
 		EXPECT_EQ(pb->val(aluInput.dest_val_), registerValues[4]);
 		EXPECT_EQ(pb->val(aluInput.arg1_val_), registerValues[5]);
 		EXPECT_EQ(pb->val(aluInput.arg2_val_), registerValues[6]);
@@ -82,7 +79,7 @@ namespace {
 
 		// Update pc to be 3
 		pb->val(traceVariables.pc_[0]) = Algebra::one();
-		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(3, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<ALUInputConsistency>(inputConsistency))->generateWitness(3, private_lines, secread_cnt);
 		EXPECT_EQ(pb->val(aluInput.dest_val_), registerValues[1]);
 		EXPECT_EQ(pb->val(aluInput.arg1_val_), registerValues[2]);
 		EXPECT_EQ(pb->val(aluInput.arg2_val_), mapIntegerToFieldElement(0,trRegisterLen - 1 , 3));

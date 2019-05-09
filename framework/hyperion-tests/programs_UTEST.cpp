@@ -7,9 +7,7 @@ using namespace gadgetlib;
 
 namespace {
 	
-	const vector<string> public_lines;
 	const vector<string> private_lines;
-	size_t pubread_cnt = 0;
 	size_t secread_cnt = 0;
 
 	void initializeVars(ProtoboardPtr pb, FollowingTraceVariables followingTraceVariables){
@@ -64,7 +62,7 @@ namespace {
 		initializeVars(pb, followingTraceVariable);
 		
 		// Generate witness for line 0 
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(0, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(0, private_lines,secread_cnt);
 
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.registers_[1]), Algebra::one());
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.flag_), Algebra::zero());
@@ -75,7 +73,7 @@ namespace {
 		}
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line 1
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(1, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(1, private_lines,secread_cnt);
 
 		EXPECT_TRUE(pb->isSatisfied(Opcode::NONE));
 		for (int i = 0; i < pcLength; i++){
@@ -90,7 +88,7 @@ namespace {
 
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line  0 - Because of CJMP
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(2, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(2, private_lines,secread_cnt);
 
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.flag_), Algebra::one());
 		for (int i = 0; i < trNumRegisters; i++){
@@ -106,7 +104,7 @@ namespace {
 
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line 1 
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(3, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(3, private_lines,secread_cnt);
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.flag_), Algebra::one());
 		for (int i = 0; i < trNumRegisters; i++){
 			EXPECT_EQ(pb->val(followingTraceVariable.second_.registers_[i]), Algebra::zero());
@@ -121,7 +119,7 @@ namespace {
 
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line 2
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(4, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(4, private_lines,secread_cnt);
 		for (int i = 0; i < trNumRegisters; i++){
 			if (i == 2){
 				EXPECT_EQ(pb->val(followingTraceVariable.second_.registers_[i]), Algebra::one());
@@ -162,7 +160,7 @@ namespace {
 		
 		initializeVars(pb, followingTraceVariable);
 		// Generate witness for line 0 
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(0, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(0, private_lines,secread_cnt);
 		EXPECT_TRUE(pb->isSatisfied(Opcode::NONE));
 		for (int i = 0; i < trNumRegisters; i++){
 			if (i == 4){
@@ -193,7 +191,7 @@ namespace {
 
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line 1
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(1, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(1, private_lines,secread_cnt);
 
 		for (int i = 0; i < pcLength; i++){
 			if (i == 1){
@@ -226,7 +224,7 @@ namespace {
 
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line 2
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(2, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(2, private_lines,secread_cnt);
 
 		for (int i = 0; i < pcLength; i++){
 			if (i == 1 || i == 0){
@@ -252,7 +250,7 @@ namespace {
 	
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line 3
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(3, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(3, private_lines,secread_cnt);
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.flag_), Algebra::zero());
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.registers_[4]), Algebra::zero());
 	}
@@ -278,7 +276,7 @@ namespace {
 
 		initializeVars(pb, followingTraceVariable);
 		// Generate witness for line 0 
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(0, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(0, private_lines,secread_cnt);
 		
 		EXPECT_TRUE(pb->isSatisfied(Opcode::NONE));
 		FElem val = mapIntegerToFieldElement(0, trRegisterLen, 65535);
@@ -293,7 +291,7 @@ namespace {
 		
 		copyTraceOutputValuesToTraceInput(pb, followingTraceVariable);
 		// Generate witness for line 1
-		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(1, public_lines, private_lines, pubread_cnt, secread_cnt);
+		(::std::dynamic_pointer_cast<TransitionFunction>)(transitionFunction)->generateWitness(1, private_lines,secread_cnt);
 		EXPECT_TRUE(pb->isSatisfied(Opcode::NONE));
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.flag_), Algebra::one());
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.registers_[0]), Algebra::zero());

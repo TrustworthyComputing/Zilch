@@ -15,10 +15,9 @@ using libstark::ConstraintSys;
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& public_lines) :
+cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness) :
     pb_(pb),
 	program_(program),
-    public_lines_(public_lines),
     transcript_len(transcriptLen),
 	doesProgramUsesMemory_(false),
 	followingTraceVariable_(program.pcLength(), std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters()),
@@ -33,10 +32,9 @@ cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int tran
         }
 }
 
-cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& public_lines, const vector<string>& private_lines) :
+cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& private_lines) :
     pb_(pb),
 	program_(program),
-    public_lines_(public_lines),
     private_lines_(private_lines),
     transcript_len(transcriptLen),
 	doesProgramUsesMemory_(false),
@@ -215,9 +213,9 @@ void cs2Bair::generateWitness() {
 #ifdef printTrace
 	set<Algebra::Variable, Variable::VariableStrictOrder> usedVars;
 #endif
-    size_t pubread_cnt = 0, secread_cnt = 0;
+    size_t secread_cnt = 0;
     for (int i = 0; i < transcript_len; ++i) {
-		::std::dynamic_pointer_cast<TransitionFunction>(transitionFunction_)->generateWitness(i, public_lines_, private_lines_, pubread_cnt, secread_cnt);
+		::std::dynamic_pointer_cast<TransitionFunction>(transitionFunction_)->generateWitness(i, private_lines_, secread_cnt);
         Algebra::VariableAssignment assignment = pb_->assignment();
         traceAssignmentTable_.push_back(assignmentToVec(assignment));
 #ifdef falseWitness

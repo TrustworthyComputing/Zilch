@@ -11,9 +11,7 @@ using namespace gadgetlib;
 
 namespace {
 	
-	const vector<string> public_lines;
 	const vector<string> private_lines;
-	size_t pubread_cnt = 0;
 	size_t secread_cnt = 0;
 
 	TEST(ALU, transitionFunction){
@@ -62,7 +60,7 @@ namespace {
 		//generate Witness
 		//line 0
 		for (unsigned int j = 0; j < program.size(); j++){
-			std::dynamic_pointer_cast<TransitionFunction>(transitionFunction)->generateWitness(j, public_lines, private_lines, pubread_cnt, secread_cnt);
+			std::dynamic_pointer_cast<TransitionFunction>(transitionFunction)->generateWitness(j, private_lines, secread_cnt);
 
 			EXPECT_TRUE(pb->isSatisfied(Opcode::NONE));
 			//Check PC

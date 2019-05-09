@@ -54,11 +54,11 @@ int TransitionFunction::calcPC(){
 
 }
 
-void TransitionFunction::generateWitness(unsigned int i, const vector<string>& public_lines, const vector<string>& private_lines, size_t& pubread_cnt, size_t& secread_cnt){
+void TransitionFunction::generateWitness(unsigned int i, const vector<string>& private_lines, size_t& secread_cnt){
 	int codeLineNumber = calcPC();
 	GADGETLIB_ASSERT(codeLineNumber < (long)program_.size(), "TransitionFunction: The code line number should be less than program.size()");
 	
-	(::std::dynamic_pointer_cast<ALUInputConsistency>(aluInputConsistnecy_g_))->generateWitness(codeLineNumber, public_lines, private_lines, pubread_cnt, secread_cnt);
+	(::std::dynamic_pointer_cast<ALUInputConsistency>(aluInputConsistnecy_g_))->generateWitness(codeLineNumber, private_lines, secread_cnt);
 	(::std::dynamic_pointer_cast<ALU_Gadget>(alu_g_))->generateWitness(codeLineNumber);
 	(::std::dynamic_pointer_cast<TraceConsistency>(traceConsistency_g_))->generateWitness(codeLineNumber);
 

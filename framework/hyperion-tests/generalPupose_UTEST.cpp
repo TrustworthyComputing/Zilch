@@ -13,8 +13,7 @@ namespace{
 
 	TEST(generalPurpose, memoryInfoCompare){
 		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
-			trOpcodeLen, 16, 1));
+		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		
 		// Add mapping between FieldElement and degree

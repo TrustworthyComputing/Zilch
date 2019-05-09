@@ -16,19 +16,14 @@ private:
 	ALUInput output_;
 	TinyRAMProgram program_;
 	
-	ALUInputConsistency(ProtoboardPtr pb,
-						const TraceVariables& input,
-						const ALUInput& output);
+	ALUInputConsistency(ProtoboardPtr pb, const TraceVariables& input, const ALUInput& output);
 	virtual void init();
 
-
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const TraceVariables& input,
-							const ALUInput& output);
+	static GadgetPtr create(ProtoboardPtr pb, const TraceVariables& input, const ALUInput& output);
 	void setProgram(const TinyRAMProgram& program);
 	void generateConstraints();
-	void generateWitness(unsigned int i, const vector<string>& public_lines, const vector<string>& private_lines, size_t& pubread_cnt, size_t& secread_cnt);
+	void generateWitness(unsigned int i, const vector<string>& private_lines, size_t& secread_cnt);
 
 };
 
