@@ -20,6 +20,8 @@
 #include <gadgetlib/infrastructure.hpp>
 #include <algebraLib/CircuitPolynomial.hpp>
 
+#define INSTRUCTIONS_NUM 40
+
 #define ASSERT_CONSTRAINTS_SATISFIED(pb) \
     ASSERT_TRUE(pb->isSatisfied(PrintOptions::DBG_PRINT_IF_NOT_SATISFIED))
 
@@ -77,8 +79,8 @@ private:
 
 
 
-    // 35 constraints. To add more instructions, the numbe should be incremented!!!
-	Protoboard(ProtoboardParamsCPtr pParams) : opcodeConstraintSystem_(35, ConstraintSystem()), numInputs_(0), numConstratins_(0), pParams_(pParams) {};
+    // INSTRUCTIONS_NUM constraints. To add more instructions, the numbe should be incremented!!!
+	Protoboard(ProtoboardParamsCPtr pParams) : opcodeConstraintSystem_(INSTRUCTIONS_NUM, ConstraintSystem()), numInputs_(0), numConstratins_(0), pParams_(pParams) {};
 
 	void addBoundaryVariable(const Algebra::Variable& var) { boundaryVariables_.emplace_back(var); }
 	void addBoundaryTimestamp(const size_t timeStamp) { boundaryTimestamps_.emplace_back(timeStamp); }

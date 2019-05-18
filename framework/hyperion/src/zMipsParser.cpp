@@ -120,6 +120,8 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "PRINT " + r0 + " " + r1 + " " + r2;
     } else if (instr == "NUM_OPCODES") {
         return "NUM_OPCODES " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "AES_BOXES") {
+        return "AES_BOXES " + r0 + " " + r1 + " " + r2;
     } else {
         std::cerr << instr << " : unfamiliar instruction" << endl;
         exit(EXIT_FAILURE);

@@ -7,6 +7,10 @@
 #include <bitset>
 
 #ifndef PRINT_HELPERS_HPP__  
+#include "AES_box.hpp"
+#endif
+
+#ifndef PRINT_HELPERS_HPP__  
 #include <protocols/print_helpers.hpp>
 #endif
 
@@ -139,6 +143,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::SHR] = ALU_SHR_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::LOADW] = ALU_LOADW_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::STOREW] = ALU_STOREW_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::AES_BOXES] = ALU_AES_BOXES_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::JMP] = ALU_JMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::ANSWER] = ALU_ANSWER_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::PRINT] = ALU_PRINT_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -327,6 +332,9 @@ void ALU_Gadget::generateWitness(unsigned int i) {
 	case gadgetlib::Opcode::LOADW:
 		components_[Opcode::LOADW]->generateWitness();
 		break;
+    case gadgetlib::Opcode::AES_BOXES:
+        components_[Opcode::AES_BOXES]->generateWitness();
+        break;
     case gadgetlib::Opcode::PRINT:
 		components_[Opcode::PRINT]->generateWitness();
 		break;
@@ -2239,3 +2247,105 @@ void ALU_RESERVED_OPCODE_24_Gadget::generateWitness(){
 	unsigned int res = rand() - RAND_MAX/2;
 	val(results_.result_) = mapIntegerToFieldElement(0, REGISTER_LENGTH, res);
 }
+
+
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
+/*******************                         ALU_AES_BOXES_Gadget                  ******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+ALU_AES_BOXES_Gadget::ALU_AES_BOXES_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
+									:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+GadgetPtr ALU_AES_BOXES_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_AES_BOXES_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_AES_BOXES_Gadget::init(){}
+
+void ALU_AES_BOXES_Gadget::generateConstraints(){
+	pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::AES_BOXES);
+	pb_->addGeneralConstraint(results_.isLoadOp_, "isLoadOp = 0", Opcode::AES_BOXES);
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::AES_BOXES);
+	pb_->addGeneralConstraint(results_.value_ + inputs_.dest_val_, "inputs_.value_ = inputs_.dest_val", Opcode::AES_BOXES);
+}
+
+void ALU_AES_BOXES_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	pb_->val(results_.isMemOp_) = Algebra::one();
+	pb_->val(results_.isLoadOp_) = Algebra::zero();
+	FElem memoryAddress = pb_->val(inputs_.arg2_val_);
+	FElem value = pb_->val(inputs_.dest_val_);
+    pb_->storeValue(memoryAddress, value);
+    
+    // sbox starts at base
+    size_t base = 10000;
+    for (size_t i = 0 ; i < 256 ; i++) {
+    	pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, s[i]));
+    }
+    // inv_s starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, inv_s[i]));
+    }
+    // mul_2 starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_2[i]));
+    }
+    // mul_3 starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_3[i]));
+    }
+    // mul_3 starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_3[i]));
+    }
+    // mul_9 starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_9[i]));
+    }
+    // mul_11 starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_11[i]));
+    }
+    // mul_13 starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_13[i]));
+    }
+    // mul_14 starts at base + 256
+    base += 256;
+    for (size_t i = 0 ; i < 256 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_14[i]));
+    }
+    
+    
+	pb_->val(results_.value_) = value;
+	pb_->val(results_.address_) = memoryAddress;
+	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
+    
+    #ifdef DEBUG
+        std::cout << "\n\nALU_AES_BOXES_Gadget witness\nALUInput AES_BOXES:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput AES_BOXES" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+/*********************************/
+/***       END OF Gadget       ***/
+/*********************************/
+

@@ -193,6 +193,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::CMPG:
 					case Opcode::CMPGE:
 					case Opcode::STOREW:
+					case Opcode::AES_BOXES:
 					case Opcode::ANSWER:
 					case Opcode::PRINT:
 						selectorToConstraint[j] = 1;
@@ -285,6 +286,7 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 			case Opcode::CMPG:
 			case Opcode::CMPGE:
 			case Opcode::STOREW:
+			case Opcode::AES_BOXES:
 			case Opcode::ANSWER:
 			case Opcode::PRINT:
 				pb_->val(regiSecond) = pb_->val(regiFirst);

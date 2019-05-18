@@ -91,7 +91,7 @@ void cs2Bair::checkMemoryUse(){
 	for (unsigned int i = 0; i < program_.code().size(); ++i){
 		Opcode opcode = program_.code()[i].opcode_;
 		if (opcode == Opcode::STOREB || opcode == Opcode::STOREW ||
-			opcode == Opcode::LOADB || opcode == Opcode::LOADW){
+			opcode == Opcode::LOADB || opcode == Opcode::LOADW || opcode == Opcode::AES_BOXES){
 			doesProgramUsesMemory_ = true;
 			break;
 		}
