@@ -97,13 +97,13 @@ __round_loop__
     lw $r9, 5000($r8)
     sw $r9, 15($r7)
     move $r5, $r5, 0
-    __for_i__ # state[i] = tmp[i];
+    __SB_cp_state__ # state[i] = tmp[i];
         lw $r8, $r5($r7)
         sw $r8, $r5($r6)
         add $r5, $r5, 1
-        beq $r5, 16, __for_i_end__ ; if ($r5 == 16) then jump to __for_i_end__
-        j __for_i__
-    __for_i_end__
+        beq $r5, 16, __SB_cp_state_end__ ; if ($r5 == 16) then jump to __SB_cp_state_end__
+        j __SB_cp_state__
+    __SB_cp_state_end__
 # byteSubShiftRow End
 
 # mixColumns
@@ -240,22 +240,126 @@ __round_loop__
     sw $r8, 15($r7)
     
     move $r5, $r5, 0
-    __for_i_2__ # state[i] = tmp[i];
+    __MC_cp_state__ # state[i] = tmp[i];
         lw $r8, $r5($r7)
-        print $r8
+        # print $r8
         sw $r8, $r5($r6)
         add $r5, $r5, 1
-        beq $r5, 16, __for_i_2_end__ ; if ($r5 == 16) then jump to __for_i_2_end__
-        j __for_i_2__
-    __for_i_2_end__
+        beq $r5, 16, __MC_cp_state_end__ ; if ($r5 == 16) then jump to __MC_cp_state_end__
+        j __MC_cp_state__
+    __MC_cp_state_end__
 # mixColumns End
-
-
+    
+    move $r10, $r10, 0  # counter = 0
+    mult $r11, $r1, 16  # loc = rounds*16;
+    __xor_expkey__ 
+        # state[counter] ^= expandedKey[loc];
+        lw $r8, 7048($r11)  # expandedKey[loc]
+        lw $r9, $r10($r6)   # state[counter]
+        xor $r8, $r8, $r9
+        sw $r8, $r10($r6)
+        
+        add $r11, $r11, 1   # loc++;
+        add $r10, $r10, 1   # counter++;
+        beq $r10, 16, __xor_expkey_end__ ; if ($r10 == 16) then jump to __xor_expkey_end__
+        j __xor_expkey__
+    __xor_expkey_end__
+    
     add $r1, $r1, 1
     beq $r1, 10, __round_end__ ; if ($r1 == 10) then jump to __round_end__
     j __round_loop__
 __round_end__
+# End of 9 Rounds
 
+# Final Round
+    # byteSubShiftRow
+    # tmp[0] = s[ state[0] ];
+    lw $r8, 0($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 0($r7)
+    # tmp[1] = s[ state[5] ];
+    lw $r8, 5($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 1($r7)
+    # tmp[2] = s[ state[10] ];
+    lw $r8, 10($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 2($r7)
+    # tmp[3] = s[ state[15] ];
+    lw $r8, 15($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 3($r7)
+    # tmp[4] = s[ state[4] ];
+    lw $r8, 4($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 4($r7)
+    # tmp[5] = s[ state[9] ];
+    lw $r8, 9($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 5($r7)
+    # tmp[6] = s[ state[14] ];
+    lw $r8, 14($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 6($r7)
+    # tmp[7] = s[ state[3] ];
+    lw $r8, 3($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 7($r7)
+    # tmp[8] = s[ state[8] ];
+    lw $r8, 8($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 8($r7)
+    # tmp[9] = s[ state[13] ];
+    lw $r8, 13($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 9($r7)
+    # tmp[10] = s[ state[2] ];
+    lw $r8, 2($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 10($r7)
+    # tmp[11] = s[ state[7] ];
+    lw $r8, 7($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 11($r7)
+    # tmp[12] = s[ state[12] ];
+    lw $r8, 12($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 12($r7)
+    # tmp[13] = s[ state[1] ];
+    lw $r8, 1($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 13($r7)
+    # tmp[14] = s[ state[6] ];
+    lw $r8, 6($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 14($r7)
+    # tmp[15] = s[ state[11] ];
+    lw $r8, 11($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 15($r7)
+    move $r5, $r5, 0
+    # byteSubShiftRow End
+    __SB_cp_state_fin__     # ctxt[i] = tmp[i] ^ expandedKey[i+160];
+        lw $r8, $r5($r7)    # tmp[i]
+        lw $r9, 7208($r5)   # expandedKey[i+160]
+        xor $r8, $r8, $r9
+        sw $r8, 100($r5)    # store ctxt[i]
+        # print $r8
+        add $r5, $r5, 1
+        beq $r5, 16, __SB_cp_state_fin_end__ ; if ($r5 == 16) then jump to __SB_cp_state_fin_end__
+        j __SB_cp_state_fin__
+    __SB_cp_state_fin_end__
 
+# End of Final Round
+
+# # Print Ciphertext
+# move $r5, $r5, 0
+# __print__
+#     lw $r8, 100($r5)
+#     print $r8
+#     add $r5, $r5, 1
+#     beq $r5, 16, __print_end__ ; if ($r5 == 16) then jump to __print_end__
+#     j __print__
+# __print_end__
 
 answer $r1

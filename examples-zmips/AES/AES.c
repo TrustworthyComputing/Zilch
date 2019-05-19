@@ -189,9 +189,7 @@ void mixColumns(uint8_t* state) {
     
     for (int i = 0; i < 16; ++i) {
         state[i] = tmp[i];
-        printf("state[%d] = %d\n", i, state[i]);
     }
-    printf("\n");
 }
 
 void inverseMixedColumn(uint8_t* ptxt) {
@@ -312,13 +310,16 @@ void AESDecryption(uint8_t* ctxt, uint8_t* expandedKey, uint8_t* ptxt) {
 int main(int argc, char const *argv[]) {
     uint8_t ptxt[17] = "aSecretPlainText";
     ptxt[16] = '\0';
-    uint8_t* ctxt = malloc(17);
+    uint8_t* ctxt = malloc(16);
     AESEncryption(ptxt, expandedKey, ctxt);
-    ctxt[16] = '\0';
-    printf("%s\n", ctxt);
+    printf("ctxt: ");
+    for (int i = 0; i < 16; ++i) {
+        printf("%d, ", ctxt[i]);
+    }
+    printf("\n");
     
     AESDecryption(ctxt, expandedKey, ptxt);
-    printf("%s\n", ptxt);
+    printf("ptxt: %s\n", ptxt);
     free(ctxt);
     return 0;
 }
