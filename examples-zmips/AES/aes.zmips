@@ -96,7 +96,7 @@ __round_loop__
     lw $r8, 11($r6)
     lw $r9, 5000($r8)
     sw $r9, 15($r7)
-    add $r5, $r5, 0
+    move $r5, $r5, 0
     __for_i__ # state[i] = tmp[i];
         lw $r8, $r5($r7)
         sw $r8, $r5($r6)
@@ -106,6 +106,149 @@ __round_loop__
     __for_i_end__
 # byteSubShiftRow End
 
+# mixColumns
+    lw $r2, 0($r6) # ptxt[0]
+    lw $r3, 1($r6) # ptxt[1]
+    lw $r4, 2($r6) # ptxt[2]
+    lw $r5, 3($r6) # ptxt[3]
+    # tmp[0] = mul_2[ptxt[0]] ^ mul_3[ptxt[1]] ^ ptxt[2] ^ ptxt[3];
+    lw $r8, 5512($r2)
+    lw $r9, 5768($r3)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r4
+    xor $r8, $r8, $r5
+    sw $r8, 0($r7)
+    # tmp[1] = ptxt[0] ^ mul_2[ptxt[1]] ^ mul_3[ptxt[2]] ^ ptxt[3];
+    lw $r8, 5512($r3)
+    lw $r9, 5768($r4)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r5
+    sw $r8, 1($r7)
+    # tmp[2] = ptxt[0] ^ ptxt[1] ^ mul_2[ptxt[2]] ^ mul_3[ptxt[3]];
+    lw $r8, 5512($r4)
+    lw $r9, 5768($r5)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r3
+    sw $r8, 2($r7)
+    # tmp[3] = mul_3[ptxt[0]] ^ ptxt[1] ^ ptxt[2] ^ mul_2[ptxt[3]];
+    lw $r8, 5512($r5)
+    lw $r9, 5768($r2)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r3
+    xor $r8, $r8, $r4
+    sw $r8, 3($r7)
+    
+    lw $r2, 4($r6) # ptxt[4]
+    lw $r3, 5($r6) # ptxt[5]
+    lw $r4, 6($r6) # ptxt[6]
+    lw $r5, 7($r6) # ptxt[7]
+    # tmp[4] = mul_2[ptxt[4]] ^ mul_3[ptxt[5]] ^ ptxt[6] ^ ptxt[7];
+    lw $r8, 5512($r2)
+    lw $r9, 5768($r3)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r4
+    xor $r8, $r8, $r5
+    sw $r8, 4($r7)
+    # tmp[5] = ptxt[4] ^ mul_2[ptxt[5]] ^ mul_3[ptxt[6]] ^ ptxt[7];
+    lw $r8, 5512($r3)
+    lw $r9, 5768($r4)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r5
+    sw $r8, 5($r7)
+    # tmp[6] = ptxt[4] ^ ptxt[5] ^ mul_2[ptxt[6]] ^ mul_3[ptxt[7]];
+    lw $r8, 5512($r4)
+    lw $r9, 5768($r5)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r3
+    sw $r8, 6($r7)
+    # tmp[7] = mul_3[ptxt[4]] ^ ptxt[5] ^ ptxt[6] ^ mul_2[ptxt[7]];
+    lw $r8, 5512($r5)
+    lw $r9, 5768($r2)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r3
+    xor $r8, $r8, $r4
+    sw $r8, 7($r7)
+    
+    lw $r2, 8($r6) # ptxt[8]
+    lw $r3, 9($r6) # ptxt[9]
+    lw $r4, 10($r6) # ptxt[10]
+    lw $r5, 11($r6) # ptxt[11]
+    # tmp[8] = mul_2[ptxt[8]] ^ mul_3[ptxt[9]] ^ ptxt[10] ^ ptxt[11];
+    lw $r8, 5512($r2)
+    lw $r9, 5768($r3)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r4
+    xor $r8, $r8, $r5
+    sw $r8, 8($r7)
+    # tmp[9] = ptxt[8] ^ mul_2[ptxt[9]] ^ mul_3[ptxt[10]] ^ ptxt[11];
+    lw $r8, 5512($r3)
+    lw $r9, 5768($r4)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r5
+    sw $r8, 9($r7)
+    # tmp[10] = ptxt[8] ^ ptxt[9] ^ mul_2[ptxt[10]] ^ mul_3[ptxt[11]];
+    lw $r8, 5512($r4)
+    lw $r9, 5768($r5)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r3
+    sw $r8, 10($r7)
+    # tmp[11] = mul_3[ptxt[8]] ^ ptxt[9] ^ ptxt[10] ^ mul_2[ptxt[11]];
+    lw $r8, 5512($r5)
+    lw $r9, 5768($r2)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r3
+    xor $r8, $r8, $r4
+    sw $r8, 11($r7)
+
+    lw $r2, 12($r6) # ptxt[12]
+    lw $r3, 13($r6) # ptxt[13]
+    lw $r4, 14($r6) # ptxt[14]
+    lw $r5, 15($r6) # ptxt[15]
+    # tmp[12] = mul_2[ptxt[12]] ^ mul_3[ptxt[13]] ^ ptxt[14] ^ ptxt[15];
+    lw $r8, 5512($r2)
+    lw $r9, 5768($r3)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r4
+    xor $r8, $r8, $r5
+    sw $r8, 12($r7)
+    # tmp[13] = ptxt[12] ^ mul_2[ptxt[13]] ^ mul_3[ptxt[14]] ^ ptxt[15];
+    lw $r8, 5512($r3)
+    lw $r9, 5768($r4)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r5
+    sw $r8, 13($r7)
+    # tmp[14] = ptxt[12] ^ ptxt[13] ^ mul_2[ptxt[14]] ^ mul_3[ptxt[15]];
+    lw $r8, 5512($r4)
+    lw $r9, 5768($r5)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r2
+    xor $r8, $r8, $r3
+    sw $r8, 14($r7)
+    # tmp[15] = mul_3[ptxt[12]] ^ ptxt[13] ^ ptxt[14] ^ mul_2[ptxt[15]];
+    lw $r8, 5512($r5)
+    lw $r9, 5768($r2)
+    xor $r8, $r8, $r9
+    xor $r8, $r8, $r3
+    xor $r8, $r8, $r4
+    sw $r8, 15($r7)
+    
+    move $r5, $r5, 0
+    __for_i_2__ # state[i] = tmp[i];
+        lw $r8, $r5($r7)
+        print $r8
+        sw $r8, $r5($r6)
+        add $r5, $r5, 1
+        beq $r5, 16, __for_i_2_end__ ; if ($r5 == 16) then jump to __for_i_2_end__
+        j __for_i_2__
+    __for_i_2_end__
+# mixColumns End
 
 
     add $r1, $r1, 1

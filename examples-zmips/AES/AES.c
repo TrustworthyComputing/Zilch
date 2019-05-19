@@ -158,17 +158,40 @@ uint8_t expandedKey[] = {
     87, 108, 120, 75, 121, 121, 107, 71, 98, 69, 74, 118, 108, 122, 70, 117, 140, 54, 229, 27, 245, 79, 142, 92, 151, 10, 196, 42, 251, 112, 130, 95, 223, 37, 42, 20, 42, 106, 164, 72, 189, 96, 96, 98, 70, 16, 226, 61, 17, 189, 13, 78, 59, 215, 169, 6, 134, 183, 201, 100, 192, 167, 43, 89, 69, 76, 198, 244, 126, 155, 111, 242, 248, 44, 166, 150, 56, 139, 141, 207, 104, 17, 76, 243, 22, 138, 35, 1, 238, 166, 133, 151, 214, 45, 8, 88, 144, 33, 38, 5, 134, 171, 5, 4, 104, 13, 128, 147, 190, 32, 136, 203, 103, 229, 57, 171, 225, 78, 60, 175, 137, 67, 188, 60, 55, 99, 52, 247, 28, 253, 81, 49, 253, 179, 109, 158, 116, 240, 209, 162, 67, 147, 229, 85, 219, 36, 173, 43, 38, 151, 192, 181, 82, 103, 17, 23, 17, 244, 244, 66, 82, 155, 129, 169, 116, 12, 65, 28, 38, 107, 80, 11, 55, 159, 164, 73
 };
 
-void mixColumns(uint8_t* ptxt) {
+void mixColumns(uint8_t* state) {
     uint8_t tmp[16];
-    for (int i = 0; i < 4; ++i) {
-        tmp[(4*i)+0] = (uint8_t) (mul_2[ptxt[(4*i)+0]] ^ mul_3[ptxt[(4*i)+1]] ^ ptxt[(4*i)+2] ^ ptxt[(4*i)+3]);
-        tmp[(4*i)+1] = (uint8_t) (ptxt[(4*i)+0] ^ mul_2[ptxt[(4*i)+1]] ^ mul_3[ptxt[(4*i)+2]] ^ ptxt[(4*i)+3]);
-        tmp[(4*i)+2] = (uint8_t) (ptxt[(4*i)+0] ^ ptxt[(4*i)+1] ^ mul_2[ptxt[(4*i)+2]] ^ mul_3[ptxt[(4*i)+3]]);
-        tmp[(4*i)+3] = (uint8_t) (mul_3[ptxt[(4*i)+0]] ^ ptxt[(4*i)+1] ^ ptxt[(4*i)+2] ^ mul_2[ptxt[(4*i)+3]]);
-    }
+    // for (int i = 0; i < 4; ++i) {
+    //     tmp[(4*i)+0] = (uint8_t) (mul_2[state[(4*i)+0]] ^ mul_3[state[(4*i)+1]] ^ state[(4*i)+2] ^ state[(4*i)+3]);
+    //     tmp[(4*i)+1] = (uint8_t) (state[(4*i)+0] ^ mul_2[state[(4*i)+1]] ^ mul_3[state[(4*i)+2]] ^ state[(4*i)+3]);
+    //     tmp[(4*i)+2] = (uint8_t) (state[(4*i)+0] ^ state[(4*i)+1] ^ mul_2[state[(4*i)+2]] ^ mul_3[state[(4*i)+3]]);
+    //     tmp[(4*i)+3] = (uint8_t) (mul_3[state[(4*i)+0]] ^ state[(4*i)+1] ^ state[(4*i)+2] ^ mul_2[state[(4*i)+3]]);
+    // }
+    
+    tmp[0] = mul_2[state[0]] ^ mul_3[state[1]] ^ state[2] ^ state[3];
+    tmp[1] = state[0] ^ mul_2[state[1]] ^ mul_3[state[2]] ^ state[3];
+    tmp[2] = state[0] ^ state[1] ^ mul_2[state[2]] ^ mul_3[state[3]];
+    tmp[3] = mul_3[state[0]] ^ state[1] ^ state[2] ^ mul_2[state[3]];
+    
+    tmp[4] = mul_2[state[4]] ^ mul_3[state[5]] ^ state[6] ^ state[7];
+    tmp[5] = state[4] ^ mul_2[state[5]] ^ mul_3[state[6]] ^ state[7];
+    tmp[6] = state[4] ^ state[5] ^ mul_2[state[6]] ^ mul_3[state[7]];
+    tmp[7] = mul_3[state[4]] ^ state[5] ^ state[6] ^ mul_2[state[7]];
+    
+    tmp[8] = mul_2[state[8]] ^ mul_3[state[9]] ^ state[10] ^ state[11];
+    tmp[9] = state[8] ^ mul_2[state[9]] ^ mul_3[state[10]] ^ state[11];
+    tmp[10] = state[8] ^ state[9] ^ mul_2[state[10]] ^ mul_3[state[11]];
+    tmp[11] = mul_3[state[8]] ^ state[9] ^ state[10] ^ mul_2[state[11]];
+    
+    tmp[12] = mul_2[state[12]] ^ mul_3[state[13]] ^ state[14] ^ state[15];
+    tmp[13] = state[12] ^ mul_2[state[13]] ^ mul_3[state[14]] ^ state[15];
+    tmp[14] = state[12] ^ state[13] ^ mul_2[state[14]] ^ mul_3[state[15]];
+    tmp[15] = mul_3[state[12]] ^ state[13] ^ state[14] ^ mul_2[state[15]];
+    
     for (int i = 0; i < 16; ++i) {
-        ptxt[i] = tmp[i];
+        state[i] = tmp[i];
+        printf("state[%d] = %d\n", i, state[i]);
     }
+    printf("\n");
 }
 
 void inverseMixedColumn(uint8_t* ptxt) {
@@ -240,11 +263,6 @@ void AESEncryption(uint8_t* ptxt, uint8_t* expandedKey, uint8_t* ctxt) {
     // now the 9 rounds begin
     for (int rounds = 1; rounds<10; rounds++) {
         byteSubShiftRow(state);
-        for (int i=0;i<16;i++) {
-            printf("tmp[%d] = %d \n", i, state[i]);
-        }
-        exit(1);
-        
         mixColumns(state);
         int counter = 0;
         int loc = rounds*16;
