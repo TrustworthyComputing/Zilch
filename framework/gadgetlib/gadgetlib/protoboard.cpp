@@ -10,7 +10,7 @@ Implementation of Protoboard, a "memory manager" for building arithmetic constra
 #include <gadgetlib/protoboard.hpp>
 #include <algebraLib/variable_operators.hpp>
 #include <algebraLib/variable.hpp>
-#include<iostream>
+#include <iostream>
 
 
 namespace gadgetlib {
@@ -147,7 +147,7 @@ void Protoboard::storeValue(const Algebra::FElem& address, const Algebra::FElem&
 
 Algebra::FElem Protoboard::loadValue(const Algebra::FElem& address){
 	std::map<Algebra::FElem, Algebra::FElem>::iterator it = memory_.find(address);
-	GADGETLIB_ASSERT(it != memory_.end(), "Address(Memory) doesn't hold any value");
+	assert(it != memory_.end());
 	return it->second;
 }
 

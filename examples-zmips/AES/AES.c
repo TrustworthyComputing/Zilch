@@ -171,7 +171,7 @@ void mixColumns(uint8_t* ptxt) {
     }
 }
 
-void inverseMixedColumn (uint8_t* ptxt) {
+void inverseMixedColumn(uint8_t* ptxt) {
     uint8_t tmp[16];
     for (int i = 0; i < 4; ++i) {
         tmp[(4*i)+0] = (uint8_t) (mul_14[ptxt[(4*i)+0]] ^ mul_11[ptxt[(4*i)+1]] ^ mul_13[ptxt[(4*i)+2]] ^ mul_9[ptxt[(4*i)+3]]);
@@ -183,6 +183,7 @@ void inverseMixedColumn (uint8_t* ptxt) {
         ptxt[i] = tmp[i];
     }
 }
+
 void byteSubShiftRow(uint8_t* state) {
     uint8_t tmp[16];
     tmp[0] = s[state[0]];
@@ -239,6 +240,11 @@ void AESEncryption(uint8_t* ptxt, uint8_t* expandedKey, uint8_t* ctxt) {
     // now the 9 rounds begin
     for (int rounds = 1; rounds<10; rounds++) {
         byteSubShiftRow(state);
+        for (int i=0;i<16;i++) {
+            printf("tmp[%d] = %d \n", i, state[i]);
+        }
+        exit(1);
+        
         mixColumns(state);
         int counter = 0;
         int loc = rounds*16;

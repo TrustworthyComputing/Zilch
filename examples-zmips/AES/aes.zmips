@@ -1,5 +1,118 @@
+# s[256] : 5000
+# inv_s[256] : 5256
+# mul_2[256] : 5512
+# mul_3[256] : 5768
+# mul_9[256] : 6024
+# mul_11[256] : 6280
+# mul_13[256] : 6536
+# mul_14[256] : 6792
+# expandedKey[176] : 7048
+# state[16] : 200
+# tmp[16] : 216
+# ctxt[16] : 100
+
 move $r0, $r0, 0
-move $r2, $r2, 2
 aes_boxes $r0, $r0, $r0
-lw $r2, 10000($r0)
-answer $r2
+
+__init_loop__
+    # state[i] = ptxt[i] ^ expandedKey[i];
+    lw $r2, 7048($r1)
+    secread $r3
+    xor $r3, $r3, $r2
+    sw $r3, 200($r1)
+
+    add $r1, $r1, 1
+    beq $r1, 16, __init_end__ ; if ($r1 == 16) then jump to __init_end__
+    j __init_loop__
+__init_end__
+
+# 9 Rounds
+move $r6, $r6, 200 # state idx
+move $r7, $r7, 216 # tmp idx
+move $r1, $r1, 1
+__round_loop__
+# byteSubShiftRow
+    # tmp[0] = s[ state[0] ];
+    lw $r8, 0($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 0($r7)
+    # tmp[1] = s[ state[5] ];
+    lw $r8, 5($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 1($r7)
+    # tmp[2] = s[ state[10] ];
+    lw $r8, 10($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 2($r7)
+    # tmp[3] = s[ state[15] ];
+    lw $r8, 15($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 3($r7)
+    # tmp[4] = s[ state[4] ];
+    lw $r8, 4($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 4($r7)
+    # tmp[5] = s[ state[9] ];
+    lw $r8, 9($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 5($r7)
+    # tmp[6] = s[ state[14] ];
+    lw $r8, 14($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 6($r7)
+    # tmp[7] = s[ state[3] ];
+    lw $r8, 3($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 7($r7)
+    # tmp[8] = s[ state[8] ];
+    lw $r8, 8($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 8($r7)
+    # tmp[9] = s[ state[13] ];
+    lw $r8, 13($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 9($r7)
+    # tmp[10] = s[ state[2] ];
+    lw $r8, 2($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 10($r7)
+    # tmp[11] = s[ state[7] ];
+    lw $r8, 7($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 11($r7)
+    # tmp[12] = s[ state[12] ];
+    lw $r8, 12($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 12($r7)
+    # tmp[13] = s[ state[1] ];
+    lw $r8, 1($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 13($r7)
+    # tmp[14] = s[ state[6] ];
+    lw $r8, 6($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 14($r7)
+    # tmp[15] = s[ state[11] ];
+    lw $r8, 11($r6)
+    lw $r9, 5000($r8)
+    sw $r9, 15($r7)
+    add $r5, $r5, 0
+    __for_i__ # state[i] = tmp[i];
+        lw $r8, $r5($r7)
+        sw $r8, $r5($r6)
+        add $r5, $r5, 1
+        beq $r5, 16, __for_i_end__ ; if ($r5 == 16) then jump to __for_i_end__
+        j __for_i__
+    __for_i_end__
+# byteSubShiftRow End
+
+
+
+    add $r1, $r1, 1
+    beq $r1, 10, __round_end__ ; if ($r1 == 10) then jump to __round_end__
+    j __round_loop__
+__round_end__
+
+
+
+answer $r1

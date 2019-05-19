@@ -2286,51 +2286,42 @@ void ALU_AES_BOXES_Gadget::generateWitness(){
     pb_->storeValue(memoryAddress, value);
     
     // sbox starts at base
-    size_t base = 10000;
+    size_t base = 5000;
     for (size_t i = 0 ; i < 256 ; i++) {
     	pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, s[i]));
     }
-    // inv_s starts at base + 256
     base += 256;
     for (size_t i = 0 ; i < 256 ; i++) {
         pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, inv_s[i]));
     }
-    // mul_2 starts at base + 256
     base += 256;
     for (size_t i = 0 ; i < 256 ; i++) {
         pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_2[i]));
     }
-    // mul_3 starts at base + 256
     base += 256;
     for (size_t i = 0 ; i < 256 ; i++) {
         pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_3[i]));
     }
-    // mul_3 starts at base + 256
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_3[i]));
-    }
-    // mul_9 starts at base + 256
     base += 256;
     for (size_t i = 0 ; i < 256 ; i++) {
         pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_9[i]));
     }
-    // mul_11 starts at base + 256
     base += 256;
     for (size_t i = 0 ; i < 256 ; i++) {
         pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_11[i]));
     }
-    // mul_13 starts at base + 256
     base += 256;
     for (size_t i = 0 ; i < 256 ; i++) {
         pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_13[i]));
     }
-    // mul_14 starts at base + 256
     base += 256;
     for (size_t i = 0 ; i < 256 ; i++) {
         pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_14[i]));
     }
-    
+    base += 256;
+    for (size_t i = 0 ; i < 176 ; i++) {
+        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, expandedKey[i]));
+    }
     
 	pb_->val(results_.value_) = value;
 	pb_->val(results_.address_) = memoryAddress;
