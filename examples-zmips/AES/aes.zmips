@@ -344,7 +344,7 @@ __round_end__
         lw $r9, 7208($r5)   # expandedKey[i+160]
         xor $r8, $r8, $r9
         sw $r8, 100($r5)    # store ctxt[i]
-        # print $r8
+        print $r8
         add $r5, $r5, 1
         beq $r5, 16, __SB_cp_state_fin_end__ ; if ($r5 == 16) then jump to __SB_cp_state_fin_end__
         j __SB_cp_state_fin__

@@ -135,6 +135,15 @@ TEST(zMIPS, speck_hash) {
 	EXPECT_EQ(answer_, 11198);
 }
 
+TEST(zMIPS, AES) {
+	string assembly_file = "./examples-zmips/AES/aes.zmips";
+	string private_tape = "./examples-zmips/AES/aes.auxtape";
+	string asm_parsed = parse_zmips(assembly_file, "", false);
+	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
+	std::remove(asm_parsed.c_str());
+	EXPECT_EQ(answer_, 10);
+}
+
 TEST(zMIPS, lw_sw) {
 	string assembly_file = "./examples-zmips/lw_sw.zmips";
 	string asm_parsed = parse_zmips(assembly_file, "", false);
