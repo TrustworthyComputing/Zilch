@@ -121,8 +121,6 @@ bool executeProtocol(const BairInstance& instance, const BairWitness& witness, c
 bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const std::string& address, unsigned short port_number, bool verbose);
 bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose);
 
-void simulateProtocol(const BairInstance& instance, const unsigned short securityParameter);
-
 //printouts
 namespace prn{
 	void printBairInstanceSpec(const BairInstance& instance);

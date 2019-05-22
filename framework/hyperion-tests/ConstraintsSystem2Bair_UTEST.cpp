@@ -117,30 +117,23 @@ void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::Protobo
             move(cs2bairMemoryCS_),
             cs2bair_instance.getBoundaryConstraints(),
             std::vector<Algebra::FieldElement>(numVars,Algebra::zero()));
-    const bool verifierOnly = 8 & flags;
-    if(verifierOnly){
-        libstark::Protocols::simulateProtocol(instance,securityParameter);
-        return;
-    }
-    {
-        //
-        // Reduce TinyRAM to Bair witness
-        //
-        gadgetlib::ProtoboardPtr pb_witness = Protoboard::create(archParams_); //replace with pb_instance ?
-        if (initWitnessMem != nullptr) initWitnessMem(pb_witness);
-        // Init cs2Bair
-        cs2Bair cs2bair_witness(pb_witness, prog, int(gadgetlib::POW2(transcript_len_log) - 1), true);
-        unique_ptr<cs2BairColoring> cs2bairColoring_(new cs2BairColoring(cs2bair_witness));
-        unique_ptr<cs2BairMemory> cs2bairMemory_(new cs2BairMemory(cs2bair_witness));
-        
-        // create Bair witness
-        const libstark::BairWitness witness(move(cs2bairColoring_), move(cs2bairMemory_));
-        
-        const bool testBair = 1 & flags;
-        const bool testAcsp = 2 & flags;
-        const bool testPCP = 4 & flags;
-        EXPECT_TRUE(libstark::Protocols::executeProtocol(instance,witness,securityParameter,testBair,testAcsp,testPCP));
-    }
+    //
+    // Reduce TinyRAM to Bair witness
+    //
+    gadgetlib::ProtoboardPtr pb_witness = Protoboard::create(archParams_); //replace with pb_instance ?
+    if (initWitnessMem != nullptr) initWitnessMem(pb_witness);
+    // Init cs2Bair
+    cs2Bair cs2bair_witness(pb_witness, prog, int(gadgetlib::POW2(transcript_len_log) - 1), true);
+    unique_ptr<cs2BairColoring> cs2bairColoring_(new cs2BairColoring(cs2bair_witness));
+    unique_ptr<cs2BairMemory> cs2bairMemory_(new cs2BairMemory(cs2bair_witness));
+    
+    // create Bair witness
+    const libstark::BairWitness witness(move(cs2bairColoring_), move(cs2bairMemory_));
+    
+    const bool testBair = 1 & flags;
+    const bool testAcsp = 2 & flags;
+    const bool testPCP = 4 & flags;
+    EXPECT_TRUE(libstark::Protocols::executeProtocol(instance,witness,securityParameter,testBair,testAcsp,testPCP));
 }
 	//example of run:
 	//PCP --gtest --gtest_filter=cs2Bair.Collatz --rand-args "9 4 3"

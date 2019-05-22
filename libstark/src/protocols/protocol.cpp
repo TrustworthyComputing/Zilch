@@ -536,10 +536,5 @@ namespace Protocols{
         return res;
     }
     
-    void simulateProtocol(const BairInstance& instance, const unsigned short securityParameter){
-        BairWitness* witness_dummy = nullptr;
-        Protocols::executeProtocol(instance,*witness_dummy,securityParameter,false,false,false);
-    }
-    
 } //namespace Protocols
 } //namespace libstark
