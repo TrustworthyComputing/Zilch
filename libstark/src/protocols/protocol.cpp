@@ -31,11 +31,8 @@ namespace Protocols{
         const size_t proofSentBytes = verifier.expectedSentProofBytes();
         const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
         
-        size_t cnt = 0;
         Timer t;
         while (!verifier.doneInteracting()) {
-            std::string filename("msg_" + std::to_string(cnt++) + ".txt"); // message-file
-                        
             const auto vMsg = verifier.sendMessage();
             verifierTime += t.getElapsed();
             
