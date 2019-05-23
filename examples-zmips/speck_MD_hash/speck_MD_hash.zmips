@@ -1,35 +1,25 @@
 move $r4, $r4, 22
-move $r5, $r5, 1000
-move $r1, $r1, 0
-__L1__
-cmpg $r4, $r4, $r1
-cnjmp $r4, $r4, __L2__
-pubread $r2
-sw $r2, $r1($r5)
-add $r1, $r1, 1
-j $r0, $r0, __L1__
-__L2__
 secread $r2
 secread $r3
 move $r15, $r15, $r2
 move $r16, $r16, $r3
 move $r1, $r1, 0
-__L3__
+__L1__
 cmpg $r4, $r4, $r1
-cnjmp $r4, $r4, __L4__
+cnjmp $r4, $r4, __L2__
 srl $r7, $r3, 7
 sll $r9, $r3, 9
 or $r8, $r7, $r9
 add $r3, $r8, $r2
-lw $r10, $r1($r5)
+pubread $r10
 xor $r3, $r3, $r10
 srl $r11, $r2, 14
 sll $r13, $r2, 2
 or $r12, $r11, $r13
 xor $r2, $r12, $r3
 add $r1, $r1, 1
-j $r0, $r0, __L3__
-__L4__
+j $r0, $r0, __L1__
+__L2__
 print $r2
 print $r3
 xor $r15, $r15, $r2
