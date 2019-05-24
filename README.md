@@ -19,7 +19,7 @@ Finally, Hyperion supports over-the-network ZKPs without trusted third parties.
 
 * OpenMP (https://en.wikipedia.org/wiki/OpenMP)
 * googletest (https://github.com/google/googletest) `apt-get install libgtest-dev`
-* libboost (https://github.com/google/googletest) `apt install libboost-all-dev`
+* libboost (https://www.boost.org/) `apt install libboost-all-dev`
 * libjson (https://github.com/open-source-parsers/jsoncpp) `apt install libjsoncpp-dev`
 
 
