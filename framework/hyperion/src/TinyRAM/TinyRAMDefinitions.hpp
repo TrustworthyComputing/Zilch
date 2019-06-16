@@ -12,7 +12,7 @@
 #include <sstream>
 #include <common/Infrastructure/Infrastructure.hpp>
 
-#define REGISTERS_NUMBER 2048
+#define REGISTERS_NUMBER 50
 #define REGISTER_LENGTH 16
 #define NUMBER_OPCODES 33
 #define BIN_EOF_STRING "EOF"

@@ -97,9 +97,8 @@ TEST(zMIPS, read_test) {
 
 TEST(zMIPS, simon) {
 	string assembly_file = "./examples-zmips/simon/simon.zmips";
-	string public_tape = "./examples-zmips/simon/simon.pubtape";
 	string private_tape = "./examples-zmips/simon/simon.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
+	string asm_parsed = parse_zmips(assembly_file, "", false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 59835);
@@ -107,9 +106,8 @@ TEST(zMIPS, simon) {
 
 TEST(zMIPS, speck) {
 	string assembly_file = "./examples-zmips/speck/speck.zmips";
-	string public_tape = "./examples-zmips/speck/speck.pubtape";
 	string private_tape = "./examples-zmips/speck/speck.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
+	string asm_parsed = parse_zmips(assembly_file, "", false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 43112);
@@ -117,9 +115,8 @@ TEST(zMIPS, speck) {
 
 TEST(zMIPS, simon_hash) {
 	string assembly_file = "./examples-zmips/simon_MD_hash/simon_MD_hash.zmips";
-	string public_tape = "./examples-zmips/simon_MD_hash/simon_MD_hash.pubtape";
 	string private_tape = "./examples-zmips/simon_MD_hash/simon_MD_hash.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
+	string asm_parsed = parse_zmips(assembly_file, "", false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 41982);
@@ -127,9 +124,8 @@ TEST(zMIPS, simon_hash) {
 
 TEST(zMIPS, speck_hash) {
 	string assembly_file = "./examples-zmips/speck_MD_hash/speck_MD_hash.zmips";
-	string public_tape = "./examples-zmips/speck_MD_hash/speck_MD_hash.pubtape";
 	string private_tape = "./examples-zmips/speck_MD_hash/speck_MD_hash.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
+	string asm_parsed = parse_zmips(assembly_file, "", false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 11198);
