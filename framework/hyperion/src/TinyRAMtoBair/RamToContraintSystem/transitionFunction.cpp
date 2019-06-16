@@ -69,7 +69,7 @@ void TransitionFunction::generateWitness(unsigned int i, const vector<string>& p
 	memInfo.updateSerialNumber(i);
 	Opcode opcode = program_.code()[codeLineNumber].opcode_;
 	if (Opcode::STOREB == opcode || Opcode::STOREW == opcode || 
-		Opcode::LOADB == opcode || Opcode::LOADW == opcode || Opcode::AES_BOXES == opcode)  {
+		Opcode::LOADB == opcode || Opcode::LOADW == opcode)  {
 		// isMemOp = true
 		memInfo.updateIsMemOp(true);
 		// Update timeStamp;
