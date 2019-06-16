@@ -151,6 +151,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::REGMOV] = ALU_REGMOV_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SECREAD] = ALU_READ_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SECSEEK] = ALU_SECSEEK_Gadget::create(pb_, inputVariables_, resultVariables_);
 }
@@ -299,6 +300,9 @@ void ALU_Gadget::generateWitness(unsigned int i) {
 		break;
 	case gadgetlib::Opcode::MOV:
 		components_[Opcode::MOV]->generateWitness();
+		break;
+    case gadgetlib::Opcode::REGMOV:
+		components_[Opcode::REGMOV]->generateWitness();
 		break;
     case gadgetlib::Opcode::SECREAD:
         components_[Opcode::SECREAD]->generateWitness();
@@ -2116,6 +2120,45 @@ void ALU_MOV_Gadget::generateWitness(){
     std::cout << '\n';
 #endif
 }
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
+/*******************                         ALU_REGMOV_Gadget						******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+ALU_REGMOV_Gadget::ALU_REGMOV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
+											: Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+GadgetPtr ALU_REGMOV_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_REGMOV_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_REGMOV_Gadget::init(){}
+
+void ALU_REGMOV_Gadget::generateConstraints(){
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::REGMOV);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::REGMOV);
+}
+void ALU_REGMOV_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
+    pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+    
+#ifdef DEBUG
+    std::cout << "\n\nALU_REGMOV_Gadget witness\nALUInput REGMOV:\n";
+    inputs_.printALUInput(pb_);
+    std::cout << "ALUOutput REGMOV" << '\n';
+    results_.printALUOutput(pb_);
+    std::cout << '\n';
+#endif
+}
+
 
 
 /*************************************************************************************************/

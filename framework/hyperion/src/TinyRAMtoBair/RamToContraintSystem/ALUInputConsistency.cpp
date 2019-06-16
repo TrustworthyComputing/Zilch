@@ -44,10 +44,18 @@ void ALUInputConsistency::generateConstraints(){
 		bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 		CircuitPolynomial arg2Poly;
 		if (!arg2IsImmediate) { // if not immediate -- SECREAD uses reg SECREAD_RESERVED_REGISTER DO NOT USE IN PROGRAM
-			arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
+			if (Opcode::REGMOV == opcode) {
+				// unsigned int new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
+				// arg2Poly = input_.registers_[new_arg2 + 5] + output_.arg2_val_;
+			} else {
+				arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
+			}
 		} else {
-			Algebra::FElem valArg2 = mapIntegerToFieldElement(0, params->registerLength(), arg2);
-			arg2Poly = valArg2 + output_.arg2_val_;
+			if (Opcode::REGMOV == opcode) {
+				arg2Poly = input_.registers_[arg2 + 5] + output_.arg2_val_;
+			} else {
+				arg2Poly = mapIntegerToFieldElement(0, params->registerLength(), arg2) + output_.arg2_val_;
+			}
 		}
 		CircuitPolynomial arg1Poly(input_.registers_[arg1] + output_.arg1_val_);	
 		CircuitPolynomial destPoly(input_.registers_[dest] + output_.dest_val_);
@@ -109,14 +117,25 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 		arg2 = SECREAD_RESERVED_REGISTER;
 		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
 	}
-		
+
 	
 	bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 	if (!arg2IsImmediate) {
-		pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2]);
+		if (Opcode::REGMOV == opcode) {
+			unsigned int new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
+			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[ new_arg2 + 5 ]);
+		} else {
+			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2]);
+		}
 	} else {
-		pb_->val(output_.arg2_val_) = mapIntegerToFieldElement(0, params->registerLength(), program_.code()[i].arg2IdxOrImmediate_);
+		if (Opcode::REGMOV == opcode) {
+			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2 + 5]);
+		} else {
+			pb_->val(output_.arg2_val_) = mapIntegerToFieldElement(0, params->registerLength(), program_.code()[i].arg2IdxOrImmediate_);
+		}
 	}
 	pb_->val(output_.arg1_val_) = pb_->val(input_.registers_[arg1]);
 	pb_->val(output_.dest_val_) = pb_->val(input_.registers_[dest]);
+	
+
 };

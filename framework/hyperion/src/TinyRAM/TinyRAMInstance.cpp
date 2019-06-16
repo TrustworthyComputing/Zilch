@@ -40,6 +40,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::CMPG: return "CMPG";
         case Opcode::CMPGE: return "CMPGE";
         case Opcode::MOV: return "MOV";
+        case Opcode::REGMOV: return "REGMOV";
         case Opcode::SECREAD: return "SECREAD";
         case Opcode::SECSEEK: return "SECSEEK";
         case Opcode::CMOV: return "CMOV";
@@ -86,6 +87,7 @@ Opcode opcodeFromString(const string op){
     if(op == "CMPG") return Opcode::CMPG;
     if(op == "CMPGE") return Opcode::CMPGE;
     if(op == "MOV") return Opcode::MOV;
+    if(op == "REGMOV") return Opcode::REGMOV;
     if(op == "SECREAD") return Opcode::SECREAD;
     if(op == "SECSEEK") return Opcode::SECSEEK;
     if(op == "CMOV") return Opcode::CMOV;
