@@ -273,7 +273,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
             instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), reg2, imm);
         } else if (tokens.size() == 3) { // if lw or sw
             if (isInteger(tokens[2])) {
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), "r0", tokens[2]);
+                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), tokens[2]);
             } else {
                 tokens[2].erase(std::remove(tokens[2].begin(), tokens[2].end(), ')'), tokens[2].end());
                 int pos = tokens[2].find_first_of('(');

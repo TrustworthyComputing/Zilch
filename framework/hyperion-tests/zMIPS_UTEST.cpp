@@ -9,7 +9,7 @@ int securityParameter = 60;
 
 TEST(zMIPS, factorial) {
 	string assembly_file = "./examples-zmips/factorial/fact.zmips";
-	string public_tape = "./examples-zmips/factorial/fact.pubtape";
+	string public_tape = "./examples-zmips/factorial/fact2.pubtape";
 	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
 	execute_locally(asm_parsed, "", 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
@@ -18,7 +18,7 @@ TEST(zMIPS, factorial) {
 
 TEST(zMIPS, fibonacci) {
 	string assembly_file = "./examples-zmips/fibonacci/fib.zmips";
-	string public_tape = "./examples-zmips/fibonacci/fib.pubtape";
+	string public_tape = "./examples-zmips/fibonacci/fib2.pubtape";
 	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
 	execute_locally(asm_parsed, "", 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
@@ -114,8 +114,8 @@ TEST(zMIPS, speck) {
 }
 
 TEST(zMIPS, simon_hash) {
-	string assembly_file = "./examples-zmips/simon_MD_hash/simon_MD_hash.zmips";
-	string private_tape = "./examples-zmips/simon_MD_hash/simon_MD_hash.auxtape";
+	string assembly_file = "./examples-zmips/simon_DM_hash/simon_DM_hash.zmips";
+	string private_tape = "./examples-zmips/simon_DM_hash/simon_DM_hash.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
@@ -123,8 +123,8 @@ TEST(zMIPS, simon_hash) {
 }
 
 TEST(zMIPS, speck_hash) {
-	string assembly_file = "./examples-zmips/speck_MD_hash/speck_MD_hash.zmips";
-	string private_tape = "./examples-zmips/speck_MD_hash/speck_MD_hash.auxtape";
+	string assembly_file = "./examples-zmips/speck_DM_hash/speck_DM_hash.zmips";
+	string private_tape = "./examples-zmips/speck_DM_hash/speck_DM_hash.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());

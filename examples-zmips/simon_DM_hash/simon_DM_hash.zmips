@@ -1,6 +1,8 @@
 move $r6, 32
 secread $r2
 secread $r3
+move $r9, $r2
+move $r10, $r3
 __L1__
     move $r4, $r2
     srl $r7, $r4, 15
@@ -23,4 +25,8 @@ __L1__
 cjmp $r6, $r6, __L1__
 print $r2
 print $r3
-answer $r3
+xor $r9, $r9, $r2
+xor $r10, $r10, $r3
+print $r9
+print $r10
+answer $r9

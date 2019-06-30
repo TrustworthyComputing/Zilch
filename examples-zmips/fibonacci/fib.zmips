@@ -1,17 +1,12 @@
-pubread $r5
-move $r2, $r2, 0
-move $r3, $r3, 1
-move $r1, $r1, 0
-move $r4, $r4, 1
+# pubread $r5
+move $r5, 10
+move $r3, 1
+move $r4, 1
 __L1__
+    add $r1, $r2, $r3
+    move $r2, $r3
+    move $r3, $r1
+    add $r4, $r4, 1
 cmpg $r5, $r5, $r4
-cnjmp $r5, $r5, __L2__
-add $r6, $r2, $r3
-move $r1, $r1, $r6
-move $r2, $r2, $r3
-move $r3, $r3, $r1
-add $r4, $r4, 1
-j $r0, $r0, __L1__
-__L2__
-answer $r1, $r1, $r1
-
+cjmp $r5, $r5, __L1__
+answer $r1
