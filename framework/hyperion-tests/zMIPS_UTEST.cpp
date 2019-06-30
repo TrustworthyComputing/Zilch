@@ -67,7 +67,7 @@ TEST(zMIPS, mmult) {
 
 TEST(zMIPS, pir) {
 	string assembly_file = "./examples-zmips/pir/pir.zmips";
-	string public_tape = "./examples-zmips/pir/pir.pubtape";
+	string public_tape = "./examples-zmips/pir/pir2.pubtape";
 	string private_tape = "./examples-zmips/pir/pir.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
@@ -77,7 +77,7 @@ TEST(zMIPS, pir) {
 
 TEST(zMIPS, range_query) {
 	string assembly_file = "./examples-zmips/range_query/range_query.zmips";
-	string public_tape = "./examples-zmips/range_query/range_query.pubtape";
+	string public_tape = "./examples-zmips/range_query/range_query2.pubtape";
 	string private_tape = "./examples-zmips/range_query/range_query.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, public_tape, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);

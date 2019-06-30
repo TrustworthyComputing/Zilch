@@ -1,16 +1,13 @@
-pubread $r1
-pubread $r2
+# pubread $r1
+# pubread $r2
+move $r1, 12000
+move $r2, 20000
 secread $r3
 cmpge $r3, $r3, $r1
-cnjmp $r3, $r3, __L2__
+cnjmp $r3, $r3, __L1__
 cmpge $r2, $r2, $r3
-cnjmp $r2, $r2, __L2__
-move $r4, $r4, 1
-__L2__
-cnjmp $r4, $r4, __L1__
-move $r5, $r5, 1
-answer $r5, $r5, $r5
+cnjmp $r2, $r2, __L1__
+move $r5, 1
+answer $r5
 __L1__
-move $r6, $r6, 0
-answer $r6, $r6, $r6
-
+answer $r6
