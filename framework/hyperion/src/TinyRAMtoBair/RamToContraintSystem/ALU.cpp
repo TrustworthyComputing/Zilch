@@ -2313,7 +2313,7 @@ GadgetPtr ALU_AES_BOXES_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs,
 void ALU_AES_BOXES_Gadget::init(){}
 
 void ALU_AES_BOXES_Gadget::generateConstraints(){
-	pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::AES_BOXES);
+	// pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::AES_BOXES);
 	pb_->addGeneralConstraint(results_.isLoadOp_, "isLoadOp = 0", Opcode::AES_BOXES);
 	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::AES_BOXES);
 	pb_->addGeneralConstraint(results_.value_ + inputs_.dest_val_, "inputs_.value_ = inputs_.dest_val", Opcode::AES_BOXES);
@@ -2322,7 +2322,7 @@ void ALU_AES_BOXES_Gadget::generateConstraints(){
 void ALU_AES_BOXES_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
-	pb_->val(results_.isMemOp_) = Algebra::one();
+	// pb_->val(results_.isMemOp_) = Algebra::one();
 	pb_->val(results_.isLoadOp_) = Algebra::zero();
 	FElem memoryAddress = pb_->val(inputs_.arg2_val_);
 	FElem value = pb_->val(inputs_.dest_val_);

@@ -74,6 +74,8 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "MOV " + r0 + " " + r1 + " " + r2;
     } else if (instr == "REGMOVE" || instr == "REGMOV") {
         return "REGMOV " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "ROM") {
+        return "RESERVED_OPCODE_24 " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SECREAD") {
         return "SECREAD " + r0 + " " + r1 + " " + r2;
     } else if (instr == "PUBREAD") {
