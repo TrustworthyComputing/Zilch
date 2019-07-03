@@ -1050,13 +1050,9 @@ void ALU_UDIV_Gadget::generateConstraints(){
 	multPackArg1_g_->generateConstraints();
 	multPackRemainder_g_->generateConstraints();
 	pb_->addGeneralConstraint(inputs_.arg2_val_ * (inputs_.arg2_val_ * pInverse_ + Algebra::one()), "divisor inv", Opcode::UDIV);
-	pb_->addGeneralConstraint(
-		inputs_.arg2_val_ * (multPartials2_[0] + mpackArg1_ * mpackRemainder_) +
-		(inputs_.arg2_val_ * pInverse_ + Algebra::one()) * results_.result_,
-		"dividor!=0 -> res*divisor + remainder == arg1", Opcode::UDIV);
+	// pb_->addGeneralConstraint(inputs_.arg2_val_ * (multPartials2_[0] + mpackArg1_ * mpackRemainder_) + (inputs_.arg2_val_ * pInverse_ + Algebra::one()) * results_.result_, "dividor!=0 -> res*divisor + remainder == arg1", Opcode::UDIV);
 	pb_->addGeneralConstraint(inputs_.arg2_val_ * (isGEQ_ + Algebra::one()), "divisor!=0 -> remainder<divisor", Opcode::UDIV);
 	pb_->addGeneralConstraint(results_.flag_ + inputs_.arg2_val_ * pInverse_ + Algebra::one(), "udiv flag", Opcode::UDIV);
-	// add isMemOp = 0
 	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::UDIV);
 }
 
@@ -1148,14 +1144,10 @@ void ALU_UMOD_Gadget::generateConstraints(){
 	multPackArg1_g_->generateConstraints();
 	multPackRemainder_g_->generateConstraints();
 	pb_->addGeneralConstraint(inputs_.arg2_val_ * (inputs_.arg2_val_ * pInverse_ + Algebra::one()), "divisor inv", Opcode::UMOD);
-	pb_->addGeneralConstraint(
-		inputs_.arg2_val_ * (multPartials2_[0] + mpackArg1_ * mpackRemainder_) +
-		(inputs_.arg2_val_ * pInverse_ + Algebra::one()) * results_.result_,
-		"dividor!=0 -> res*divisor + remainder == arg1", Opcode::UMOD);
+	// pb_->addGeneralConstraint(inputs_.arg2_val_ * (multPartials2_[0] + mpackArg1_ * mpackRemainder_) + (inputs_.arg2_val_ * pInverse_ + Algebra::one()) * results_.result_, "dividor!=0 -> res*divisor + remainder == arg1", Opcode::UMOD);
 	pb_->addGeneralConstraint(inputs_.arg2_val_ * (isGEQ_ + Algebra::one()), "divisor!=0 -> remainder<divisor", Opcode::UMOD);
 	pb_->addGeneralConstraint(results_.flag_ + inputs_.arg2_val_ * pInverse_ + Algebra::one(), "umod flag", Opcode::UMOD);
 	packResult_g_->generateConstraints();
-	// add isMemOp = 0
 	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::UMOD);
 }
 
