@@ -8,6 +8,7 @@
 #include "algebraLib/BitExtract.hpp"
 #include "algebraLib/ErrorHandling.hpp"
 #include <array>
+#include <iostream>
 
 const int DIM=64;
 const int matDim = DIM-1;
@@ -73,8 +74,9 @@ namespace Algebra {
 			case 10: return invExtrArr[24];
 			case 12: return invExtrArr[25];
 			case 14: return invExtrArr[26];
-
-			default: throw;
+			default:
+				std::cerr << "Algebra::BitExtract::invExtrType " << i << " bad index." << '\n'; 
+				throw;
 		}
 	}
 
