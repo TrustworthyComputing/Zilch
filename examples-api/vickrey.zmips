@@ -1,0 +1,37 @@
+move $r5, 5
+move $r4, 2
+secread $r0, $r0, $r0
+secread $r1, $r1, $r1
+
+cmpg $r0, $r0, $r1
+cnjmp $r0, $r0, __init__
+    move $r3, $r0
+    move $r2, $r1
+j __init_end__
+__init__
+    move $r3, $r1
+    move $r2, $r0
+__init_end__
+
+print $r3, $r3, $r3
+print $r2, $r2, $r2
+
+__L1__
+    secread $r0, $r0, $r0
+
+    cmpg $r3, $r3, $r0
+    cjmp $r0, $r0, __check2__
+        move $r2, $r3
+        move $r3, $r0
+        j __check3__
+    __check2__
+    cmpg $r2, $r2, $r0
+    cjmp $r0, $r0, __check3__
+        move $r2, $r0
+    __check3__
+    
+    add $r4, $r4, 1
+cmpg $r5, $r5, $r4
+cjmp $r5, $r5, __L1__
+
+answer $r2, $r2, $r2

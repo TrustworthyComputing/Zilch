@@ -20,10 +20,14 @@ LNKFLAGS=-L"$(BLDDIR)/algebralib" -L"$(BLDDIR)/fft" -L"$(BLDDIR)/gadgetlib" -L"$
 
 default: fact
 
-fact: makedir fact-local fact-prover fact-verifier
+fact: makedir fact-local fact-prover fact-verifier vickrey-local
 
 makedir:
 	mkdir -p ../bin/examples-api
+
+vickrey-local: 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(HYPERION_DIR)/src -c -o ../bin/examples-api/vickrey-local.o ./vickrey-local.cpp
+	$(CC) -o ./vickrey-local.out ../bin/examples-api/vickrey-local.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
 fact-local: 
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(HYPERION_DIR)/src -c -o ../bin/examples-api/fact-local.o ./fact-local.cpp
