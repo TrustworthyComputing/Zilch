@@ -37,12 +37,12 @@ namespace Algebra {
 		mapIntegerToFieldElement(0, DIM, 0xDB6DB0000000000A), //43 @18
 		mapIntegerToFieldElement(0, DIM, 0xDB6C00000000000A), //49 @19
 		mapIntegerToFieldElement(0, DIM, 0x6DB0000000000005), //51 @20
-		mapIntegerToFieldElement(0, DIM, 0x6C00000000000005),  //57 @21
-		mapIntegerToFieldElement(0, DIM, 0xB6DB6DB6DB6DB60F),//8 @22
-		mapIntegerToFieldElement(0, DIM, 0x6DB6DB6DB6DB6C05),//9 @23
-		mapIntegerToFieldElement(0, DIM, 0xDB6DB6DB6DB6D80A),//10 @24
-		mapIntegerToFieldElement(0, DIM, 0x6DB6DB6DB6DB6005),//12 @25
-		mapIntegerToFieldElement(0, DIM, 0xB6DB6DB6DB6D800F)//14 @26
+		mapIntegerToFieldElement(0, DIM, 0x6C00000000000005), //57 @21
+		mapIntegerToFieldElement(0, DIM, 0xB6DB6DB6DB6DB60F), //8 @22
+		mapIntegerToFieldElement(0, DIM, 0x6DB6DB6DB6DB6C05), //9 @23
+		mapIntegerToFieldElement(0, DIM, 0xDB6DB6DB6DB6D80A), //10 @24
+		mapIntegerToFieldElement(0, DIM, 0x6DB6DB6DB6DB6005), //12 @25
+		mapIntegerToFieldElement(0, DIM, 0xB6DB6DB6DB6D800F)  //14 @26
 
 	};
 	/*inline*/ const FieldElement& invExtrType::operator[](const int i)const{
@@ -56,24 +56,24 @@ namespace Algebra {
 			case 5: return invExtrArr[6];
 			case 6: return invExtrArr[7];
 			case 7: return invExtrArr[8];
-			case 11: return invExtrArr[9];
-			case 13: return invExtrArr[10];
-			case 15: return invExtrArr[11];
-			case 18: return invExtrArr[12];
-			case 22: return invExtrArr[13];
-			case 25: return invExtrArr[14];
-			case 32: return invExtrArr[15];
-			case 38: return invExtrArr[16];
-			case 42: return invExtrArr[17];
-			case 43: return invExtrArr[18];
-			case 49: return invExtrArr[19];
-			case 51: return invExtrArr[20];
-			case 57: return invExtrArr[21];
 			case 8: return invExtrArr[22];
 			case 9: return invExtrArr[23];
 			case 10: return invExtrArr[24];
+			case 11: return invExtrArr[9];
 			case 12: return invExtrArr[25];
+			case 13: return invExtrArr[10];
 			case 14: return invExtrArr[26];
+			case 15: return invExtrArr[11];
+			case 22: return invExtrArr[13];
+			case 25: return invExtrArr[14];
+			case 31: return invExtrArr[16];
+			case 32: return invExtrArr[15];
+			case 43: return invExtrArr[18];
+			case 49: return invExtrArr[20];
+			case 63: return invExtrArr[19];
+			case 127: return invExtrArr[21];
+			case 255: return invExtrArr[12];
+			case 511: return invExtrArr[17];
 			default:
 				std::cerr << "Algebra::BitExtract::invExtrType " << i << " bad index." << '\n'; 
 				throw;
