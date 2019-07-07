@@ -1,11 +1,13 @@
-__loop__
-    pubread $r0             ; consume next word from public tape and store it to r0
-    secread $r1             ; consume next word from auxiliary tape and store it to r1
+pubread $r0             ; consume next word from public tape and store it to r0
+print $r0
 
-    add $r2, $r0, $r2        ; add them together
-    add $r2, $r1, $r2        ; r2 = r0 + r1 + r2
+secread $r1             ; consume next word from auxiliary tape and store it to r1
+print $r1
 
-    add $r3, $r3,  1        ; r3++
-bne $r3, 3, __loop__    ; if (r3 != 3) then jump to __loop__
+pubseek $r0, 3          ; read the 4th word from the public tape and store it to r0
+print $r0
 
-answer $r2, $r2, $r2    ; result should be 312
+secseek $r1, 3          ; read the 4th word from the auxiliary tape and store it to r1
+print $r1
+
+answer $r0
