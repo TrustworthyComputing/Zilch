@@ -399,7 +399,7 @@ void DoubleMultPack_Gadget::generateConstraints(){
 		getGenerator2toTheNthPower(unpacked1_.size()+j).inverse() :
 		getGenerator2toTheNthPower(unpacked1_.size()+j);
 	c = ((unpacked2_[j] * g_2_i) + (Algebra::one() + unpacked2_[j]));
-	pb_->addGeneralConstraint(packed_ + prev*c, "DMultPack result", opcode_);
+	// pb_->addGeneralConstraint(packed_ + prev*c, "DMultPack result", opcode_);
 }
 
 void DoubleMultPack_Gadget::generateWitness(){
@@ -414,7 +414,7 @@ void DoubleMultPack_Gadget::generateWitness(){
 		const Algebra::FElem c = ((val(unpacked2_[j]) * g_2_i) + (Algebra::one() + val(unpacked2_[j])));
 		prev = pb_->val(partials2_[j]) = prev*c;
 	}
-	//pb_->val(packed_) = prev*c; //don't? TODO: replace with assert
+	// pb_->val(packed_) = prev*c; //don't? TODO: replace with assert
 }
 
 /*************************************************************************************************/

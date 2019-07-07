@@ -19,7 +19,7 @@ class VariableArray;
 
 // Typedef
 typedef FieldElement FElem;
-typedef long VarIndex_t;
+typedef size_t VarIndex_t;
 typedef ::std::vector<Variable> VariableArrayContents;
 typedef Variable FlagVariable; //Holds variable whose purpose is to be populated with a boolean value, Field(0) or Field(1)
 

@@ -93,7 +93,7 @@ TEST(zMIPS, read_test) {
 	string asm_parsed = parse_zmips(assembly_file, public_tape, macros_file, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 312);
+	EXPECT_EQ(answer_, 4);
 }
 
 TEST(zMIPS, simon) {

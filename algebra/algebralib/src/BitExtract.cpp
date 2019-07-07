@@ -108,7 +108,7 @@ namespace Algebra {
                 }
             }
 
-            ALGEBRALIB_ASSERT((srcMat[currCol] & colMask) != 0UL, "This should not happen. Could it be the matrix is not invertible?");
+            // ALGEBRALIB_ASSERT((srcMat[currCol] & colMask) != 0UL, "This should not happen. Could it be the matrix is not invertible?");
 
             //clear all other bits in this column
             for(int r= 0; r< matDim; r++){
