@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]) {
 
     std::cout << "Running Vickrey Auction in Hyperion...\n";
 
-    int ans = hyperion_local_prover_verifier(zmips_asm, "", privtape, 60, false, true);
+    int ans = hyperion_local_prover_verifier(zmips_asm, "", privtape, "../framework/hyperion/src/macros.json", 60, false, true);
     
     for (size_t i = 0; i < participants; i++) {
         if (auctions[i] == ans) {

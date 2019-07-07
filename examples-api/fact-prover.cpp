@@ -10,7 +10,7 @@ int main(int argc, char const *argv[]) {
     
     std::cout << "Running Prover for factorial...\n";
 
-    int ans = hyperion_prover(zmips_asm, pubtape, "", "localhost", 34343, 10, 60, false);
+    int ans = hyperion_prover(zmips_asm, pubtape, "", "../framework/hyperion/src/macros.json", "localhost", 34343, 10, 60, false);
     
     std::cout << "Executed " << zmips_asm << " and the answer is " << ans << '\n';
     

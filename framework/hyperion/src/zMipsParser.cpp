@@ -185,9 +185,9 @@ vector<std::string> initPublicTape(const vector<string> public_lines) {
     return store_tape;
 }
 
-void unrollMacros(vector<std::string>& lines) {
+void unrollMacros(vector<std::string>& lines, const string& macros_file) {
 	std::vector<string>::size_type size = lines.size();
-	ifstream ifs("./framework/hyperion/src/macros.json");
+	ifstream ifs(macros_file);
 	Json::Reader reader;
 	Json::Value macros;
 	reader.parse(ifs, macros);
@@ -227,7 +227,7 @@ void unrollMacros(vector<std::string>& lines) {
 	
 }
 
-string parse_zmips(const string assemblyFile, const string primaryTapeFile, const bool show_asm) {
+string parse_zmips(const string assemblyFile, const string primaryTapeFile, const string& macros_file, const bool show_asm) {
     string parsedAsmFile = remove_extension(assemblyFile);
     ifstream ifs(assemblyFile);
     ofstream ofs(parsedAsmFile);
@@ -236,7 +236,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
     
-    unrollMacros(lines);
+    unrollMacros(lines, macros_file);
     
     // Read public inputs (primaryTapeFile) to public_lines vector
     ifstream primarytapefs(primaryTapeFile);

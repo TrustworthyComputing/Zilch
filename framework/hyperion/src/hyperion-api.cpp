@@ -1,7 +1,7 @@
 #include "hyperion-api.hpp"
 
-int hyperion_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const size_t securityParameter, bool verbose, bool no_proof) {
-    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, false);
+int hyperion_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const size_t securityParameter, bool verbose, bool no_proof) {
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
 	TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
@@ -29,8 +29,8 @@ int hyperion_local_prover_verifier(const string assemblyFile, const string prima
     return answer_;
 }
 
-int hyperion_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& address, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
-    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, false);
+int hyperion_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const string& address, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
     TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
@@ -52,8 +52,8 @@ int hyperion_prover(const string assemblyFile, const string primaryTapeFile, con
     return answer_;
 }
 
-void hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
-    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, false);
+void hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
     TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);

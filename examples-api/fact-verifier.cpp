@@ -10,7 +10,7 @@ int main(int argc, char const *argv[]) {
     
     std::cout << "Running Verifier for factorial...\n";
 
-    hyperion_verifier(zmips_asm, pubtape, "", 34343, 10, 60, false);
+    hyperion_verifier(zmips_asm, pubtape, "", "../framework/hyperion/src/macros.json", 34343, 10, 60, false);
 
     std::cout << "Executed Verifier for " << zmips_asm << '\n';
     
