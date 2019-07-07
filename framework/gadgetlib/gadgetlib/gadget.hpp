@@ -351,7 +351,7 @@ private:
 	Algebra::FlagVariable flagGEQ_;
 	bool isSigned_;
 	Opcode opcode_;
-	unsigned int unpakcedSize_;
+	size_t unpakcedSize_;
 public:
 	static GadgetPtr create(ProtoboardPtr pb,
 						const Algebra::UnpackedWord& var1,

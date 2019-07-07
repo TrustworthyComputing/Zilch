@@ -82,7 +82,7 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 	unsigned int dest = program_.code()[i].destIdx_;
 	Opcode opcode = program_.code()[i].opcode_;
 	if (Opcode::SECREAD == opcode) {
-		unsigned int read_from_tape_result;
+		size_t read_from_tape_result;
 		if (private_lines[0].empty()) { // check if tapefile is empty
 			std::cerr << "\nAuxiliary tapefile is empty or does not exist.\n";
 			exit(EXIT_FAILURE);
@@ -90,12 +90,12 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 			std::cerr << "\nAuxiliary tapefile has no other word to consume.\n";
 			exit(EXIT_FAILURE);
 		}
-		read_from_tape_result = stoi( private_lines[secread_cnt++] ); // read from tape
+		read_from_tape_result = stoull( private_lines[secread_cnt++] ); // read from tape
 		program_.arg2isImmediateToFalse(i);
 		arg2 = SECREAD_RESERVED_REGISTER;
-		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
+		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, REGISTER_LENGTH, read_from_tape_result) );
 	} else if (Opcode::SECSEEK == opcode) {
-		unsigned int read_from_tape_result;
+		size_t read_from_tape_result;
 		
 		bool arg1IsImmediate = program_.code()[i].arg1isImmediate_; // check if arg1 is immediate
 		size_t offset;
@@ -111,11 +111,11 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 			std::cerr << "\nAuxiliary tapefile has no other word to consume.\n";
 			exit(EXIT_FAILURE);
 		}
-		read_from_tape_result = stoi( private_lines[offset] ); // read from tape
+		read_from_tape_result = stoull( private_lines[offset] ); // read from tape
 		// std::cout << "Read from offset " << arg1 << " value " << read_from_tape_result << '\n';
 		program_.arg2isImmediateToFalse(i);
 		arg2 = SECREAD_RESERVED_REGISTER;
-		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, 16, read_from_tape_result) );
+		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, REGISTER_LENGTH, read_from_tape_result) );
 	}
 
 	

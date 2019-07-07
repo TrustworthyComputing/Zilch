@@ -41,13 +41,13 @@ UnpackedWord opcodeAux6_(REGISTER_LENGTH, "opcodeAux6_");
 UnpackedWord opcodeAux7_(REGISTER_LENGTH, "opcodeAux7_");
 
 //lame, move all to TinyRAMProtoboardParams?
-unsigned int prngseed;
+size_t prngseed;
 bool standAlone_ = false;
 bool found_answer_ = false;
 size_t answer_ = -1;
 FElem program_output = Algebra::one(); //use any incorrect != -1 value to test soundness
 int max_timestep = 1;
-unsigned int ROMSIZE = 0;
+size_t ROMSIZE = 0;
 
 void resetALU_GadgetGlobalState(){
     max_timestep = 1;
@@ -201,9 +201,9 @@ void ALU_Gadget::generateConstraints() {
 	}
 	GADGETLIB_ASSERT(program_.size() > 0, "The program should be initalized");
 	
-	unsigned int programLength = (unsigned int)(program_.size());
+	size_t programLength = (size_t)(program_.size());
 	size_t maxConstraintNum = getMaxConstraintNum(program_, pb_);
-	for (unsigned int i = 0; i < maxConstraintNum; i++) {
+	for (size_t i = 0; i < maxConstraintNum; i++) {
 		map<Opcode, Polynomial> opToConstraints = getRelevantConstraints(program_, i, pb_);
 		vector<Polynomial> constraints;
 		map<Opcode, long> M;
@@ -215,7 +215,7 @@ void ALU_Gadget::generateConstraints() {
 
 		vector<long> selectorToConstraint(programLength);
 		vector<bool> selectorRelevant(programLength);
-		for (unsigned int j = 0; j < programLength; j++) {
+		for (size_t j = 0; j < programLength; j++) {
 			Opcode currentOpcode = program_.code()[j].opcode_;
 			if (opToConstraints.find(currentOpcode) != opToConstraints.end()){
 				selectorRelevant[j] = true;
@@ -230,8 +230,8 @@ void ALU_Gadget::generateConstraints() {
 	}
 }
 
-void ALU_Gadget::generateWitness(unsigned int i) {
-    // std::cout << "void ALU_Gadget::generateWitness(unsigned int i) {" << '\n';
+void ALU_Gadget::generateWitness(size_t i) {
+    // std::cout << "void ALU_Gadget::generateWitness(size_t i) {" << '\n';
 	GADGETLIB_ASSERT(i < program_.size(), "The value should be less than the program length");
 	Opcode opcode = program_.code()[i].opcode_;
 	switch (opcode) {
@@ -437,7 +437,7 @@ void ALU_AND_Gadget::generateConstraints(){
 	CircuitPolynomial polynomial;
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
-	for (unsigned int i = 0; i < registerLength; ++i){
+	for (size_t i = 0; i < registerLength; ++i){
 		polynomial = polynomial + (unpackedArg1_[i] * unpackedArg2_[i] * x_i);
 		x_i *= x;
 	}
@@ -461,7 +461,7 @@ void ALU_AND_Gadget::generateWitness(){
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem res = Algebra::zero();
-	for (unsigned int i = 0; i < registerLength; i++){
+	for (size_t i = 0; i < registerLength; i++){
 		res += pb_->val(unpackedArg1_[i]) * pb_->val(unpackedArg2_[i]) * x_i;
 		x_i *= x;
 	}
@@ -520,7 +520,7 @@ void ALU_OR_Gadget::generateConstraints(){
 	CircuitPolynomial polynomial;
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
-	for (unsigned int i = 0; i < registerLength; ++i){
+	for (size_t i = 0; i < registerLength; ++i){
 		LinearCombination first = Algebra::one() + unpackedArg1_[i];
 		LinearCombination second = Algebra::one() + unpackedArg2_[i];
 		CircuitPolynomial tmpPoly(first * second);
@@ -547,7 +547,7 @@ void ALU_OR_Gadget::generateWitness(){
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem res=Algebra::zero();
-	for (unsigned int i = 0; i < registerLength; i++){
+	for (size_t i = 0; i < registerLength; i++){
 		Algebra::FElem first = Algebra::one() + pb_->val(unpackedArg1_[i]);
 		Algebra::FElem second = Algebra::one() + pb_->val(unpackedArg2_[i]);
 		res += (Algebra::one() + first*second) * x_i;
@@ -599,7 +599,7 @@ void ALU_NOT_Gadget::generateConstraints(){
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem allOnes = Algebra::zero();
-	for (unsigned int i = 0; i < registerLength; i++){
+	for (size_t i = 0; i < registerLength; i++){
 		allOnes += x_i;
 		x_i *= x;
 	}
@@ -622,7 +622,7 @@ void ALU_NOT_Gadget::generateWitness(){
 	const Algebra::FElem x = Algebra::FElem(getGF2E_X());
 	Algebra::FElem x_i = Algebra::one(); // will hold x^i
 	Algebra::FElem allOnes = Algebra::zero();
-	for (unsigned int i = 0; i < registerLength; i++){
+	for (size_t i = 0; i < registerLength; i++){
 		allOnes += x_i;
 		x_i *= x;
 	}
@@ -802,7 +802,7 @@ void ALU_MULL_Gadget::generateConstraints(){
 	mult_g_->generateConstraints();
 	unpackResult_g_->generateConstraints();
 	const size_t & registerLength = tinyRAMparams()->registerLength();
-	for (unsigned int i = 0; i < registerLength; ++i) {
+	for (size_t i = 0; i < registerLength; ++i) {
 		enforceBooleanity(witnessHighBits_[i], Opcode::MULL);
 	}
 	dmultPack_g_->generateConstraints();
@@ -887,7 +887,7 @@ void ALU_UMULH_Gadget::generateConstraints(){
 	mult_g_->generateConstraints();
 	unpackResult_g_->generateConstraints();
 	const size_t & registerLength = tinyRAMparams()->registerLength();
-	for (unsigned int i = 0; i < registerLength; ++i) {
+	for (size_t i = 0; i < registerLength; ++i) {
 		enforceBooleanity(witnessLowBits_[i], Opcode::UMULH);
 	}
 	dmultPack_g_->generateConstraints();
@@ -970,7 +970,7 @@ void ALU_SMULH_Gadget::generateConstraints(){
 	mult_g_->generateConstraints();
 	unpackResult_g_->generateConstraints();
 	const size_t & registerLength = tinyRAMparams()->registerLength();
-	for (unsigned int i = 0; i < registerLength; ++i) {
+	for (size_t i = 0; i < registerLength; ++i) {
 		enforceBooleanity(witnessLowBits_[i], Opcode::SMULH);
 	}
 	dmultPack_g_->generateConstraints();
@@ -995,7 +995,7 @@ void ALU_SMULH_Gadget::generateWitness(){
 		int16_t(mapFieldElementToInteger(0, registerLength, val(inputs_.arg2_val_)));
 	pb_->val(results_.result_) = mapIntegerToFieldElement(0, registerLength, v >> registerLength);
 	unpackResult_g_->generateWitness();
-	for (unsigned int i = 0; i < registerLength; i++) {
+	for (size_t i = 0; i < registerLength; i++) {
 		pb_->val(witnessLowBits_[i]) = (v >> i) & 1 ? Algebra::one() : Algebra::zero();
 	}
 	dmultPack_g_->generateWitness();
@@ -2349,9 +2349,9 @@ void ALU_RESERVED_OPCODE_24_Gadget::generateConstraints(){
 	srand(prngseed); 
 	rand();
 	CircuitPolynomial t, rPoly = Algebra::zero();
-	for (unsigned int i = 0; i < ROMSIZE; ++i){
+	for (size_t i = 0; i < ROMSIZE; ++i){
 		t = Algebra::one();
-		for (unsigned int k=0,e=1; e<ROMSIZE; ++k,e*=2)
+		for (size_t k=0,e=1; e<ROMSIZE; ++k,e*=2)
 			if (1 & (i >> k))
 				t = t * unpackedArg1_[k];
 			else
@@ -2368,9 +2368,9 @@ void ALU_RESERVED_OPCODE_24_Gadget::generateWitness(){
 	srand(prngseed); rand();
 	size_t n = mapFieldElementToInteger(0, EXTDIM, val(inputs_.arg2_val_));
 	if (n < ROMSIZE)
-		for (unsigned int i = 0; i < n; ++i)
+		for (size_t i = 0; i < n; ++i)
 			(void)rand(); //lame, replace with md5 or sha
-	unsigned int res = rand() - RAND_MAX/2;
+	size_t res = rand() - RAND_MAX/2;
 	val(results_.result_) = mapIntegerToFieldElement(0, REGISTER_LENGTH, res);
 }
 

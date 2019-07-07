@@ -230,7 +230,7 @@ void Addition_Gadget::generateConstraints(){
 	const Algebra::Variable d = result_[0];
 	pb_->addGeneralConstraint(d + a + b, "input1[0] + input2[0] = result[0]", opcode_);
 	pb_->addGeneralConstraint(a * b + carry_[1], "carry1", opcode_);
-	for (unsigned int i = 1; i < wordLength; ++i){
+	for (size_t i = 1; i < wordLength; ++i){
 		const Algebra::Variable a = input1_[i];
 		const Algebra::Variable b = input2_[i];
 		const Algebra::Variable c = carry_[i];
@@ -245,7 +245,7 @@ void Addition_Gadget::generateWitness(){
 	size_t wordLength = result_.size();
 	pb_->val(result_[0]) = pb_->val(input1_[0]) + pb_->val(input2_[0]);
 	pb_->val(carry_[1]) = pb_->val(input1_[0]) * pb_->val(input2_[0]);
-	for (unsigned int i = 1; i < wordLength; ++i){
+	for (size_t i = 1; i < wordLength; ++i){
 		const bool b1 = (val(input1_[i]) == Algebra::one());
 		const bool b2 = (val(input2_[i]) == Algebra::one());
 		const bool b3 = (val(carry_[i]) == Algebra::one());
@@ -296,7 +296,7 @@ void MultiplicationPacking_Gadget::init(){}
 
 void MultiplicationPacking_Gadget::generateConstraints(){
 	Algebra::LinearCombination prev = unpacked_[0] * Algebra::xFE() + Algebra::one() + unpacked_[0];
-	unsigned int i; Algebra::FElem g_2_i; Algebra::LinearCombination c;
+	size_t i; Algebra::FElem g_2_i; Algebra::LinearCombination c;
 	for (i = 1; i < unpacked_.size()-1 ; i++){
 		g_2_i = getGenerator2toTheNthPower(i);
 		c = ((unpacked_[i] * g_2_i) + (Algebra::one() + unpacked_[i]));
@@ -310,16 +310,16 @@ void MultiplicationPacking_Gadget::generateConstraints(){
 		return;
 	GADGETLIB_ASSERT(packingMode_ == PackingMode::UNPACK,
 		"MultiplicationPacking_Gadget: created with unknown packing mode.");
-	for (unsigned int i = 0; i < unpacked_.size(); i++)
+	for (size_t i = 0; i < unpacked_.size(); i++)
 		enforceBooleanity(unpacked_[i], opcode_);
 }
 
 void MultiplicationPacking_Gadget::generateWitness(int n){
 	if (PackingMode::UNPACK == packingMode_){
 		GADGETLIB_ASSERT(n >= 0, "MultiplicationPacking_Gadget: n should be >= 0.");
-		unsigned int numberOfDigits = n == 0 ? 0 : floor(log2(n)) + 1;
+		size_t numberOfDigits = n == 0 ? 0 : floor(log2(n)) + 1;
 		GADGETLIB_ASSERT(numberOfDigits <= unpacked_.size(), "MultiplicationPacking_Gadget: number of bits in n should be less than the unpakced.size()");
-		for (unsigned int i = 0; i < unpacked_.size(); ++i){
+		for (size_t i = 0; i < unpacked_.size(); ++i){
 			pb_->val(unpacked_[i]) = (n & 1u) ? Algebra::one() : Algebra::zero();
 			n >>= 1u;
 		}
@@ -330,7 +330,7 @@ void MultiplicationPacking_Gadget::generateWitness(int n){
 			"MultiplicationPacking_Gadget: created with unknown packing mode.");
 	}
 	Algebra::FElem	prev = val(unpacked_[0]) * Algebra::xFE() + (Algebra::one() + val(unpacked_[0]));
-	unsigned int i; Algebra::FElem g_2_i, c;
+	size_t i; Algebra::FElem g_2_i, c;
 	for (i = 1; i < unpacked_.size()-1 ; i++){
 		g_2_i = getGenerator2toTheNthPower(i);
 		c = ((val(unpacked_[i]) * g_2_i) + (Algebra::one() + val(unpacked_[i])));
@@ -381,9 +381,9 @@ GadgetPtr DoubleMultPack_Gadget::create(ProtoboardPtr pb,
 void DoubleMultPack_Gadget::init(){}
 
 void DoubleMultPack_Gadget::generateConstraints(){
-	unsigned int j; Algebra::FElem g_2_i; Algebra::LinearCombination c;
+	size_t j; Algebra::FElem g_2_i; Algebra::LinearCombination c;
 	Algebra::LinearCombination prev = unpacked1_[0] * Algebra::xFE() + (Algebra::one() + unpacked1_[0]);
-	for (unsigned int i = 1; i < unpacked1_.size(); i++){
+	for (size_t i = 1; i < unpacked1_.size(); i++){
 		g_2_i = getGenerator2toTheNthPower(i);
 		c = ((unpacked1_[i] * g_2_i) + (Algebra::one() + unpacked1_[i]));
 		pb_->addGeneralConstraint(partials1_[i] + prev*c, "DMultPack partials1", opcode_);
@@ -404,12 +404,12 @@ void DoubleMultPack_Gadget::generateConstraints(){
 
 void DoubleMultPack_Gadget::generateWitness(){
 	Algebra::FElem prev = val(unpacked1_[0]) * Algebra::FElem(getGF2E_X()) + (Algebra::one() + val(unpacked1_[0]));
-	for (unsigned int i = 1; i < unpacked1_.size(); i++){
+	for (size_t i = 1; i < unpacked1_.size(); i++){
 		const Algebra::FElem g_2_i = Algebra::FElem(getGenerator2toTheNthPower(i));
 		const Algebra::FElem c = ((val(unpacked1_[i]) * g_2_i) + (Algebra::one() + val(unpacked1_[i])));
 		prev = pb_->val(partials1_[i]) = prev*c;
 	}
-	for (unsigned int j = 0; j < unpacked2_.size()-1; j++){
+	for (size_t j = 0; j < unpacked2_.size()-1; j++){
 		const Algebra::FElem g_2_i = Algebra::FElem(getGenerator2toTheNthPower(unpacked1_.size()+j));
 		const Algebra::FElem c = ((val(unpacked2_[j]) * g_2_i) + (Algebra::one() + val(unpacked2_[j])));
 		prev = pb_->val(partials2_[j]) = prev*c;

@@ -30,13 +30,13 @@ extern UnpackedWord memAux6_;
 extern UnpackedWord memAux7_;
 extern UnpackedWord memAux8_;
 
-extern unsigned int prngseed;
+extern size_t prngseed;
 extern int max_timestep;
 extern bool standAlone_;
 extern bool found_answer_;
 extern size_t answer_;
 extern FElem program_output;
-extern unsigned int ROMSIZE;
+extern size_t ROMSIZE;
 
 /**
  * The function resetALU_GadgetGlobalState() is
@@ -107,7 +107,7 @@ public:
 							const ALUInput& inputVariables,
 							const ALUOutput& resultVariables);
 	void generateConstraints();
-	void generateWitness(unsigned int i);
+	void generateWitness(size_t i);
 	void setProgram(const TinyRAMProgram& program);
 	//void applyConstraintsToPB();
 
