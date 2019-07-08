@@ -10,7 +10,7 @@ namespace libstark{
     using std::pair;
     using std::max;
 
-    specsPrinter::specsPrinter(const string title):title_(title),data_(0){};
+    specsPrinter::specsPrinter(const string title, const bool custom):title_(title), custom_(custom), data_(0){};
     void specsPrinter::addLine(const string name, const string val){
         data_.push_back(pair<string,string>(name,val));
     }
@@ -31,10 +31,15 @@ namespace libstark{
         valsLen = len - namesLen - 3;
 
         cout<<setfill('-')<<setw(4+len)<<"-"<<setfill(' ')<<endl;
-        cout<<"| "<<std::left<<setw(len)<<title_<<" |"<<std::endl;
+        cout<<"| "<<std::left<<setw(len)<<title_<<" |"<<endl;
         cout<<setfill('-')<<setw(4+len)<<"-"<<setfill(' ')<<endl;
+        int i = 0;
         for(const auto& p : data_){
-            cout<<"| "<<setw(namesLen)<<p.first<<" = "<<setw(valsLen)<<p.second<<" |"<<std::endl;
+            cout<<"| "<<setw(namesLen)<<p.first<<" = ";
+            if (i == 0 && custom_) cout << YELLOW;
+            cout<<setw(valsLen)<<p.second;
+            if (i++ == 0 && custom_) cout << RESET;
+            cout<<" |"<<endl;
         }
         cout<<setfill('-')<<setw(4+len)<<"-"<<setfill(' ')<<endl;
     }

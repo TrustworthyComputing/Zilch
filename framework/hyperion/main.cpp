@@ -29,6 +29,7 @@ const string no_proof_prefix     = "--no-proof";
 const string run_prover_prefix   = "--prover";
 const string address_port_prefix = "--address";
 const string debug_prefix        = "--debug";
+extern string zmips_filename_;
 
 inline bool file_exists(const string& name) {
     struct stat buffer;   
@@ -108,6 +109,7 @@ int main(int argc, char *argv[]) {
         print_help(argv[0], "No input asm file given. Use the " + zmips_file_prefix + " flag and then provide the asm file.");
         return EXIT_FAILURE;
     }
+    zmips_filename_ = assemblyFile;
     string primaryTapeFile = "";
     if (args.cmd_option_exists(primary_tape_prefix)) {
         primaryTapeFile = args.get_cmd_option(primary_tape_prefix);

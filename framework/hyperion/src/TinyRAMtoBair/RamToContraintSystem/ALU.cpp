@@ -6,9 +6,9 @@
 #include <algebraLib/BitExtract.hpp>
 #include <bitset>
 
-#ifndef PRINT_HELPERS_HPP__  
+// #ifndef PRINT_HELPERS_HPP__  
 #include "AES_box.hpp"
-#endif
+// #endif
 
 #ifndef PRINT_HELPERS_HPP__  
 #include <protocols/print_helpers.hpp>
@@ -47,6 +47,7 @@ bool found_answer_ = false;
 size_t answer_ = -1;
 FElem program_output = Algebra::one(); //use any incorrect != -1 value to test soundness
 int max_timestep = 1;
+string zmips_filename_;
 size_t ROMSIZE = 0;
 
 void resetALU_GadgetGlobalState(){
@@ -2097,9 +2098,14 @@ void ALU_ANSWER_Gadget::generateWitness(){
 		if (Algebra::one() == program_output) {
             program_output = pb_->val(inputs_.arg2_val_);
         }
-
         answer_ = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
-        std::cout << "\n*** TIMESTEPS=" << max_timestep << YELLOW << " ANSWER=" << answer_ << RESET << " (binary " << std::bitset<REGISTER_LENGTH>(answer_) << ")\n" << std::endl;
+
+        libstark::specsPrinter specs("Results of " + zmips_filename_, true);
+        specs.addLine("Answer (decimal)", to_string(answer_));
+        specs.addLine(to_string(REGISTER_LENGTH) + "-bit answer", std::bitset<REGISTER_LENGTH>(answer_).to_string());
+        specs.addLine("Timesteps required", to_string(max_timestep));
+        specs.print();
+        std::cout << "\n";
 	}
     
     #ifdef DEBUG
