@@ -13,8 +13,7 @@ __L1__
     or $r6, $r5, $r6
     xor $r2, $r6, $r3
     add $r1, $r1, 1
-cmpg $r4, $r4, $r1
-cjmp $r4, $r4, __L1__
+bgt $r4, $r1, __L1__
 print $r2
 print $r3
 answer $r3

@@ -7,6 +7,5 @@ __L1__
     move $r2, $r3
     move $r3, $r1
     add $r4, $r4, 1
-cmpg $r5, $r5, $r4
-cjmp $r5, $r5, __L1__
+bgt $r5, $r4, __L1__
 answer $r1

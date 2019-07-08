@@ -1,5 +1,5 @@
-move $r0, $r0, 13
-move $r1, $r1, 22
+move $r0, 13
+move $r1, 22
 swap $r2, $r0, $r1
 print $r0
 print $r1

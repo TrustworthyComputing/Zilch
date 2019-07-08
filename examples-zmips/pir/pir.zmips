@@ -5,11 +5,9 @@ move $r2, 3 # key
 __L1__
     secread $r3
     secread $r4
-    cmpe $r3, $r3, $r2
-    cnjmp $r3, $r3, __L2__
+    bne $r3, $r2, __L2__
         answer $r4
     __L2__
     add $r1, $r1, 1
-cmpg $r6, $r6, $r1
-cjmp $r6, $r6, __L1__
+bgt $r6, $r1, __L1__
 answer $r7

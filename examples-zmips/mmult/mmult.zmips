@@ -2,83 +2,77 @@ pubread $r7
 pubread $r8
 pubread $r9
 mult $r13, $r7, $r8
-move $r10, $r10, 1000
+move $r10, 1000
 mult $r14, $r8, $r9
-move $r11, $r11, 1256
+move $r11, 1256
 mult $r15, $r7, $r9
-move $r12, $r12, 1512
-move $r1, $r1, 0
+move $r12, 1512
+move $r1, 0
 __L1__
 mult $r16, $r7, $r8
-cmpg $r16, $r16, $r1
-cnjmp $r16, $r16, __L2__
+ble $r16, $r1, __L2__
 secread $r4
-move $r17, $r17, $r4
+move $r17, $r4
 sw $r17, $r1($r10)
 add $r1, $r1, 1
-j $r0, $r0, __L1__
+j __L1__
 __L2__
-move $r1, $r1, 0
+move $r1, 0
 __L3__
 mult $r18, $r8, $r9
-cmpg $r18, $r18, $r1
-cnjmp $r18, $r18, __L4__
+ble $r18, $r1, __L4__
 secread $r4
-move $r19, $r19, $r4
+move $r19, $r4
 sw $r19, $r1($r11)
 add $r1, $r1, 1
-j $r0, $r0, __L3__
+j __L3__
 __L4__
-move $r1, $r1, 0
+move $r1, 0
 __L5__
 mult $r20, $r7, $r9
-cmpg $r20, $r20, $r1
-cnjmp $r20, $r20, __L6__
-move $r21, $r21, 0
+ble $r20, $r1, __L6__
+move $r21, 0
 sw $r21, $r1($r12)
 add $r1, $r1, 1
-j $r0, $r0, __L5__
+j __L5__
 __L6__
-move $r1, $r1, 0
+move $r1, 0
 __L7__
-cmpg $r7, $r7, $r1
-cnjmp $r7, $r7, __L8__
-move $r2, $r2, 0
+ble $r7, $r1, __L8__
+move $r2, 0
 __L9__
-cmpg $r9, $r9, $r2
-cnjmp $r9, $r9, __L10__
-move $r3, $r3, 0
+ble $r9, $r2, __L10__
+move $r3, 0
 __L11__
 cmpg $r8, $r8, $r3
 cnjmp $r8, $r8, __L12__
 mult $r22, $r1, $r9
 add $r23, $r22, $r2
 lw $r24, $r23($r12)
-move $r4, $r4, $r24
+move $r4, $r24
 mult $r25, $r1, $r8
 add $r26, $r25, $r3
 lw $r27, $r26($r10)
-move $r5, $r5, $r27
+move $r5, $r27
 mult $r28, $r3, $r9
 add $r29, $r28, $r2
 lw $r30, $r29($r11)
-move $r5, $r5, $r30
+move $r5, $r30
 mult $r31, $r1, $r9
 add $r32, $r31, $r2
 add $r33, $r4, $r5
 add $r34, $r33, $r6
-move $r35, $r35, $r34
+move $r35, $r34
 sw $r35, $r32($r12)
 add $r3, $r3, 1
-j $r0, $r0, __L11__
+j __L11__
 __L12__
 add $r2, $r2, 1
-j $r0, $r0, __L9__
+j __L9__
 __L10__
 add $r1, $r1, 1
-j $r0, $r0, __L7__
+j __L7__
 __L8__
-move $r36, $r36, 0
+move $r36, 0
 lw $r37, $r36($r12)
-answer $r37, $r37, $r37
-
+answer $r37

@@ -3,10 +3,8 @@
 move $r1, 12000
 move $r2, 20000
 secread $r3
-cmpge $r3, $r3, $r1
-cnjmp $r3, $r3, __L1__
-cmpge $r2, $r2, $r3
-cnjmp $r2, $r2, __L1__
+blt $r3, $r1, __L1__
+blt $r2, $r3, __L1__
 move $r5, 1
 answer $r5
 __L1__

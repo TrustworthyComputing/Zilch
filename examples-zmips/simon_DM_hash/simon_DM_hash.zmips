@@ -21,8 +21,7 @@ __L1__
     xor $r2, $r2, $r7
     move $r3, $r4
     add $r1, $r1, 1
-    cmpg $r6, $r6, $r1
-cjmp $r6, $r6, __L1__
+bgt $r6, $r1, __L1__
 print $r2
 print $r3
 xor $r9, $r9, $r2

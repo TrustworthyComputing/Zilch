@@ -1,31 +1,27 @@
 pubread $r6
-move $r7, $r7, 1000
+move $r7, 1000
 
 __L1__
-cmpg $r6, $r6, $r1
-cnjmp $r6, $r6, __L2__
+ble $r6, $r1, __L2__
 secread $r4
 sw $r4, $r1($r7)
 add $r1, $r1, 1
-j $r0, $r0, __L1__
+j __L1__
 __L2__
-move $r1, $r1, 1
+move $r1, 1
 __L3__
-cmpg $r6, $r6, $r1
-cnjmp $r6, $r6, __L4__
+ble $r6, $r1, __L4__
     lw $r5, $r1($r7)
     sub $r2, $r1, 1
     lw $r3, $r2($r7)
     __L5__
-    cmpge $r2, $r2, 0
-    cnjmp $r2, $r2, __L6__
+    blt $r2, $r0, __L6__
     lw $r3, $r2($r7)
-    cmpg $r3, $r3, $r5
-    cnjmp $r3, $r3, __L6__
+    ble $r3, $r5, __L6__
         add $r15, $r2, 1
         sw $r3, $r15($r7)
         sub $r2, $r2, 1
-    j $r0, $r0, __L5__
+    j __L5__
     __L6__
     add $r19, $r2, 1
     sw $r5, $r19($r7)
@@ -33,15 +29,14 @@ cnjmp $r6, $r6, __L4__
     j $r0, $r0, __L3__
 __L4__
 
-# move $r1, $r1, 0
+# move $r1, 0
 # __L9__
-# cmpg $r6, $r6, $r1
-# cnjmp $r6, $r6, __L10__
+# ble $r6, $r1, __L10__
 # lw $r23, $r1($r7)
-# print $r23, $r23, $r23
+# print $r23
 # add $r1, $r1, 1
-# j $r0, $r0, __L9__
+# j __L9__
 # __L10__
 
 lw $r23, $r22($r7)
-answer $r23, $r23, $r23
+answer $r23

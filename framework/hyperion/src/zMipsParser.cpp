@@ -60,13 +60,13 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "CMPGE") {
         return "CMPGE " + r0 + " " + r1 + " " + r2;
     } else if (instr == "BGT") {
-        return "CMPA " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
+        return "CMPG " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "BGE") {
-        return "CMPAE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
+        return "CMPGE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "BLT") {
-        return "CMPA " + r1 + " " + r1 + " " + r0 + "\nCJMP " + r1 + " " + r1 + " " + r2;
+        return "CMPG " + r1 + " " + r1 + " " + r0 + "\nCJMP " + r1 + " " + r1 + " " + r2;
     } else if (instr == "BLE") {
-        return "CMPAE " + r1 + " " + r1 + " " + r0 + "\nCJMP " + r1 + " " + r1 + " " + r2;
+        return "CMPGE " + r1 + " " + r1 + " " + r0 + "\nCJMP " + r1 + " " + r1 + " " + r2;
     } else if (instr == "SLT" || instr == "SLTI" || instr == "SLTIU") {
         string l1 = "__" + to_string(labelcnt_++) + "__";
         return "MOV " + r0 + " " + r0 + " 0\n" + "CMPA " + r1 + " " + r1 + " " + r2 + "\nCMJMP " + r1 + " " + r1 + " " + l1 + "\nMOV " + r0 + " " + r0 + " 1\n" + l1;

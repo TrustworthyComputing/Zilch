@@ -5,6 +5,5 @@ move $r2, 1
 __L1__
     mult $r1, $r1, $r2
     add $r2, $r2, 1
-cmpge $r3, $r3, $r2
-cjmp $r3, $r3, __L1__
+bge $r3, $r2, __L1__
 answer $r1
