@@ -1,4 +1,4 @@
-move $r5, 5
+move $r5, 3
 move $r4, 2
 secread $r0
 secread $r1
@@ -34,5 +34,6 @@ __L1__
 cmpg $r5, $r5, $r4
 cjmp $r5, $r5, __L1__
 
-print $r2 # bid to pay
-answer $r6
+# print $r2 # bid to pay
+print $r6 # winner
+answer $r2

@@ -3,3 +3,5 @@ bin/
 /hyperion-tests
 *.out
 *.asm
+*.privtape
+*.pubtape
