@@ -58,12 +58,11 @@ TEST(zMIPS, knowledge_of_RSA_private_key) {
 
 TEST(zMIPS, mmult) {
 	string assembly_file = "./examples-zmips/mmult/mmult.zmips";
-	string public_tape = "./examples-zmips/mmult/mmult.pubtape";
 	string private_tape = "./examples-zmips/mmult/mmult.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, public_tape, macros_file, false);
+	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 14);
+	EXPECT_EQ(answer_, 0);
 }
 
 TEST(zMIPS, pir) {
@@ -96,41 +95,84 @@ TEST(zMIPS, read_test) {
 	EXPECT_EQ(answer_, 4);
 }
 
-TEST(zMIPS, simon) {
-	string assembly_file = "./examples-zmips/simon/simon.zmips";
-	string private_tape = "./examples-zmips/simon/simon.auxtape";
+#if REGISTER_LENGTH == 16
+
+TEST(zMIPS, simon_32_64) {
+	string assembly_file = "./examples-zmips/simon/simon32.zmips";
+	string private_tape = "./examples-zmips/simon/simon32.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 59835);
 }
 
-TEST(zMIPS, speck) {
-	string assembly_file = "./examples-zmips/speck/speck.zmips";
-	string private_tape = "./examples-zmips/speck/speck.auxtape";
+TEST(zMIPS, speck_32_64) {
+	string assembly_file = "./examples-zmips/speck/speck32.zmips";
+	string private_tape = "./examples-zmips/speck/speck32.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 43112);
 }
 
-TEST(zMIPS, simon_hash) {
-	string assembly_file = "./examples-zmips/simon_DM_hash/simon_DM_hash.zmips";
-	string private_tape = "./examples-zmips/simon_DM_hash/simon_DM_hash.auxtape";
+TEST(zMIPS, simon_32_64_hash) {
+	string assembly_file = "./examples-zmips/simon_DM_hash/simon32_DM_hash.zmips";
+	string private_tape = "./examples-zmips/simon_DM_hash/simon32_DM_hash.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 41982);
 }
 
-TEST(zMIPS, speck_hash) {
-	string assembly_file = "./examples-zmips/speck_DM_hash/speck_DM_hash.zmips";
-	string private_tape = "./examples-zmips/speck_DM_hash/speck_DM_hash.auxtape";
+TEST(zMIPS, speck_32_64_hash) {
+	string assembly_file = "./examples-zmips/speck_DM_hash/speck32_DM_hash.zmips";
+	string private_tape = "./examples-zmips/speck_DM_hash/speck32_DM_hash.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
 	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
 	std::remove(asm_parsed.c_str());
 	EXPECT_EQ(answer_, 11198);
 }
+
+#elif REGISTER_LENGTH == 32
+
+TEST(zMIPS, simon_64_128) {
+	string assembly_file = "./examples-zmips/simon/simon64.zmips";
+	string private_tape = "./examples-zmips/simon/simon64.auxtape";
+	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
+	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
+	std::remove(asm_parsed.c_str());
+	EXPECT_EQ(answer_, 1154022432);
+}
+
+TEST(zMIPS, speck_64_128) {
+	string assembly_file = "./examples-zmips/speck/speck64.zmips";
+	string private_tape = "./examples-zmips/speck/speck64.auxtape";
+	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
+	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
+	std::remove(asm_parsed.c_str());
+	EXPECT_EQ(answer_, 2356127048);
+}
+
+TEST(zMIPS, simon_64_128_hash) {
+	string assembly_file = "./examples-zmips/simon_DM_hash/simon64_DM_hash.zmips";
+	string private_tape = "./examples-zmips/simon_DM_hash/simon64_DM_hash.auxtape";
+	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
+	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
+	std::remove(asm_parsed.c_str());
+	EXPECT_EQ(answer_, 2579222031);
+}
+
+TEST(zMIPS, speck_64_128_hash) {
+	string assembly_file = "./examples-zmips/speck_DM_hash/speck64_DM_hash.zmips";
+	string private_tape = "./examples-zmips/speck_DM_hash/speck64_DM_hash.auxtape";
+	string asm_parsed = parse_zmips(assembly_file, "", macros_file, false);
+	execute_locally(asm_parsed, private_tape, 0, securityParameter, false, true, false);
+	std::remove(asm_parsed.c_str());
+	EXPECT_EQ(answer_, 825967014);
+}
+
+#endif
+
 
 TEST(zMIPS, AES) {
 	string assembly_file = "./examples-zmips/AES/aes.zmips";
