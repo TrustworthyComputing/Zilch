@@ -11,11 +11,15 @@ benchmark = "specksimon"
 
 mydpi = 300
 figname = benchmark+'.png'
-pltsize = (6.2, 1.96) # default (8, 6)
+# pltsize = (6.2, 1.96) # default (8, 6)
+pltsize = (8, 2)
 nbits = ["$2^{-60}$", "$2^{-80}$", "$2^{-100}$", "$2^{-120}$"]
 
 data = {
-    'specksimon': { 'speck' : [1.543437, 2.128665, 2.162636, 2.207159], 'simon' : [3.655611, 4.908996, 4.958283, 5.002398] }
+    'specksimon': { 
+        'speck32' : [1.543, 2.128, 2.162, 2.207], 'simon32' : [3.655, 4.908, 4.958, 5.002],
+        'speck64' : [1.810, 2.692, 2.693, 2.713], 'simon64' : [4.525, 6.284, 6.203, 6.339]
+        }
 }
 
 # for key, value in data[benchmark].items():
@@ -24,17 +28,25 @@ data = {
 #     data[benchmark][key] = value
 
 
-speck = data[benchmark]['speck']
-simon = data[benchmark]['simon']
+speck32 = data[benchmark]['speck32']
+simon32 = data[benchmark]['simon32']
+speck64 = data[benchmark]['speck64']
+simon64 = data[benchmark]['simon64']
 
-N = len(speck)
+N = len(speck32)
 index = np.arange(N)  # the x locations for the groups
-width = 0.42       # the width of the bars
+# width = 0.42       # the width of the bars
+width = 0.225       # the width of the bars
 
 fig, ax = plt.subplots(figsize=pltsize)
-ax.margins(0.04, 0.04) 
-rects1 = ax.bar(index, speck, width, color='xkcd:light pink', hatch='xxx', edgecolor='black', linewidth=1)
-rects2 = ax.bar(index + width, simon, width, color='xkcd:very light blue', hatch='...', edgecolor='black', linewidth=1)
+ax.margins(0.02, 0.02) 
+# rects1 = ax.bar(index, speck32, width, color='xkcd:light pink', hatch='xxx', edgecolor='black', linewidth=1)
+# rects2 = ax.bar(index + width, simon32, width, color='xkcd:very light blue', hatch='...', edgecolor='black', linewidth=1)
+
+rects1 = ax.bar(index - width, speck32, width, color='xkcd:light pink', hatch='xxx', edgecolor='black', linewidth=1)
+rects3 = ax.bar(index, speck64, width, color='xkcd:very light green', hatch='////', edgecolor='black', linewidth=1)
+rects2 = ax.bar(index + width, simon32, width, color='xkcd:very light blue', hatch='...', edgecolor='black', linewidth=1)
+rects4 = ax.bar(index + 2*width, simon64, width, color='xkcd:ecru', hatch='---', edgecolor='black', linewidth=1)
 
 ax.set_yscale('log')
 ax.set_ylim([0.01, 1000])
@@ -42,8 +54,10 @@ ax.set_ylabel("time (sec.)")
 ax.set_xlabel("Soundness Error ($2^{-\lambda}$)")
 ax.set_xticks(index + width / 2)
 ax.set_xticklabels(nbits)
-ax.legend((rects1[0], rects2[0]), ("Speck32 Cipher", "Simon32 Cipher"), fontsize=9, ncol=2, loc='upper left')
+ax.legend((rects1[0], rects3[0], rects2[0], rects4[0]), ("Speck32/64", "Speck64/128", "Simon32/64", "Simon64/128"), fontsize=9, ncol=4, loc='upper left')
 
+# Block size 32 - Key size 64
+# Block size 64 - Key size 128
 
 def autolabel(rects):
     for rect in rects:
@@ -55,6 +69,8 @@ def autolabel(rects):
 
 autolabel(rects1)
 autolabel(rects2)
+autolabel(rects3)
+autolabel(rects4)
 
 # plt.show()
 

@@ -1618,7 +1618,7 @@ void ALU_SHL_Gadget::generateConstraints(){
 	pb_->addGeneralConstraint(tmpLC + inputs_.arg2_val_, "[A] = tmpPoly", Opcode::SHL);
 
 	const Variable wFlag = auxArr_[registerLength-ALU_SHL_Gadget::idxs::witnessFlag];
-    witnessPoly = Algebra::invExtrConsts[registerLength-1] * (wFlag*wFlag + wFlag) + inputs_.arg1_val_ + Algebra::power(x, registerLength-1) * results_.flag_;
+    // witnessPoly = Algebra::invExtrConsts[registerLength-1] * (wFlag*wFlag + wFlag) + inputs_.arg1_val_ + Algebra::power(x, registerLength-1) * results_.flag_;
 	pb_->addGeneralConstraint(witnessPoly, "flagWitness", Opcode::SHL);
 	enforceBooleanity(results_.flag_, Opcode::SHL);
 
@@ -1746,7 +1746,7 @@ void ALU_SHR_Gadget::generateConstraints(){
 	pb_->addGeneralConstraint(tmpPoly + inputs_.arg2_val_, "[A] = tmpPoly", Opcode::SHR);
 
 	const Variable wFlag = auxArr_[registerLength-ALU_SHR_Gadget::idxs::witnessFlag];
-	witnessPoly = Algebra::invExtrConsts[0] * (wFlag*wFlag + wFlag) + inputs_.arg1_val_ + results_.flag_;
+	// witnessPoly = Algebra::invExtrConsts[0] * (wFlag*wFlag + wFlag) + inputs_.arg1_val_ + results_.flag_;
 	pb_->addGeneralConstraint(witnessPoly, "flagWitness", Opcode::SHR);
 	enforceBooleanity(results_.flag_, Opcode::SHR);
 
