@@ -151,7 +151,7 @@ string mapMipsRegister(string& r) {
         return "r0";
     } else if (r[0] == '$' && r[1] == 'r') { 
         int reg_num = stoi(r.substr(2));
-        string reg = "r" + to_string(reg_num+5);
+        string reg = "r" + to_string(reg_num+NUM_OF_RESERVED_REGS);
         return reg; 
     } else {
         std::cerr << r << " : Unknown register" << endl;

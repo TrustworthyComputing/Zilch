@@ -46,13 +46,13 @@ void ALUInputConsistency::generateConstraints(){
 		if (!arg2IsImmediate) { // if not immediate -- SECREAD uses reg SECREAD_RESERVED_REGISTER DO NOT USE IN PROGRAM
 			if (Opcode::REGMOV == opcode) {
 				// unsigned int new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
-				// arg2Poly = input_.registers_[new_arg2 + 5] + output_.arg2_val_;
+				// arg2Poly = input_.registers_[new_arg2 + NUM_OF_RESERVED_REGS] + output_.arg2_val_;
 			} else {
 				arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
 			}
 		} else {
 			if (Opcode::REGMOV == opcode) {
-				arg2Poly = input_.registers_[arg2 + 5] + output_.arg2_val_;
+				arg2Poly = input_.registers_[arg2 + NUM_OF_RESERVED_REGS] + output_.arg2_val_;
 			} else {
 				arg2Poly = mapIntegerToFieldElement(0, params->registerLength(), arg2) + output_.arg2_val_;
 			}
@@ -123,13 +123,13 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 	if (!arg2IsImmediate) {
 		if (Opcode::REGMOV == opcode) {
 			unsigned int new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
-			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[ new_arg2 + 5 ]);
+			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[ new_arg2 + NUM_OF_RESERVED_REGS ]);
 		} else {
 			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2]);
 		}
 	} else {
 		if (Opcode::REGMOV == opcode) {
-			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2 + 5]);
+			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2 + NUM_OF_RESERVED_REGS]);
 		} else {
 			pb_->val(output_.arg2_val_) = mapIntegerToFieldElement(0, params->registerLength(), program_.code()[i].arg2IdxOrImmediate_);
 		}

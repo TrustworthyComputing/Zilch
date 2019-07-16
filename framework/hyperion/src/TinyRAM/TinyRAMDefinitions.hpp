@@ -12,15 +12,16 @@
 #include <sstream>
 #include <common/Infrastructure/Infrastructure.hpp>
 
-#define REGISTERS_NUMBER 50
+#define REGISTERS_NUMBER 40
 #define REGISTER_LENGTH 16
 // #define REGISTER_LENGTH 64
 #define NUMBER_OPCODES 33
 #define BIN_EOF_STRING "EOF"
 
-#define SECREAD_RESERVED_REGISTER 1
-#define MEMORY_RESERVED_REGISTER 2
-#define DEST_RESERVED_REGISTER 3
+#define SECREAD_RESERVED_REGISTER 0
+#define MEMORY_RESERVED_REGISTER 1
+#define DEST_RESERVED_REGISTER 2
+#define NUM_OF_RESERVED_REGS ((DEST_RESERVED_REGISTER+1))
 
 using namespace std;
 
