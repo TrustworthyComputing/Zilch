@@ -122,6 +122,8 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "ANSWER " + r0 + " " + r1 + " " + r2;
     } else if (instr == "PRINT") {
         return "PRINT " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "PRINTLN") {
+        return "PRINTLN " + r0 + " " + r1 + " " + r2;
     } else if (instr == "NUM_OPCODES") {
         return "NUM_OPCODES " + r0 + " " + r1 + " " + r2;
     } else if (instr == "AES_BOXES") {
@@ -148,11 +150,11 @@ inline bool isInteger(const std::string & s) {
 **/
 string mapMipsRegister(string& r) {
     if (r == "$zero" || r == "$0") { 
-        return "r0";
+        return "r"+to_string(ZERO_REGISTER);
     } else if (r[0] == '$' && r[1] == 'r') { 
         int reg_num = stoi(r.substr(2));
         string reg = "r" + to_string(reg_num+NUM_OF_RESERVED_REGS);
-        return reg; 
+        return reg;
     } else {
         std::cerr << r << " : Unknown register" << endl;
         exit(EXIT_FAILURE);

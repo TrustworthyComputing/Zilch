@@ -58,11 +58,12 @@ enum class Opcode : int {
 	ANSWER = 32,
 	CMPNE = 33,
 	PRINT = 34,
-	AES_BOXES = 35,
+	PRINTLN = 35,
+	AES_BOXES = 36,
 	
-	REGMOV = 36,
+	REGMOV = 37,
 	
-	NUM_OPCODES = 37
+	NUM_OPCODES = 38
 }; // enum Opcode
 // Check INSTRUCTIONS_NUM
 

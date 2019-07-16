@@ -148,6 +148,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::JMP] = ALU_JMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::ANSWER] = ALU_ANSWER_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::PRINT] = ALU_PRINT_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::PRINTLN] = ALU_PRINTLN_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CJMP] = ALU_CJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -341,6 +342,9 @@ void ALU_Gadget::generateWitness(size_t i) {
             break;
         case gadgetlib::Opcode::PRINT:
     		components_[Opcode::PRINT]->generateWitness();
+    		break;
+        case gadgetlib::Opcode::PRINTLN:
+    		components_[Opcode::PRINTLN]->generateWitness();
     		break;
     	case gadgetlib::Opcode::ANSWER:
     		components_[Opcode::ANSWER]->generateWitness();
@@ -2151,6 +2155,48 @@ void ALU_PRINT_Gadget::generateWitness() {
         std::cout << "\n\nALU_PRINT_Gadget witness\nALUInput PRINT:\n";
         inputs_.printALUInput(pb_);
         std::cout << "ALUOutput PRINT" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
+/*******************                         ALU_PRINTLN_Gadget                  ******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+ALU_PRINTLN_Gadget::ALU_PRINTLN_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
+									: Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+GadgetPtr ALU_PRINTLN_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_PRINTLN_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+void ALU_PRINTLN_Gadget::init(){}
+void ALU_PRINTLN_Gadget::generateConstraints() {
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_PRINTLN_Gadget" << '\n';
+#endif
+}
+
+void ALU_PRINTLN_Gadget::generateWitness() {
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+    size_t reg = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
+    if (reg > 0) {
+        std::cout << "Print: " << reg << endl << endl;
+    } else {
+        std::cout << endl;
+    }
+
+    #ifdef DEBUG
+        std::cout << "\n\nALU_PRINTLN_Gadget witness\nALUInput PRINTLN:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput PRINTLN" << '\n';
         results_.printALUOutput(pb_);
         std::cout << '\n';
     #endif

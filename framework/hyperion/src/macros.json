@@ -29,6 +29,10 @@
         "reg1": "$x",
         "macro": "print $x, $x, $x"
     },
+    "println": {
+        "reg1": "$x",
+        "macro": "println $x, $x, $x"
+    },
     "answer": {
         "reg1": "$x",
         "macro": "answer $x, $x, $x"

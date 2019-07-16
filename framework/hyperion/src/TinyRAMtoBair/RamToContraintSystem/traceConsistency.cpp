@@ -197,6 +197,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::AES_BOXES:
 					case Opcode::ANSWER:
 					case Opcode::PRINT:
+					case Opcode::PRINTLN:
 						selectorToConstraint[j] = 1;
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
 						break;
@@ -291,6 +292,7 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 			case Opcode::AES_BOXES:
 			case Opcode::ANSWER:
 			case Opcode::PRINT:
+			case Opcode::PRINTLN:
 				pb_->val(regiSecond) = pb_->val(regiFirst);
 				break;
 			case Opcode::LOADW:

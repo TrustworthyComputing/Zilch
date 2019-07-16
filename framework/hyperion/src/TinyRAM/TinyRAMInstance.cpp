@@ -55,6 +55,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::LOADW: return "LOADW";
         case Opcode::ANSWER: return "ANSWER";
         case Opcode::PRINT: return "PRINT";
+        case Opcode::PRINTLN: return "PRINTLN";
 		case Opcode::AES_BOXES: return "AES_BOXES";
         case Opcode::NUM_OPCODES: return "NUM_OPCODES";
         default :
@@ -103,6 +104,7 @@ Opcode opcodeFromString(const string op){
 	if(op == "AES_BOXES") return Opcode::AES_BOXES;
     if(op == "ANSWER") return Opcode::ANSWER;
     if(op == "PRINT") return Opcode::PRINT;
+    if(op == "PRINTLN") return Opcode::PRINTLN;
     if(op == "NUM_OPCODES") return Opcode::NUM_OPCODES;
 
     std::cout<<"unfamiliar instruction";
