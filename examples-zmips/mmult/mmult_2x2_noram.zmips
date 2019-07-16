@@ -1,0 +1,31 @@
+move $r1, 1
+move $r2, 2
+move $r3, 3
+move $r4, 4
+
+move $r5, 1
+move $r6, 2
+move $r7, 3
+move $r8, 4
+
+mult $r9, $r1, $r5
+mult $r0, $r2, $r7
+add $r9, $r9, $r0
+print $r9
+
+mult $r9, $r1, $r6
+mult $r0, $r2, $r8
+add $r9, $r9, $r0
+print $r9
+
+mult $r9, $r3, $r5
+mult $r0, $r4, $r7
+add $r9, $r9, $r0
+print $r9
+
+mult $r9, $r3, $r6
+mult $r0, $r4, $r8
+add $r9, $r9, $r0
+print $r9
+
+answer $r9
