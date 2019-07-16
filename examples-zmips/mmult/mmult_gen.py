@@ -39,7 +39,7 @@ for i in range(len(A_str)):
 		
 		R_str[i][j] += 'mult $r0, '+ str(A_str[i][len(B_str)-1] + ', ' + B_str[len(B_str)-1][j] + '\n')
 		R_str[i][j] += 'add $r'+str(N*N*2+1)+', $r'+str(N*N*2+1)+', $r0\n'
-		R_str[i][j] += 'print $r'+str(N*N*2+1)+'\n'
+		R_str[i][j] += '# print $r'+str(N*N*2+1)+'\n'
 		R[i][j] += A[i][len(B)-1] * B[len(B)-1][j]
 
 for row in R_str:

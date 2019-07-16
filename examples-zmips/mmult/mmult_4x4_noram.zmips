@@ -39,7 +39,7 @@ mult $r0, $r3, $r25
 add $r33, $r33, $r0
 mult $r0, $r4, $r29
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r1, $r18
 mult $r0, $r2, $r22
@@ -48,7 +48,7 @@ mult $r0, $r3, $r26
 add $r33, $r33, $r0
 mult $r0, $r4, $r30
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r1, $r19
 mult $r0, $r2, $r23
@@ -57,7 +57,7 @@ mult $r0, $r3, $r27
 add $r33, $r33, $r0
 mult $r0, $r4, $r31
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r1, $r20
 mult $r0, $r2, $r24
@@ -66,7 +66,7 @@ mult $r0, $r3, $r28
 add $r33, $r33, $r0
 mult $r0, $r4, $r32
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r5, $r17
 mult $r0, $r6, $r21
@@ -75,7 +75,7 @@ mult $r0, $r7, $r25
 add $r33, $r33, $r0
 mult $r0, $r8, $r29
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r5, $r18
 mult $r0, $r6, $r22
@@ -84,7 +84,7 @@ mult $r0, $r7, $r26
 add $r33, $r33, $r0
 mult $r0, $r8, $r30
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r5, $r19
 mult $r0, $r6, $r23
@@ -93,7 +93,7 @@ mult $r0, $r7, $r27
 add $r33, $r33, $r0
 mult $r0, $r8, $r31
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r5, $r20
 mult $r0, $r6, $r24
@@ -102,7 +102,7 @@ mult $r0, $r7, $r28
 add $r33, $r33, $r0
 mult $r0, $r8, $r32
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r9, $r17
 mult $r0, $r10, $r21
@@ -111,7 +111,7 @@ mult $r0, $r11, $r25
 add $r33, $r33, $r0
 mult $r0, $r12, $r29
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r9, $r18
 mult $r0, $r10, $r22
@@ -120,7 +120,7 @@ mult $r0, $r11, $r26
 add $r33, $r33, $r0
 mult $r0, $r12, $r30
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r9, $r19
 mult $r0, $r10, $r23
@@ -129,7 +129,7 @@ mult $r0, $r11, $r27
 add $r33, $r33, $r0
 mult $r0, $r12, $r31
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r9, $r20
 mult $r0, $r10, $r24
@@ -138,7 +138,7 @@ mult $r0, $r11, $r28
 add $r33, $r33, $r0
 mult $r0, $r12, $r32
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r13, $r17
 mult $r0, $r14, $r21
@@ -147,7 +147,7 @@ mult $r0, $r15, $r25
 add $r33, $r33, $r0
 mult $r0, $r16, $r29
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r13, $r18
 mult $r0, $r14, $r22
@@ -156,7 +156,7 @@ mult $r0, $r15, $r26
 add $r33, $r33, $r0
 mult $r0, $r16, $r30
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r13, $r19
 mult $r0, $r14, $r23
@@ -165,7 +165,7 @@ mult $r0, $r15, $r27
 add $r33, $r33, $r0
 mult $r0, $r16, $r31
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 mult $r33, $r13, $r20
 mult $r0, $r14, $r24
@@ -174,6 +174,6 @@ mult $r0, $r15, $r28
 add $r33, $r33, $r0
 mult $r0, $r16, $r32
 add $r33, $r33, $r0
-print $r33
+# print $r33
 
 answer $r33
