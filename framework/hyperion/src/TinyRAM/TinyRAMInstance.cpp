@@ -119,8 +119,8 @@ bool isReg(const string s){
     return (s.size()>1) && (s[0]=='r');
 }
 
-bool isMipsReg(const string s){
-    return (s.size()>2) && (s[0]=='$');
+bool isMipsReg(const string s) {
+	return ((s.size()>2) && (s[0]=='$') && (s[1]=='r')) || ((s.size()==2) && (s[0]=='$') && (s[1]=='0'));
 }
 
 bool is_number(const string& s) {
