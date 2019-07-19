@@ -273,7 +273,13 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
         string instr;
         if (tokens.size() == 4) { // if instruction
             string imm = isMipsReg(tokens[3]) ? mapMipsRegister(tokens[3]) : tokens[3];
-            string reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : tokens[2];
+            string reg2;
+            if (is_number(tokens[2])) {
+                reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : tokens[2];
+            } else {
+                reg2 = mapMipsRegister(tokens[2]);
+            }
+            
             instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), reg2, imm);
         } else if (tokens.size() == 3) { // if lw or sw
             if (isInteger(tokens[2])) {

@@ -123,6 +123,10 @@ bool isMipsReg(const string s){
     return (s.size()>2) && (s[0]=='$');
 }
 
+bool is_number(const string& s) {
+    return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+}
+
 int getImmidiate(const string s){
     return std::stoul(s);
 }
