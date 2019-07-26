@@ -13,6 +13,8 @@ std::string remove_extension(const std::string& filename) {
 
 std::string fromZMips(string instr, const string& r0 , const string& r1, const string& r2) {
     instr = stringToUpper(instr);
+    string zero = "$zero";
+    string zeroreg = mapMipsRegister(zero);
     if (instr == "AND" || instr == "ANDI") {
         return "AND " + r0 + " " + r1 + " " + r2;
     } else if (instr == "OR" || instr == "ORI") {
@@ -47,8 +49,12 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "CMPE " + r0 + " " + r1 + " " + r2;
     } else if (instr == "BEQ") {
         return "CMPE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
+    } else if (instr == "BEQZ") {
+        return "CMPE " + r0 + " " + r0 + " " + zeroreg + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "CMPNE") {
         return "CMPNE " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "BNEZ") {
+        return "CMPNE " + r0 + " " + r0 + " " + zeroreg + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "BNE") {
         return "CMPNE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "CMPA") {
