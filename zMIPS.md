@@ -1,46 +1,50 @@
 # ZMIPS ISA
 zMIPS is our extension to the MIPS ISA to support programming ZKPs. Below we provide the zMIPS enhanced ISA:
 
-| Instruction        | Description                                              |
-|--------------------|----------------------------------------------------------|
-| and $ri, $rj, A    | $ri, = $rj & A                                           |
-| or $ri, $rj, A     | $ri, = $rj \| A                                          |
-| xor $ri, $rj, A    | $ri, = $rj ^ A                                           |
-| not $ri, $rj, A    | $ri, = !A                                                |
-| add $ri, $rj, A    | $ri, = $rj + A                                           |
-| sub $ri, $rj, A    | $ri, = $rj - A                                           |
-| mult $ri, $rj, A   | $ri, = $rj * A                                           |
-| sll $ri, $rj, A    | $ri, = $rj << A                                          |
-| srl $ri, $rj, A    | $ri, = $rj >> A                                          |
-| cmpe $ri, $rj, A   | flag = $rj == A                                          |
-| cmpne $ri, $rj, A  | flag = $rj != A                                          |
-| cmpg $ri, $rj, A   | flag = $rj > A                                           |
-| cmpge $ri, $rj, A  | flag = $rj >= A                                          |
-| beq $ri, $rj, A    | if $ri == $rj goto A                                     |
-| bne $ri, $rj, A    | if $ri != $rj goto A                                     |
-| bgt $ri, $rj, A    | if $ri > $rj goto A                                      |
-| bge $ri, $rj, A    | if $ri >= $rj goto A                                     |
-| blt $ri, $rj, A    | if $ri < $rj goto A                                      |
-| ble $ri, $rj, A    | if $ri <= $rj goto A                                     |
-| move $ri, $rj, A   | $ri = A                                                  |
-| read $ri, $rj, A   | $ri = (A == 0) ? next from public : next from private    |
-| seek $ri, $rj, A   | $ri = (A == 0) ? public[$rj] : $ri = private[$rj]        |
-| j $ri, $rj, A      | goto label A                                             |
-| cjmp $ri, $rj, A   | if (flag) then goto label A                              |
-| cnjmp $ri, $rj, A  | if (!flag) then goto label A                             |
-| sw $ri, A($rj)     | [A+$rj] = $ri                                            |
-| lw $ri, A($rj)     | $ri = [A+$rj]                                            |
-| print $ri, $rj, A  | print A                                                  |
-| answer $ri, $rj, A | return A                                                 |
+| Instruction         | Description                 |
+|---------------------|-----------------------------|
+| move $ri, $rj, A    | $ri = A                     |
+| and $ri, $rj, A     | $ri, = $rj & A              |
+| or $ri, $rj, A      | $ri, = $rj \| A             |
+| xor $ri, $rj, A     | $ri, = $rj ^ A              |
+| not $ri, $rj, A     | $ri, = !A                   |
+| add $ri, $rj, A     | $ri, = $rj + A              |
+| sub $ri, $rj, A     | $ri, = $rj - A              |
+| mult $ri, $rj, A    | $ri, = $rj * A              |
+| sll $ri, $rj, A     | $ri, = $rj << A             |
+| srl $ri, $rj, A     | $ri, = $rj >> A             |
+| beq $ri, $rj, A     | if $ri == $rj goto A        |
+| beqz $ri, $rj, A    | if $ri == 0 goto A          |
+| bnez $ri, $rj, A    | if $ri != 0 goto A          |
+| bne $ri, $rj, A     | if $ri != $rj goto A        |
+| bgt $ri, $rj, A     | if $ri > $rj goto A         |
+| bge $ri, $rj, A     | if $ri >= $rj goto A        |
+| blt $ri, $rj, A     | if $ri < $rj goto A         |
+| ble $ri, $rj, A     | if $ri <= $rj goto A        |
+| j $ri, $rj, A       | goto label A                |
+| pubread $ri, $rj, A | $ri = next from public 		|
+| secread $ri, $rj, A | $ri = next from private		|
+| pubseek $ri, $rj, A | $ri = public[A]				|
+| secseek $ri, $rj, A | $ri = private[A]	   		|
+| sw $ri, A($rj)      | [A+$rj] = $ri               |
+| lw $ri, A($rj)      | $ri = [A+$rj]               |
+| print $ri, $rj, A   | print ri	                |
+| println $ri, $rj, A | print ri + newline	        |
+| answer $ri, $rj, A  | return ri                   |
 
 
 ## Labels
 In Hyperion, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
 
-## Enhanced SECREAD instructions
-* `read $ri, $rj, A` : Consume the next word from the [A]-th tape (0 or 1) if it has remaining words and store it in `$ri`. A can be either a register or an immediate value. For consuming the next word from the public tape A must be `0`, while for consuming from the private tape `A` must be `1`. In `read` instruction, register `$rj` is not used.
+### zMIPS Input: Enhanced read from tapes instructions
+* `pubread $ri` : Consumes the next word from the public tape (if it has remaining words) and stores it in `$ri`.
 
-* `seek $ri, B, A` : `seek` is a random access `read` command. `seek` consumes the word in offset `B` from tape `A`. Both `A` and `B` can be either registers or immediate values.
+* `secread $ri` : Consumes the next word from the private tape (if it has remaining words) and stores it in `$ri`.
+
+* `pubseek $ri, $rj` : `seek` is a random access `read` command. `pubseek` consumes the word in offset `$rj` from the public tape. In case the tape does not have at least `$rj` words, this instruction raises an error.
+
+* `secseek $ri, $rj` : `secseek` consumes the word in offset `$rj` from the private tape. In case the tape does not have at least `$rj` words, this instruction raises an error.
+
 
 
 ## User-defined Macros
