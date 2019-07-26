@@ -159,7 +159,7 @@ And then the prover to connect to port `2324`:
 The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2<sup>10</sup>-1) machine steps, and soundness error at most 2<sup>-120</sup>.
 
 
-### An example for testing labels and read instruction:
+### An example for read instruction:
 Primary tape is filled with `1, 2, 3, 4, ...`, while aux tape contains `101, 102, 103, 104, ...`.
 ```
 pubread $r0             ; consume next word from public tape and store it to r0
