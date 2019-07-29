@@ -1,0 +1,26 @@
+move $r10, 2
+__L0__
+	move $r1, 0
+	__L1__
+		move $r2, 0
+		move $r3, 0
+		move $r8, 0
+		__L2__
+			mult $r3, $r0, $r10
+			add $r3, $r3, $r2
+			secseek $r4, $r3
+			add $r3, $r2, $r10
+			mult $r3, $r3, $r10
+			add $r3, $r3, $r1
+			secseek $r5, $r3
+			mult $r4, $r4, $r5
+			add $r8, $r8, $r4
+			add $r2, $r2, 1
+		blt $r2, $r10, __L2__
+		print $r8
+		add $r1, $r1, 1
+	blt $r1, $r10, __L1__
+	println $0
+	add $r0, $r0, 1
+blt $r0, $r10, __L0__
+answer $r1
