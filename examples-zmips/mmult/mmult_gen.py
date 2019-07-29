@@ -1,16 +1,21 @@
 N = 4
 
+filename = 'mmult_'+str(N)+'x'+str(N)+'_noram' 
+f = open(filename + '.zmips', 'w')
+
 B_str = [ [ 'move $r'+str(N*N+ i*N+(j+1))+', '+str(i*N+(j+1)) for j in range(N) ] for i in range(N) ] 
 
 A_str = [ [ '$r'+str(i*N+(j+1)) for j in range(N) ] for i in range(N) ] 
 for i in range(N):
 	for j in range(N):
+		f.write('move ' + A_str[i][j] + ', ' + A_str[i][j][2:] + '\n')
 		print('move ' + A_str[i][j] + ', ' + A_str[i][j][2:])
 print
 	
 B_str = [ [ '$r'+str(N*N+ i*N+(j+1)) for j in range(N) ] for i in range(N) ] 
 for i in range(N):
 	for j in range(N):
+		f.write('move ' + B_str[i][j] + ', ' + A_str[i][j][2:] + '\n')
 		print('move ' + B_str[i][j] + ', ' + A_str[i][j][2:])
 print
 
@@ -42,10 +47,15 @@ for i in range(len(A_str)):
 		R_str[i][j] += '# print $r'+str(N*N*2+1)+'\n'
 		R[i][j] += A[i][len(B)-1] * B[len(B)-1][j]
 
+
+
 for row in R_str:
 	for r in row:
 		print(r)
+		f.write(r)
 print('answer $r'+str(N*N*2+1))
+f.write('answer $r'+str(N*N*2+1))
+f.close()
 
 print
 for r in R:
