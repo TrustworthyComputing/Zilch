@@ -13,12 +13,8 @@ else:
 
 mydpi = 300
 
-if benchmark == 'prover':
-    pltsize = (6.4, 2.2)
-elif benchmark == 'verifier':
-    pltsize = (6.4, 2.2)
-elif benchmark == 'communication':
-    pltsize = (6.4, 2.2)
+pltsize = (4, 3)
+# pltsize = (6.4, 2.2)
 
 
 legend = ['Factorial', 'Fibonacci', 'Collatz', 'Speck32', 'Simon32', 'Matrix Mult.', 'PIR']
@@ -59,28 +55,28 @@ index = np.arange(N)  # the x locations for the groups
 fig, ax = plt.subplots(figsize=pltsize)
 
 # red dashes, blue squares and green triangles
-l1 = ax.plot(index, factorial[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light orange', marker='o', linewidth=0.5, markersize=5)
-l2 = ax.plot(index, fibonacci[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:sage green', marker='^', linewidth=0.5, markersize=5)
-l3 = ax.plot(index, collatz[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='s', linewidth=0.5, markersize=5)
-l4 = ax.plot(index, speck[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=5)
-l5 = ax.plot(index, simon[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:yellow', marker='<', linewidth=0.5, markersize=5)
-l6 = ax.plot(index, mmult[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='>', linewidth=0.5, markersize=5)
-l7 = ax.plot(index, pir[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light sky blue', marker='d', linewidth=0.5, markersize=5)
+l1 = ax.plot(index, factorial[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light orange', marker='o', linewidth=0.5, markersize=6)
+l2 = ax.plot(index, fibonacci[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:sage green', marker='^', linewidth=0.5, markersize=6)
+l3 = ax.plot(index, collatz[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='s', linewidth=0.5, markersize=6)
+l4 = ax.plot(index, speck[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=6)
+l5 = ax.plot(index, simon[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:yellow', marker='<', linewidth=0.5, markersize=6)
+l6 = ax.plot(index, mmult[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='>', linewidth=0.5, markersize=6)
+l7 = ax.plot(index, pir[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light sky blue', marker='d', linewidth=0.5, markersize=6)
 
 
 ax.set_yscale('log')
 if benchmark == 'prover':
-    ax.set_ylim([0.01, 100])
+    ax.set_ylim([0.05, 100])
     ax.set_ylabel('time (sec.)')
-    ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=2, loc='upper left')
+    ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=1, loc='upper left')
 if benchmark == 'verifier':
-    ax.set_ylim([0.01, 1])
+    ax.set_ylim([0.01, 0.2])
     ax.set_ylabel('time (sec.)')
-    ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=4, loc='upper center')
+    # ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=2, loc='upper left')
 elif benchmark == 'communication':
-    ax.set_ylim([200, 450])
-    ax.set_ylabel('Communication\ncomplexity (KB)')
-    ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=4, loc='upper center')
+    ax.set_ylim([200, 400])
+    ax.set_ylabel('Communication complexity (KB)')
+    # ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=2, loc='upper left')
 ax.set_xticks(index)
 ax.set_xlabel('Number of instructions')
 ax.set_xticklabels(['$2^4$', '$2^5$', '$2^6$', '$2^7$', '$2^8$', '$2^9$', '$2^{10}$', '$2^{11}$', '$2^{12}$'])
