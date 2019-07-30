@@ -7,17 +7,17 @@ else:
 	print('Expected dimension size')
 	sys.exit(1)
 
-PRINT = True
+PRINT = False
 
 filename = 'mmult_'+str(N)+'x'+str(N)+'_noram' 
 f = open(filename + '.zmips', 'w')
 
-A = [ [ i*N+(j+1) for j in range(N) ] for i in range(N) ] 
+A = [ [ (i*N+(j+1))%10 + 1 for j in range(N) ] for i in range(N) ] 
 A_str = [ [ '$r'+str(i*N+(j+1)) for j in range(N) ] for i in range(N) ] 
 for i in range(N):
 	for j in range(N):
-		f.write('move ' + A_str[i][j] + ', ' + A_str[i][j][2:] + '\n')
-		print('move ' + A_str[i][j] + ', ' + A_str[i][j][2:])
+		f.write('move ' + A_str[i][j] + ', ' + str(A[i][j]) + '\n')
+		print('move ' + A_str[i][j] + ', ' + str(A[i][j]))
 print
 
 R = [ [ 0 for j in range(N) ] for i in range(N) ] 

@@ -7,7 +7,9 @@ if len(sys.argv) > 1:
 else:
 	print('Expected dimension size')
 	sys.exit(1)
-	
+
+PRINT = False
+
 def mmult(tape):
 	for i in range(N):
 		for j in range(N):
@@ -39,13 +41,17 @@ def mmult_zmips(tape):
 	prog += '\t\t\tadd $r8, $r8, $r4\n'
 	prog += '\t\t\tadd $r2, $r2, 1\n'
 	prog += '\t\tblt $r2, $r10, __L2__\n'
+	if not PRINT:
+		prog += '# '
 	prog += '\t\tprint $r8\n'
 	prog += '\t\tadd $r1, $r1, 1\n'
 	prog += '\tblt $r1, $r10, __L1__\n'
+	if not PRINT:
+		prog += '# '
 	prog += '\tprintln $0\n'
 	prog += '\tadd $r0, $r0, 1\n'
 	prog += 'blt $r0, $r10, __L0__\n'
-	prog += 'answer $r1\n'
+	prog += 'answer $r8\n'
 	
 	filename = 'mmult_'+str(N)+'x'+str(N)+'_tape' 
 	f = open(filename + '.zmips', 'w')
@@ -61,7 +67,7 @@ def mmult_zmips(tape):
 
 
 # initialize with two identical arrays
-tape = [ i+1 for i in range(N*N) ] * 2
+tape = [ (i+1)%10 + 1 for i in range(N*N) ] * 2
 # print(tape, end='\n\n')
 
 mmult(tape)
