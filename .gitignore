@@ -1,6 +1,9 @@
 bin/
 /hyperion
 /hyperion-tests
+examples-zmips/mmult/mmult_*.zmips
+examples-zmips/mmult/mult_*.zmips
+examples-zmips/mmult/mmult_*.auxtape
 *.out
 *.asm
 *.privtape

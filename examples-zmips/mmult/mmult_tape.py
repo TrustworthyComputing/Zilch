@@ -51,16 +51,18 @@ def mmult_zmips(tape):
 	f = open(filename + '.zmips', 'w')
 	f.write(prog)
 	f.close()
+	print('Created ' + filename + '.zmips')
+	
 	f = open(filename + '.auxtape', 'w')
 	for i in tape:
 		f.write(str(i)+'\n')
 	f.close()
-
+	print('Created ' + filename + '.auxtape')
 
 
 # initialize with two identical arrays
 tape = [ i+1 for i in range(N*N) ] * 2
-print(tape, end='\n\n')
+# print(tape, end='\n\n')
 
 mmult(tape)
 
