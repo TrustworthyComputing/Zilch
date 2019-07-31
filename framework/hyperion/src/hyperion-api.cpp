@@ -1,4 +1,10 @@
 #include "hyperion-api.hpp"
+#include <sys/stat.h>
+
+inline bool file_exists(const string& name) {
+    struct stat buffer;   
+    return (stat (name.c_str(), &buffer) == 0); 
+}
 
 int hyperion_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const size_t securityParameter, bool verbose, bool no_proof) {
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
@@ -30,6 +36,14 @@ int hyperion_local_prover_verifier(const string assemblyFile, const string prima
 }
 
 int hyperion_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const string& address, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
+    if (!file_exists(primaryTapeFile)) {
+        std::cerr << "File " << primaryTapeFile << " does not exist.\n";
+        exit(EXIT_FAILURE);
+    }
+    if (!file_exists(auxTapeFile)) {
+        std::cerr << "File " << auxTapeFile << " does not exist.\n";
+        exit(EXIT_FAILURE);
+    }
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
@@ -52,7 +66,15 @@ int hyperion_prover(const string assemblyFile, const string primaryTapeFile, con
     return answer_;
 }
 
-void hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
+bool hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
+    if (!file_exists(primaryTapeFile)) {
+        std::cerr << "File " << primaryTapeFile << " does not exist.\n";
+        exit(EXIT_FAILURE);
+    }
+    if (!file_exists(auxTapeFile)) {
+        std::cerr << "File " << auxTapeFile << " does not exist.\n";
+        exit(EXIT_FAILURE);
+    }
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
@@ -60,5 +82,5 @@ void hyperion_verifier(const string assemblyFile, const string primaryTapeFile, 
     program.addInstructionsFromFile(asmFile);
     std::remove(asmFile.c_str());
     const auto bairInstance = constructInstance(program, t);
-    libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose);
+    return libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose);
 }

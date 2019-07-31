@@ -6,11 +6,11 @@ using namespace std;
 
 int main(int argc, char const *argv[]) {
     string zmips_asm = "../examples-zmips/factorial/fact.zmips";
-    string pubtape = "../examples-zmips/factorial/fact.pubtape";
+    // string pubtape = "../examples-zmips/factorial/fact.pubtape";
     
     std::cout << "Running Prover for factorial...\n";
 
-    int ans = hyperion_prover(zmips_asm, pubtape, "", "../framework/hyperion/src/macros.json", "localhost", 34343, 10, 60, false);
+    int ans = hyperion_prover(zmips_asm, "", "", "../framework/hyperion/src/macros.json", "localhost", 34343, 10, 60, false);
     
     std::cout << "Executed " << zmips_asm << " and the answer is " << ans << '\n';
     
