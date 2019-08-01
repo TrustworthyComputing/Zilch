@@ -72,8 +72,8 @@ struct MachineInstruction {
 		const size_t arg2IdxOrImmediate);
 	
     MachineInstruction(
-		const std::string line,
-		const std::map<string, int> labels_map
+		const string line,
+		const map<string, int> labels_map
 	);
 
     void print()const;
@@ -83,38 +83,39 @@ string stringToUpper(string);
 bool isReg(const string);
 bool isMipsReg(const string);
 bool is_number(const string&);
+bool is_hex_notation(string const& s);
 vector<string> split(const string &s);
-string trim(const std::string& str, const std::string& whitespace = " \t");
+string trim(const string& str, const string& whitespace = " \t");
 bool isLabel(const string &str);
 
 class TinyRAMProgram {
 public:
-	typedef std::vector<MachineInstruction> RAMMachineCode;
+	typedef vector<MachineInstruction> RAMMachineCode;
 private:
-	std::string name_;
+	string name_;
 	RAMArchParams archParams_;
 	RAMMachineCode code_;
 public:
-	TinyRAMProgram(const std::string& name,
+	TinyRAMProgram(const string& name,
 		const RAMArchParams& archParams,
 		const RAMMachineCode& code) :
 		name_(name), archParams_(archParams), code_(code) {}
 
-	TinyRAMProgram(const std::string& name,
+	TinyRAMProgram(const string& name,
 		size_t numRegisters,
 		size_t wordSize) :
 		name_(name), archParams_(RAMArchParams{ numRegisters, wordSize }) {
 	}
 
-	std::string name() const { return name_; }
+	string name() const { return name_; }
 	const RAMMachineCode& code() const { return code_; }
 	const size_t size() const { return code_.size(); }
 	const RAMArchParams& archParams() const { return archParams_; }
 	const MachineInstruction& getInstructionAtPc(const size_t pc) const { return code_[pc]; }
 	void addInstruction(const MachineInstruction& instruction) { code_.emplace_back(instruction); }
-	void addInstructionsFromFile(const std::string filename);
+	void addInstructionsFromFile(const string filename);
 	
-	map<string, int> buildLabelsMap(vector<std::string>& lines);
+	map<string, int> buildLabelsMap(vector<string>& lines);
 	
 	void arg2isImmediateToFalse(const size_t pc);
 	
@@ -157,7 +158,7 @@ public:
 	size_t numRegisters() const { return archParams_.numRegisters; }
 	size_t registerLength() const { return archParams_.registerLength; }
 	size_t registerIndexLength() const { return Log2ceil(numRegisters()); }
-	size_t arg2length() const { return std::max({ registerIndexLength(), registerLength() }); }
+	size_t arg2length() const { return max({ registerIndexLength(), registerLength() }); }
 	size_t numOpcodes() const { return 1u << (opcodeWidth()); }
 	size_t timeBound() const { return timeBound_; }
 	size_t pcIncrement() const { return pcIncrement_; }

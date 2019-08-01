@@ -110,7 +110,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "STOREW") {
         return "STOREW " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SW" || instr == "SWU" || instr == "SUI") {
-        if (isInteger(r2) && stoi(r2) == 0) {
+        if (is_number(r2) && stoi(r2) == 0) {
             return "STOREW " + r0 + " " + r1 + " " + r1;
         } else {
             return "ADD " + r1 + " " + r1 + " " + r2 + "\nSTOREW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
@@ -118,7 +118,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "LOADW") {
         return "LOADW " + r0 + " " + r1 + " " + r2;
     } else if (instr == "LW" || instr == "LWU" || instr == "LUI") {
-        if (isInteger(r2) && stoi(r2) == 0) {
+        if (is_number(r2) && stoi(r2) == 0) {
             return "LOADW " + r0 + " " + r1 + " " + r1;
         } else {
             return "ADD " + r1 + " " + r1 + " " + r2 + "\nLOADW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
@@ -138,13 +138,6 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         std::cerr << instr << " : unfamiliar instruction" << endl;
         exit(EXIT_FAILURE);
     }
-}
-
-inline bool isInteger(const std::string & s) {
-   if (s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
-   char * p;
-   strtol(s.c_str(), &p, 10);
-   return (*p == 0);
 }
 
 /* Registers r0-r4 are reserverd:
@@ -279,23 +272,42 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
         string instr;
         if (tokens.size() == 4) { // if instruction
             string imm = isMipsReg(tokens[3]) ? mapMipsRegister(tokens[3]) : tokens[3];
+            if (is_hex_notation(imm)) {
+                size_t num;   
+                std::stringstream ss;
+                ss << std::hex << imm;
+                ss >> num;
+                imm = to_string(num);
+            }
             string reg2;
             if (is_number(tokens[2])) {
                 reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : tokens[2];
+            } else if (is_hex_notation(tokens[2])) {
+                size_t num;   
+                std::stringstream ss;
+                ss << std::hex << tokens[2];
+                ss >> num;
+                reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : to_string(num);
             } else {
                 reg2 = mapMipsRegister(tokens[2]);
             }
             
             instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), reg2, imm);
         } else if (tokens.size() == 3) { // if lw or sw
-            if (isInteger(tokens[2])) {
+            if (is_number(tokens[2])) {
                 instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), tokens[2]);
+            } else if (is_hex_notation(tokens[2])) {
+                size_t num;
+                std::stringstream ss;
+                ss << std::hex << tokens[2];
+                ss >> num;
+                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), to_string(num));
             } else {
                 tokens[2].erase(std::remove(tokens[2].begin(), tokens[2].end(), ')'), tokens[2].end());
                 int pos = tokens[2].find_first_of('(');
                 std::string reg = tokens[2].substr(pos+1);
                 std::string addr = tokens[2].substr(0, pos);
-                if (isInteger(addr)) {
+                if (is_number(addr)) {
                     instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), addr);
                 } else {
                     instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), mapMipsRegister(addr));

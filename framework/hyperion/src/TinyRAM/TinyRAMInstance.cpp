@@ -127,6 +127,12 @@ bool is_number(const string& s) {
     return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
 
+bool is_hex_notation(std::string const& s) {
+  return s.compare(0, 2, "0x") == 0
+      && s.size() > 2
+      && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
+}
+
 int getImmidiate(const string s){
     return std::stoul(s);
 }

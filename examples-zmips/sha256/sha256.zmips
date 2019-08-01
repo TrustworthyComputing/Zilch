@@ -1,0 +1,93 @@
+# Implementation based on http://www.iwar.org.uk/comsec/resources/cipher/sha256-384-512.pdf
+
+# Init
+move $r0, 0x6a09e667    # A
+move $r1, 0xbb67ae85    # B
+move $r2, 0x3c6ef372    # C
+move $r3, 0xa54ff53a    # D
+move $r4, 0x510e527f    # E
+move $r5, 0x9b05688c    # F
+move $r6, 0x1f83d9ab    # G
+move $r7, 0x5be0cd19    # H
+
+move $r17, 0     # i
+__loop__
+
+    # CH(E, F, G) = (E & F) ^ (~E & G)
+    and $r10, $r4, $r5      # (E & F)
+    not $r11, $r4, $r4      # ~E
+    and $r11, $r11, $r6     # (~E & G)
+    xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+    # print $r10
+
+    # Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+    and $r11, $r0, $r1      # (A & B)
+    and $r12, $r0, $r2      # (A & C)
+    and $r13, $r1, $r2      # (B & C)
+    xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+    xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+    # print $r11
+
+    # S0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+    srl $r12, $r0, 2        #   (A >> 2)
+    sll $r13, $r0, 30       #   (A << 32 - 2)
+    or $r12, $r12, $r13     # RR(A, 2)
+    srl $r13, $r0, 13       #   (A >> 13)
+    sll $r14, $r0, 19       #   (A << 32 - 13)
+    or $r13, $r13, $r14     # RR(A, 13)
+    srl $r14, $r0, 22       #   (A >> 22)
+    sll $r15, $r0, 10       #   (A << 32 - 22)
+    or $r14, $r14, $r15     # RR(A, 22)
+    xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+    xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+    # print $r12
+
+    # S1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+    srl $r13, $r4, 6        #   (E >> 6)
+    sll $r14, $r4, 26       #   (E << 32 - 6)
+    or $r13, $r13, $r14     # RR(E, 6)
+    srl $r14, $r4, 11       #   (E >> 11)
+    sll $r15, $r4, 21       #   (E << 32 - 11)
+    or $r14, $r14, $r15     # RR(E, 11)
+    srl $r15, $r4, 25       #   (E >> 25)
+    sll $r16, $r4, 7        #   (E << 32 - 25)
+    or $r15, $r15, $r16     # RR(E, 25)
+    xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+    xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+    # print $r13
+    
+    
+    # uint32_t T1 = H + S1 + CH + K[j] + W[j];
+    add $r8, $r7, $r13      # H + S1
+    add $r8, $r8, $r10      # H + S1 + CH
+    add $r8, $r8, 0x428a2f98 # H + S1 + CH + k[0]
+    # add $r8, $r8,         # H + S1 + CH + k[0] + w[0]
+    
+    # uint32_t T2 = S0 + Ma;
+    add $r9, $r12, $r11     # T2 = S0 + Ma
+    move $r7, $r6           # h = g;
+    move $r6, $r5           # g = f;
+    move $r5, $r4           # f = e;
+    add $r4, $r3, $r8       # e = d + T1;
+    move $r3, $r2           # d = c;
+    move $r2, $r1           # c = b;
+    move $r1, $r0           # b = a;
+    add $r0, $r8, $r9       # a = T1 + T2;
+    
+    print $r0
+    
+    add $r17, $r17, 1     # $r17 += 1
+bne $r17, 1, __loop__    # if ($r17 != 7) then jump to __loop__
+
+answer $r13, $r13, $r13
+
+
+# 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+# 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+# 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+# 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+# 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+# 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+# 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+# 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+
