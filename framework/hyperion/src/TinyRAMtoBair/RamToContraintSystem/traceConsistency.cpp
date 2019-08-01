@@ -169,6 +169,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::AND:
 					case Opcode::OR:
 					case Opcode::XOR:
+					case Opcode::NOT:
 					case Opcode::MOV:
 					case Opcode::REGMOV:
 					case Opcode::CMOV:
@@ -265,6 +266,7 @@ void TraceConsistency::registersWitness(unsigned int programLine){
 			case Opcode::AND:
 			case Opcode::OR:
 			case Opcode::XOR:
+			case Opcode::NOT:
 			case Opcode::MOV:
 			case Opcode::REGMOV:
 			case Opcode::CMOV:
