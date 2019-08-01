@@ -29,7 +29,7 @@ ax.set_ylim([0.01, 100])
 ax.set_ylabel("time (sec.)")
 ax.set_xticks(index)
 ax.set_xlabel('Number of instructions')
-ax.set_xticklabels(['16', '32', '64', '128', '256', '512', '1024', '2048', '4096'])
+ax.set_xticklabels(['$2^4$', '$2^5$', '$2^6$', '$2^7$', '$2^8$', '$2^9$', '$2^{10}$', '$2^{11}$', '$2^{12}$'])
 ax.legend((l1[0], l2[0], l3[0], l4[0]), legend, fontsize=9, ncol=2, loc='upper left')
 
 

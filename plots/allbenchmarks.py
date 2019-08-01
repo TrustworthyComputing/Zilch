@@ -49,6 +49,22 @@ pir = {   'prover' : [ 0.064583, 0.091351, 0.156915, 0.247922, 0.466817, 0.90013
             'verifier' : [ 0.021196, 0.021694, 0.022259, 0.021678, 0.023074, 0.022746, 0.022842, 0.022164, 0.023204 ],
             'communication' : [ 208.796875, 210.500000, 221.906250, 221.296875, 234.093750, 232.859375, 248.265625, 249.187500, 262.531250 ] }
 
+for i in range(len(factorial['communication'])):
+    if factorial['communication'][i] is not None:
+        factorial['communication'][i] /= 100
+    if fibonacci['communication'][i] is not None:
+        fibonacci['communication'][i] /= 100
+    if collatz['communication'][i] is not None:
+        collatz['communication'][i] /= 100
+    if speck['communication'][i] is not None:
+        speck['communication'][i] /= 100
+    if simon['communication'][i] is not None:
+        simon['communication'][i] /= 100
+    if mmult['communication'][i] is not None:
+        mmult['communication'][i] /= 100
+    if pir['communication'][i] is not None:
+        pir['communication'][i] /= 100
+
 N = len(factorial[benchmark])
 index = np.arange(N)  # the x locations for the groups
 
@@ -64,18 +80,19 @@ l6 = ax.plot(index, mmult[benchmark], linestyle='solid', color='black', markerfa
 l7 = ax.plot(index, pir[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light sky blue', marker='d', linewidth=0.5, markersize=6)
 
 
-ax.set_yscale('log')
 if benchmark == 'prover':
+    ax.set_yscale('log')
     ax.set_ylim([0.05, 100])
     ax.set_ylabel('time (sec.)')
     ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=1, loc='upper left')
 if benchmark == 'verifier':
+    ax.set_yscale('log')
     ax.set_ylim([0.01, 0.2])
     ax.set_ylabel('time (sec.)')
     # ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=2, loc='upper left')
 elif benchmark == 'communication':
-    ax.set_ylim([200, 400])
-    ax.set_ylabel('Communication complexity (KB)')
+    ax.set_yticks(np.arange(2, 4, 0.4))
+    ax.set_ylabel('size (KB) x $10^2$')
     # ax.legend((l1[0], l2[0], l3[0], l4[0], l5[0], l6[0], l7[0]), legend, fontsize=9, ncol=2, loc='upper left')
 ax.set_xticks(index)
 ax.set_xlabel('Number of instructions')
