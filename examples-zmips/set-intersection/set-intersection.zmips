@@ -1,0 +1,33 @@
+move $r10, 5    # num of set entries
+
+# public_tape is initialized in mem[0] - mem[len(private_tape)]
+__init_private__
+    secread $r2
+    sw $r2, 50($r0)
+    add $r0, $r0, 1
+bgt $r10, $r0, __init_private__
+
+move $r0, 0                 # i = 0
+move $r1, 0                 # j = 0
+__loop__                    #  while (i < m && j < n) {
+ble $r10, $r0, __endloop__
+ble $r10, $r1, __endloop__
+    lw $r2, $r0($zero)
+    lw $r3, 50($r1)
+    bge $r2, $r3 __elif__   # if (arr1[i] < arr2[j]) 
+        add $r0, $r0, 1     #   i++
+        j __fi__
+    __elif__
+    bge $r3, $r2 __else__   # else if (arr2[j] < arr1[i]) 
+        add $r1, $r1, 1     #   j++
+        j __fi__
+    __else__                # else if (arr2[j] == arr1[i]) 
+        print $r3           #   printf(" %d ", arr2[j]);
+        add $r0, $r0, 1     #   i++
+        add $r1, $r1, 1     #   j++
+    __fi__
+
+    j __loop__
+__endloop__
+
+answer $r0
