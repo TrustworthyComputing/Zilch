@@ -206,7 +206,7 @@ void unrollMacros(vector<std::string>& lines, const string& macros_file) {
         for (auto const& id : macros.getMemberNames()) {
             if (args_vec[0] == id) {
                 string macro = macros[id]["macro"].asString();
-                for (size_t k = 1 ; k <= args_vec.size() ; k++) {
+                for (size_t k = 1 ; k < args_vec.size() ; k++) {
                     boost::replace_all(macro, macros[id]["reg"+to_string(k)].asString(), args_vec[k]);
                 }
                 if (macros[id]["uses_label"].asString() == "true") {
