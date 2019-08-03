@@ -12,8 +12,8 @@ else:
 
 mydpi = 300
 
-# pltsize = (4, 3)
-pltsize = (7, 3)
+pltsize = (4, 3)
+# pltsize = (7, 3)
 
 
 legend = ['Hyperion', 'Bulletproofs', 'Hyrax' ]
