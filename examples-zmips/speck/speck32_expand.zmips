@@ -1,0 +1,45 @@
+move $r4, 21
+secread $r3
+secread $r0
+secread $r1
+secread $r2
+print $r3
+__L1__
+    srl $r5, $r0, 7
+    sll $r6, $r0, 9
+    or $r0, $r5, $r6
+    add $r0, $r0, $r3
+    xor $r0, $r0, $r9
+    sll $r5, $r3, 2
+    srl $r6, $r3, 14
+    or $r3, $r5, $r6
+    xor $r3, $r3, $r0
+    print $r3
+
+    srl $r5, $r1, 7
+    sll $r6, $r1, 9
+    or $r1, $r5, $r6
+    add $r1, $r1, $r3
+    add $r8, $r9, 1
+    xor $r1, $r1, $r8
+    sll $r5, $r3, 2
+    srl $r6, $r3, 14
+    or $r3, $r5, $r6
+    xor $r3, $r3, $r1
+    print $r3
+    
+    srl $r5, $r2, 7
+    sll $r6, $r2, 9
+    or $r2, $r5, $r6
+    add $r2, $r2, $r3
+    add $r8, $r9, 2
+    xor $r2, $r2, $r8
+    sll $r5, $r3, 2
+    srl $r6, $r3, 14
+    or $r3, $r5, $r6
+    xor $r3, $r3, $r2
+    print $r3
+    
+    add $r9, $r9, 3
+bgt $r4, $r9, __L1__
+answer $r3
