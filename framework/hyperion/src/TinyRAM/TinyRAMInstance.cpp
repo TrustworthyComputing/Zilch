@@ -133,17 +133,17 @@ bool is_hex_notation(std::string const& s) {
       && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
 }
 
-int getImmidiate(const string s){
-    return std::stoul(s);
+size_t getImmidiate(const string s){
+    return std::stoull(s);
 }
 
-int getRegNum(const string s){
+size_t getRegNum(const string s){
     if (!isReg(s)){
         std::cout<<"Expected register"<<std::endl;
         throw("expected register");
     }
     const string idx = s.substr(1);
-    return stoul(idx);
+    return stoull(idx);
 }
 
 string stringToUpper(string strToConvert) {
