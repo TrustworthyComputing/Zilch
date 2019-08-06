@@ -64,16 +64,16 @@ namespace Algebra {
 			case 13: return invExtrArr[10];
 			case 14: return invExtrArr[26];
 			case 15: return invExtrArr[11];
+			case 18: return invExtrArr[12];
 			case 22: return invExtrArr[13];
 			case 25: return invExtrArr[14];
 			case 31: return invExtrArr[16];
 			case 32: return invExtrArr[15];
+			case 42: return invExtrArr[17];
 			case 43: return invExtrArr[18];
-			case 49: return invExtrArr[20];
-			case 63: return invExtrArr[19];
-			case 127: return invExtrArr[21];
-			case 255: return invExtrArr[12];
-			case 511: return invExtrArr[17];
+			case 49: return invExtrArr[19];
+			case 51: return invExtrArr[20];
+			case 63: return invExtrArr[21];
 			default:
 				std::cerr << "Algebra::BitExtract::invExtrType " << i << " bad index." << '\n'; 
 				throw;

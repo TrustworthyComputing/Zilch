@@ -1,0 +1,8 @@
+secread $r0
+move $r2, $r0
+move $r1, 0
+bne $r0, $r2, __L1__
+    move $r1, 1
+    answer $r1
+__L1__
+answer $r1
