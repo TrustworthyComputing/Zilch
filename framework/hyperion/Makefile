@@ -25,7 +25,7 @@ $(TARGET): buildrepo $(OBJS)
 #	@echo 'Create Hyperion library'
 	ar -r $(TARGET) $(OBJS)
 
-$(OBJDIR)/%.o: %.$(SRCEXT) src/TinyRAM/TinyRAMDefinitions.hpp
+$(OBJDIR)/%.o: %.$(SRCEXT) src/TinyRAM/TinyRAMDefinitions.hpp ../../configs.hpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS) -c -o "$@" "$<"
 
 clean:

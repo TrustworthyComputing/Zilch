@@ -11,11 +11,8 @@
 #include <fstream>
 #include <sstream>
 #include <common/Infrastructure/Infrastructure.hpp>
+#include "../../../configs.hpp"
 
-#define REGISTERS_NUMBER 40
-#define REGISTER_LENGTH 16
-// #define REGISTER_LENGTH 32
-// #define REGISTER_LENGTH 64
 #define NUMBER_OPCODES 33
 #define BIN_EOF_STRING "EOF"
 
