@@ -119,7 +119,7 @@ public:
 	
 	void arg2isImmediateToFalse(const size_t pc);
 	
-    unsigned int pcLength() const {
+    size_t pcLength() const {
 		int codeSize = code_.size();
 		if (codeSize == 0){ _COMMON_FATAL("TinyRAMProgram : The code is not initialized"); };
 		if (codeSize == 1) { return 1; }
@@ -146,7 +146,7 @@ private:
 	size_t timeBound_;
 	size_t pcIncrement_;
 public:
-	TinyRAMProtoboardParams(unsigned int numRegisters, unsigned int registerLength,
+	TinyRAMProtoboardParams(size_t numRegisters, size_t registerLength,
 		size_t opcodeWidth, size_t timeBound, size_t pcIncrement)
 		: archParams_(RAMArchParams{ numRegisters, registerLength }),
 		opcodeWidth_(opcodeWidth),

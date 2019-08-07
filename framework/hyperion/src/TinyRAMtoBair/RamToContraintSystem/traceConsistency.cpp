@@ -87,7 +87,7 @@ void TraceConsistency::pcConsistency(){
 	constraints.push_back(pcPacked + aluOutput_.result_);
 	constraints.push_back(pcPacked + prevPcPacked);
 	CircuitPolynomial pcPoly;
-	for (unsigned int i = 0; i < program_.size(); i++){
+	for (size_t i = 0; i < program_.size(); i++){
 		CircuitPolynomial selector_i = getSelector(program_.size(), i, followingTraceVariables_.first_.pc_);
 		Opcode opcode = program_.code()[i].opcode_;
 		if (opcode == Opcode::JMP){
@@ -133,13 +133,13 @@ void TraceConsistency::pcConsistency(){
 }
 
 void TraceConsistency::registerConsistency(){
-	unsigned int numRegistersTrace1 = followingTraceVariables_.first_.registers_.size();
-	unsigned int numRegistersTrace2 = followingTraceVariables_.second_.registers_.size();
+	size_t numRegistersTrace1 = followingTraceVariables_.first_.registers_.size();
+	size_t numRegistersTrace2 = followingTraceVariables_.second_.registers_.size();
 	GADGETLIB_ASSERT(numRegistersTrace1 == numRegistersTrace2, "TraceConsistency: number of registers should be the same");
 	
 
 	
-	for (unsigned int i = 0; i < numRegistersTrace1; ++i){
+	for (size_t i = 0; i < numRegistersTrace1; ++i){
 		Variable regiSecond = followingTraceVariables_.second_.registers_[i];
 		Variable regiFirst = followingTraceVariables_.first_.registers_[i];
 
@@ -153,9 +153,9 @@ void TraceConsistency::registerConsistency(){
 		constraints.push_back(regiSecond + regiFirst);
 		constraints.push_back(regiSecond + aluOutput_.value_);
 
-		for (unsigned int j = 0; j < program_.size(); j++){
+		for (size_t j = 0; j < program_.size(); j++){
 			Opcode opcode = program_.code()[j].opcode_;
-			unsigned int dest = program_.code()[j].destIdx_;
+			size_t dest = program_.code()[j].destIdx_;
 			if (dest == i){
 				switch (opcode) {
 					case Opcode::SECREAD:
@@ -229,12 +229,12 @@ void TraceConsistency::timeStampWitness(){
 	// Timestamp is represented by g^i in order to know the degree of the element
 	// we keep a mapping between the FELem and i. Each time we increase the timestamp,
 	// we update the mapping in protoboard
-	unsigned int timeStampDegree = (pb_->val(timeStamp0) == Algebra::one()) ? 0 : pb_->getDegreeOfFElem(pb_->val(timeStamp0));
+	size_t timeStampDegree = (pb_->val(timeStamp0) == Algebra::one()) ? 0 : pb_->getDegreeOfFElem(pb_->val(timeStamp0));
 	pb_->addDegreeTranslation(pb_->val(timeStamp1), timeStampDegree + 1);
 
 }
 
-void TraceConsistency::pcWitness(unsigned int nextPC){
+void TraceConsistency::pcWitness(size_t nextPC){
 	Algebra::UnpackedWord pcUnpacked(followingTraceVariables_.second_.pc_);
 	const int pcLength = program_.pcLength();
 	GADGETLIB_ASSERT((int)pcUnpacked.size() == pcLength, "TraceConsistency: PC Length should be at least log2Ciel(programLength - 1) + 1");
@@ -244,13 +244,13 @@ void TraceConsistency::pcWitness(unsigned int nextPC){
 	}
 }
 
-void TraceConsistency::registersWitness(unsigned int programLine){
-	unsigned int numRegistersTrace1 = followingTraceVariables_.first_.registers_.size();
-	unsigned int numRegistersTrace2 = followingTraceVariables_.second_.registers_.size();
+void TraceConsistency::registersWitness(size_t programLine){
+	size_t numRegistersTrace1 = followingTraceVariables_.first_.registers_.size();
+	size_t numRegistersTrace2 = followingTraceVariables_.second_.registers_.size();
 	GADGETLIB_ASSERT(numRegistersTrace1 == numRegistersTrace2, "TraceConsistency: number of registers should be the same");
 	Opcode opcode = program_.code()[programLine].opcode_;
-	unsigned int dest = program_.code()[programLine].destIdx_;
-	for (unsigned int i = 0; i < numRegistersTrace1; i++){
+	size_t dest = program_.code()[programLine].destIdx_;
+	for (size_t i = 0; i < numRegistersTrace1; i++){
 		Variable regiSecond = followingTraceVariables_.second_.registers_[i];
 		Variable regiFirst = followingTraceVariables_.first_.registers_[i];
 		if (dest != i){
@@ -333,7 +333,7 @@ void TraceConsistency::generateConstraints(){
 }
 
 
-void TraceConsistency::generateWitness(unsigned int programLine){
+void TraceConsistency::generateWitness(size_t programLine){
 	GADGETLIB_ASSERT(program_.size() > 0, "TraceConsistency: The program should be initialized");
 	GADGETLIB_ASSERT(programLine < program_.size(), "TraceCosistency: programLine should be less than the program Length ");
 	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
@@ -341,11 +341,11 @@ void TraceConsistency::generateWitness(unsigned int programLine){
 	timeStampWitness();
 	Opcode opcode = program_.code()[programLine].opcode_;		
 	if (opcode == Opcode::JMP || opcode == Opcode::CJMP || opcode == Opcode::CNJMP){
-		unsigned int nextLine;
+		size_t nextLine;
 		if (program_.code()[programLine].arg2isImmediate_){
 			nextLine = program_.code()[programLine].arg2IdxOrImmediate_;
 		} else {
-			unsigned int regIndex = program_.code()[programLine].arg2IdxOrImmediate_;
+			size_t regIndex = program_.code()[programLine].arg2IdxOrImmediate_;
 			nextLine = mapFieldElementToInteger(0, program_.pcLength(), pb_->val(followingTraceVariables_.first_.registers_[regIndex]));
 		}
 

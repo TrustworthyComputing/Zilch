@@ -26,8 +26,8 @@ private:
 	void pcConsistency();
 	void registerConsistency();
 	void timeStampWitness();
-	void pcWitness(unsigned int nextPC);
-	void registersWitness(unsigned int programLine);
+	void pcWitness(size_t nextPC);
+	void registersWitness(size_t programLine);
 
 public:
 	static GadgetPtr create(ProtoboardPtr pb,
@@ -35,7 +35,7 @@ public:
 							const FollowingTraceVariables& followingTraceVariables);
 	void setProgram(const TinyRAMProgram& program);
 	void generateConstraints();
-	void generateWitness(unsigned int programLine);
+	void generateWitness(size_t programLine);
 
 };
 

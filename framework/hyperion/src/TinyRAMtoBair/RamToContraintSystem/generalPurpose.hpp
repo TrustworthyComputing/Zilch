@@ -29,7 +29,7 @@ struct TraceVariables{
 					const Algebra::UnpackedWord pc,
 					const Algebra::VariableArray registers);
 
-	TraceVariables(unsigned int pcLength, unsigned int numberOfRegisters);
+	TraceVariables(size_t pcLength, size_t numberOfRegisters);
 
 	int size() const;
 };
@@ -46,7 +46,7 @@ struct FollowingTraceVariables{
 	TraceVariables first_;
 	TraceVariables second_;
 
-	FollowingTraceVariables(unsigned int pcLength, unsigned int numberOfRegisters);
+	FollowingTraceVariables(size_t pcLength, size_t numberOfRegisters);
 };
 
 /*************************************************************************************************/
