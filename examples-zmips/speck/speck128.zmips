@@ -1,0 +1,21 @@
+move $r4, 32
+secread $r2
+secread $r3
+__L1__
+    srl $r5, $r3, 8
+    sll $r6, $r3, 56
+    or $r6, $r5, $r6
+    add $r3, $r6, $r2
+    secread $r7
+    
+    xor $r3, $r3, $r7
+    srl $r5, $r2, 61
+    sll $r6, $r2, 3
+    or $r6, $r5, $r6
+    xor $r2, $r6, $r3
+
+    add $r1, $r1, 1
+bgt $r4, $r1, __L1__
+print $r2
+print $r3
+answer $r3
