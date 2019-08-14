@@ -11,6 +11,7 @@
 #include <memory>
 #include <iostream>
 #include <set>
+#include <bitset>
 
 namespace libstark{
 namespace Protocols{
@@ -116,8 +117,8 @@ public:
 bool executeProtocolLocally(PartieInterface& prover, verifierInterface& verifier);
 bool executeProtocol(const BairInstance& instance, const BairWitness& witness, const unsigned short securityParameter, bool testBair = false, bool testAcsp = false, bool testPCP = false, bool verbose = false);
 
-bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const std::string& address, unsigned short port_number, bool verbose);
-bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose);
+bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const std::string& address, unsigned short port_number, bool verbose, size_t answer_);
+bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose, const std::string& assemblyFile);
 
 //printouts
 namespace prn{

@@ -62,7 +62,7 @@ int hyperion_prover(const string assemblyFile, const string primaryTapeFile, con
         std::cout << "\nTried for 2^15-1 timesteps and did not find answer.\n";
         return -1;
     }
-    libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose);
+    libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose, answer_);
     return answer_;
 }
 
@@ -82,5 +82,5 @@ bool hyperion_verifier(const string assemblyFile, const string primaryTapeFile, 
     program.addInstructionsFromFile(asmFile);
     std::remove(asmFile.c_str());
     const auto bairInstance = constructInstance(program, t);
-    return libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose);
+    return libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose, assemblyFile);
 }

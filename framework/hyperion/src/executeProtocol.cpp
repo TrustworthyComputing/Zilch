@@ -83,8 +83,8 @@ void execute_network(const string assemblyFile, const string auxTapeFile, const 
         sregex_token_iterator pr_it{private_inputs.begin(), private_inputs.end(), regex, -1};
         vector<string> private_lines{pr_it, {}};
         const auto bairWitness = constructWitness(program, t, private_lines);     // witness is generated from the prover
-        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose);
+        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose, answer_);
     } else {
-        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose);
+        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose, assemblyFile);
     }
 }

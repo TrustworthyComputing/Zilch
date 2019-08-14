@@ -374,7 +374,22 @@ namespace Protocols{
         return (bool) cond;
     }
     
-    bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const string& address, unsigned short port_number, bool verbose) {
+    void sendUInt32(uint32_t num, TCPSocket* sock) {
+        uint32_t net_num = htonl(num);
+        sock->send(&net_num, sizeof(uint32_t));
+    }
+    
+    uint32_t receiveUInt32(TCPSocket* sock) {
+        uint8_t echoBuffer[RCVBUFSIZE + 1];    // Buffer for echo string + \0
+        if (sock->recv(echoBuffer, sizeof(uint32_t)) <= 0) {
+            exit(EXIT_FAILURE);
+        }
+        uint32_t net_num;
+        memcpy(&net_num, echoBuffer, sizeof(uint32_t));
+        return ntohl(net_num);
+    }
+    
+    bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const string& address, unsigned short port_number, bool verbose, size_t answer_) {
         verbose_ = verbose;
         if (verbose) {
             prn::printBairInstanceSpec(instance);
@@ -420,7 +435,7 @@ namespace Protocols{
         /* Set up the socket */
         TCPSocket sck(address, port_number);
         TCPSocket* sock = &sck;
-        
+        sendUInt32(answer_, sock);
         Timer t;
         bool done_interacting = false;
         while (!done_interacting) {
@@ -464,7 +479,7 @@ namespace Protocols{
         return true;
     }
     
-    bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose) {
+    bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose, const std::string& assemblyFile) {
         verbose_ = verbose;
         if (verbose) {
             prn::printBairInstanceSpec(instance);
@@ -479,11 +494,18 @@ namespace Protocols{
         const size_t proofSentBytes = verifier.expectedSentProofBytes();
         const size_t queriedDataBytes = verifier.expectedQueriedDataBytes();
 
-        std::cout << "Waiting for connection...\n";
+        std::cout << "Waiting for connection...\n\n";
         TCPServerSocket servSock(port_number);     // Server Socket object
         TCPSocket *sock = servSock.accept();
-        std::cout << "Started verification...\n";
         
+        size_t answer_ = (size_t) receiveUInt32(sock);
+        libstark::specsPrinter specs("Results of " + assemblyFile + ".zmips", true);
+        specs.addLine("Answer (decimal)", to_string(answer_));
+        specs.addLine(to_string(REGISTER_LENGTH) + "-bit answer", std::bitset<REGISTER_LENGTH>(answer_).to_string());
+        specs.print();
+        std::cout << "\n";
+        
+        std::cout << "Started verification...\n";
         Timer t;
         bool done_interacting = verifier.doneInteracting();
         while (!done_interacting) {
