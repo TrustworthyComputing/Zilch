@@ -103,6 +103,9 @@ int main(int argc, char *argv[]) {
         print_examples(argv[0]);
         return EXIT_SUCCESS;
     }
+    const string executable(argv[0]);
+    const string hyperion("hyperion");
+    const string path = executable.substr(0, executable.size() - hyperion.size());
     /* Input zMIPS file */
     string assemblyFile = args.get_cmd_option(zmips_file_prefix);
     if (!args.cmd_option_exists(zmips_file_prefix) || !file_exists(assemblyFile) ) {
@@ -176,7 +179,7 @@ int main(int argc, char *argv[]) {
     }
     printHeader();
     /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
-    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, "./framework/hyperion/src/macros.json", show_asm);
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, path+"framework/hyperion/src/macros.json", show_asm);
     if (prover) {
         // cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
         execute_network(asmFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number, verbose);
