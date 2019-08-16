@@ -14,6 +14,6 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const size_t 
 
 void execute_locally(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose, bool no_proof, bool tsteps_provided);
 
-void execute_network(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose);
+void execute_network(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose, const string& session);
 
 #endif // EXECUTE_PROTOCOL_HPP

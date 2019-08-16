@@ -35,12 +35,12 @@ int hyperion_local_prover_verifier(const string assemblyFile, const string prima
     return answer_;
 }
 
-int hyperion_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const string& address, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
-    if (!file_exists(primaryTapeFile)) {
+int hyperion_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const string& address, uint16_t port_number, const string& session, const size_t t, const size_t securityParameter, bool verbose) {
+    if (primaryTapeFile != "" && !file_exists(primaryTapeFile)) {
         std::cerr << "File " << primaryTapeFile << " does not exist.\n";
         exit(EXIT_FAILURE);
     }
-    if (!file_exists(auxTapeFile)) {
+    if (auxTapeFile != "" && !file_exists(auxTapeFile)) {
         std::cerr << "File " << auxTapeFile << " does not exist.\n";
         exit(EXIT_FAILURE);
     }
@@ -62,16 +62,16 @@ int hyperion_prover(const string assemblyFile, const string primaryTapeFile, con
         std::cout << "\nTried for 2^15-1 timesteps and did not find answer.\n";
         return -1;
     }
-    libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose, answer_);
+    libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose, answer_, session);
     return answer_;
 }
 
-bool hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, uint16_t port_number, const size_t t, const size_t securityParameter, bool verbose) {
-    if (!file_exists(primaryTapeFile)) {
+bool hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, uint16_t port_number, const string& session, const size_t t, const size_t securityParameter, bool verbose) {
+    if (primaryTapeFile != "" && !file_exists(primaryTapeFile)) {
         std::cerr << "File " << primaryTapeFile << " does not exist.\n";
         exit(EXIT_FAILURE);
     }
-    if (!file_exists(auxTapeFile)) {
+    if (auxTapeFile != "" && !file_exists(auxTapeFile)) {
         std::cerr << "File " << auxTapeFile << " does not exist.\n";
         exit(EXIT_FAILURE);
     }
@@ -82,5 +82,5 @@ bool hyperion_verifier(const string assemblyFile, const string primaryTapeFile, 
     program.addInstructionsFromFile(asmFile);
     std::remove(asmFile.c_str());
     const auto bairInstance = constructInstance(program, t);
-    return libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose, assemblyFile);
+    return libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose, assemblyFile, session);
 }

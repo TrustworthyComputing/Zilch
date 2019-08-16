@@ -315,12 +315,38 @@ namespace Protocols{
         return true;
     }
 
-    void sendPhaseAndMsg(std::stringstream& ss, phase_t phase, TCPSocket* sock) {
+    void sendString(const std::string& str, TCPSocket* sock) {
+        uint32_t msg_size = strlen(str.c_str());
+        uint32_t msg_size_n = htonl(msg_size);
+        sock->send(&msg_size_n, sizeof(uint32_t));
+        sock->send(str.c_str(), strlen(str.c_str()));
+    }
+    
+    std::string receiveString(TCPSocket* sock) {
+        uint8_t echoBuffer[RCVBUFSIZE + 1]; // Buffer for echo string + \0
+        if (sock->recv(echoBuffer, sizeof(uint32_t)) <= 0) {
+            exit(EXIT_FAILURE);
+        }
+        uint32_t msg_size_n;
+        memcpy(&msg_size_n, echoBuffer, sizeof(uint32_t));
+        uint32_t msg_size = ntohl(msg_size_n);
+        int bytesReceived = 0;              // Bytes read on each recv()
+        uint32_t totalBytesReceived = 0;         // Total bytes read
+        string str = "";
+        while (totalBytesReceived < msg_size) {
+            if ((bytesReceived = (sock->recv(echoBuffer, RCVBUFSIZE))) <= 0) {
+                exit(EXIT_FAILURE);
+            }
+            totalBytesReceived += bytesReceived;     // Keep tally of total bytes
+            echoBuffer[bytesReceived] = '\0';        // Terminate the string!
+            str.append((char*)echoBuffer);
+        }
+        return str;
+    }    
+
+    void sendPhaseAndMsg(const std::stringstream& ss, const phase_t phase, TCPSocket* sock) {
         uint16_t phase_converted = htons((int) phase); /* htons convertion for integers */
         sock->send(&phase_converted, sizeof(uint16_t));
-        // std::ifstream inFile;
-        // inFile.open(filename); // open the input file
-        // ss << inFile.rdbuf(); //read the file
         std::string str = ss.str(); //str holds the content of the file
         
         uint32_t msg_size = strlen(str.c_str());
@@ -361,7 +387,7 @@ namespace Protocols{
         return phase;
     }
     
-    void sendBoolean(bool cond, TCPSocket* sock) {
+    void sendBoolean(const bool cond, TCPSocket* sock) {
         uint8_t cnd = cond;
         sock->send(&cnd, sizeof(uint8_t));
     }
@@ -374,7 +400,7 @@ namespace Protocols{
         return (bool) cond;
     }
     
-    void sendUInt32(uint32_t num, TCPSocket* sock) {
+    void sendUInt32(const uint32_t num, TCPSocket* sock) {
         uint32_t net_num = htonl(num);
         sock->send(&net_num, sizeof(uint32_t));
     }
@@ -389,7 +415,7 @@ namespace Protocols{
         return ntohl(net_num);
     }
     
-    bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const string& address, unsigned short port_number, bool verbose, size_t answer_) {
+    bool executeProverProtocol(const BairInstance& instance, const BairWitness& witness, const string& address, unsigned short port_number, bool verbose, size_t answer_, const string& session) {
         verbose_ = verbose;
         if (verbose) {
             prn::printBairInstanceSpec(instance);
@@ -435,6 +461,9 @@ namespace Protocols{
         /* Set up the socket */
         TCPSocket sck(address, port_number);
         TCPSocket* sock = &sck;
+        
+        sendString(session, sock);
+        receiveUInt32(sock); // ack
         sendUInt32(answer_, sock);
         Timer t;
         bool done_interacting = false;
@@ -479,7 +508,7 @@ namespace Protocols{
         return true;
     }
     
-    bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose, const std::string& assemblyFile) {
+    bool executeVerifierProtocol(const BairInstance& instance, const unsigned short securityParameter, unsigned short port_number, bool verbose, const std::string& assemblyFile, const string& session) {
         verbose_ = verbose;
         if (verbose) {
             prn::printBairInstanceSpec(instance);
@@ -498,6 +527,16 @@ namespace Protocols{
         TCPServerSocket servSock(port_number);     // Server Socket object
         TCPSocket *sock = servSock.accept();
         
+        string session_rcvd = receiveString(sock);
+        if (session != "") { // if a session is provided by the verifier, check if the prover provided the same one.
+            if (session_rcvd != session) {
+                std::cerr << "Sessions missmatch :\n\tExpecting : " << session << "\n\tReceived : " << session_rcvd << "\n\n";
+                exit(EXIT_FAILURE);
+            } else {
+                std::cout << "Sessions match, continuing...\n\n";
+            }
+        }
+        sendUInt32(1, sock); // ack
         size_t answer_ = (size_t) receiveUInt32(sock);
         libstark::specsPrinter specs("Results of " + assemblyFile + ".zmips", true);
         specs.addLine("Answer (decimal)", to_string(answer_));
