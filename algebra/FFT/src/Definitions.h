@@ -7,10 +7,10 @@
 #ifndef DEFINITIONS_H_
 #define DEFINITIONS_H_
 #include <omp.h>
+#include "../../../configs.hpp"
 
-#define __PARALLEL__
-//#define __GPU
-//#define __MEASURE
+// #define __GPU
+// #define __MEASURE
 
 #ifdef OLD_OPENMP
 typedef long long plooplongtype;

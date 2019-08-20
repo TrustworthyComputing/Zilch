@@ -7,4 +7,6 @@
 // #define REGISTER_LENGTH 32
 // #define REGISTER_LENGTH 64
 
+#define __PARALLEL__
+
 #endif
