@@ -1,0 +1,6 @@
+move $r1, 1
+beqz $r0, $r0, __L1__
+    move $r1, 0
+    answer $r1
+__L1__
+answer $r1

@@ -32,10 +32,10 @@ void ALUInputConsistency::generateConstraints(){
 	vector<long> selectorToConstraint;
 	vector<bool> selectorRelevant;
 
-	for (unsigned int i = 0; i < program_.size(); ++i){
-		unsigned int arg1 = program_.code()[i].arg1Idx_;
-		unsigned int arg2 = program_.code()[i].arg2IdxOrImmediate_;
-		unsigned int dest = program_.code()[i].destIdx_;
+	for (size_t i = 0; i < program_.size(); ++i){
+		size_t arg1 = program_.code()[i].arg1Idx_;
+		size_t arg2 = program_.code()[i].arg2IdxOrImmediate_;
+		size_t dest = program_.code()[i].destIdx_;
 		Opcode opcode = program_.code()[i].opcode_;
 		if (Opcode::SECREAD == opcode || Opcode::SECSEEK == opcode) {
 			program_.arg2isImmediateToFalse(i);
@@ -45,7 +45,7 @@ void ALUInputConsistency::generateConstraints(){
 		CircuitPolynomial arg2Poly;
 		if (!arg2IsImmediate) { // if not immediate -- SECREAD uses reg SECREAD_RESERVED_REGISTER DO NOT USE IN PROGRAM
 			if (Opcode::REGMOV == opcode) {
-				// unsigned int new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
+				// size_t new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
 				// arg2Poly = input_.registers_[new_arg2 + NUM_OF_RESERVED_REGS] + output_.arg2_val_;
 			} else {
 				arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
@@ -74,12 +74,12 @@ void ALUInputConsistency::generateConstraints(){
 	pb_->addGeneralConstraint(SDest, "SelectorSum_Dest", Opcode::NONE);
 };
 
-void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& private_lines, size_t& secread_cnt) {
+void ALUInputConsistency::generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt) {
 	GADGETLIB_ASSERT(i < program_.size(), "ALUInputConsistency: in order to generate witness i should be less the the program size");
 	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
-	unsigned int arg1 = program_.code()[i].arg1Idx_;
-	unsigned int arg2 = program_.code()[i].arg2IdxOrImmediate_;
-	unsigned int dest = program_.code()[i].destIdx_;
+	size_t arg1 = program_.code()[i].arg1Idx_;
+	size_t arg2 = program_.code()[i].arg2IdxOrImmediate_;
+	size_t dest = program_.code()[i].destIdx_;
 	Opcode opcode = program_.code()[i].opcode_;
 	if (Opcode::SECREAD == opcode) {
 		size_t read_from_tape_result;
@@ -122,7 +122,7 @@ void ALUInputConsistency::generateWitness(unsigned int i, const vector<string>& 
 	bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 	if (!arg2IsImmediate) {
 		if (Opcode::REGMOV == opcode) {
-			unsigned int new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
+			size_t new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
 			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[ new_arg2 + NUM_OF_RESERVED_REGS ]);
 		} else {
 			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2]);

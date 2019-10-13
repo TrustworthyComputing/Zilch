@@ -12,7 +12,7 @@ TARGET=$(BLDDIR)/libalgebralib.a
 SRCS:= $(shell ls src/*.cpp)
 OBJS=$(addprefix $(BLDDIR)/, $(SRCS:.cpp=.o))
 
-$(BLDDIR)/%.o: %.cpp
+$(BLDDIR)/%.o: %.cpp ../../configs.hpp
 #	@echo 'Building file: $@ ($<)'
 	@$(MKDIR) -p $(shell $(DIRNAME) $@)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS) -c -o "$@" "$<"

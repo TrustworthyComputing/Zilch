@@ -127,17 +127,23 @@ bool is_number(const string& s) {
     return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
 
-int getImmidiate(const string s){
-    return std::stoul(s);
+bool is_hex_notation(std::string const& s) {
+  return s.compare(0, 2, "0x") == 0
+      && s.size() > 2
+      && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
 }
 
-int getRegNum(const string s){
+size_t getImmidiate(const string s){
+    return std::stoull(s);
+}
+
+size_t getRegNum(const string s){
     if (!isReg(s)){
         std::cout<<"Expected register"<<std::endl;
         throw("expected register");
     }
     const string idx = s.substr(1);
-    return stoul(idx);
+    return stoull(idx);
 }
 
 string stringToUpper(string strToConvert) {

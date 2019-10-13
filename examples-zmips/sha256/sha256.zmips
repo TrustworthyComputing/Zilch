@@ -1,0 +1,3354 @@
+# Implementation based on http://www.iwar.org.uk/comsec/resources/cipher/sha256-384-512.pdf
+
+# uint32_t data[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+# K = { 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2 }
+
+# W = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 67559435, 101367821, 3020350282, 1107812741, 3118632270, 451168464, 656601990, 3279804240, 1103585248, 461130233, 2653371037, 2175483678, 2971844087, 1030991300, 3974839675, 2477209260, 3279611694, 1561569730, 1603939653, 3189046280, 4224804089, 2646992545, 635753112, 4125081555, 1964552335, 2309306792, 2373507743, 259776332, 701344636, 482288624, 3399445588, 2053317424, 236667340, 3934934314, 1907271339, 4255195815, 3378026140, 502208176, 1352423260, 2851041892, 256006704, 1790616609, 1603953582, 1998049493, 4039401960, 3952946654, 3640193746, 113257106 }
+
+
+# Init
+move $r0, 0x6a09e667    # A
+move $r1, 0xbb67ae85    # B
+move $r2, 0x3c6ef372    # C
+move $r3, 0xa54ff53a    # D
+move $r4, 0x510e527f    # E
+move $r5, 0x9b05688c    # F
+move $r6, 0x1f83d9ab    # G
+move $r7, 0x5be0cd19    # H
+
+# Round 1
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x428a2f98 # H + EP1 + CH + k[0]
+add $r8, $r8, 1         # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 2
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x71374491 # H + EP1 + CH + k[1]
+add $r8, $r8, 2         # H + EP1 + CH + k[1] + w[1]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 3
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xb5c0fbcf # H + EP1 + CH + k[2]
+add $r8, $r8, 3         # H + EP1 + CH + k[2] + w[2]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 4
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xe9b5dba5 # H + EP1 + CH + k[3]
+add $r8, $r8, 4         # H + EP1 + CH + k[3] + w[3]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 5
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x3956c25b # H + EP1 + CH + k[4]
+add $r8, $r8, 5         # H + EP1 + CH + k[4] + w[4]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 6
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x59f111f1 # H + EP1 + CH + k[5]
+add $r8, $r8, 6         # H + EP1 + CH + k[5] + w[5]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+
+# Round 7
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x923f82a4 # H + EP1 + CH + k[6]
+add $r8, $r8, 7         # H + EP1 + CH + k[6] + w[6]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+
+# Round 8
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xab1c5ed5 # H + EP1 + CH + k[7]
+add $r8, $r8, 8         # H + EP1 + CH + k[7] + w[7]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 9
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xd807aa98 # H + EP1 + CH + k[8]
+add $r8, $r8, 9         # H + EP1 + CH + k[8] + w[8]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 10
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x12835b01 # H + EP1 + CH + k[9]
+add $r8, $r8, 10        # H + EP1 + CH + k[9] + w[9]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 11
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x243185be # H + EP1 + CH + k[10]
+add $r8, $r8, 11        # H + EP1 + CH + k[10] + w[10]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 12
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x550c7dc3 # H + EP1 + CH + k[11]
+add $r8, $r8, 12        # H + EP1 + CH + k[11] + w[11]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+
+# Round 13
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x72be5d74 # H + EP1 + CH + k[12]
+add $r8, $r8, 13        # H + EP1 + CH + k[12] + w[12]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 14
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x80deb1fe # H + EP1 + CH + k[13]
+add $r8, $r8, 14        # H + EP1 + CH + k[13] + w[13]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 15
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x9bdc06a7 # H + EP1 + CH + k[14]
+add $r8, $r8, 15        # H + EP1 + CH + k[14] + w[14]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 16
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xc19bf174 # H + EP1 + CH + k[15]
+add $r8, $r8, 16        # H + EP1 + CH + k[15] + w[15]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 17
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xe49b69c1 # H + EP1 + CH + k[16]
+add $r8, $r8, 67559435  # H + EP1 + CH + k[16] + w[16]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 18
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xefbe4786 # H + EP1 + CH + k[17]
+add $r8, $r8, 101367821 # H + EP1 + CH + k[17] + w[17]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 19
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x0fc19dc6 # H + EP1 + CH + k[18]
+add $r8, $r8, 3020350282 # H + EP1 + CH + k[18] + w[18]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 20
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x240ca1cc # H + EP1 + CH + k[19]
+add $r8, $r8, 1107812741 # H + EP1 + CH + k[19] + w[19]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 21
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x2de92c6f # H + EP1 + CH + k[20]
+add $r8, $r8, 3118632270 # H + EP1 + CH + k[20] + w[20]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 22
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x4a7484aa # H + EP1 + CH + k[0]
+add $r8, $r8, 451168464 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 23
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x5cb0a9dc # H + EP1 + CH + k[0]
+add $r8, $r8, 656601990 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 24
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x76f988da # H + EP1 + CH + k[0]
+add $r8, $r8, 3279804240 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 25
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x983e5152 # H + EP1 + CH + k[0]
+add $r8, $r8, 1103585248 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 26
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xa831c66d # H + EP1 + CH + k[0]
+add $r8, $r8, 461130233 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 27
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xb00327c8 # H + EP1 + CH + k[0]
+add $r8, $r8, 2653371037 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 28
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xbf597fc7 # H + EP1 + CH + k[0]
+add $r8, $r8, 2175483678 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 29
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xc6e00bf3 # H + EP1 + CH + k[0]
+add $r8, $r8, 2971844087 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 30
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xd5a79147 # H + EP1 + CH + k[0]
+add $r8, $r8, 1030991300 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 31
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x06ca6351 # H + EP1 + CH + k[0]
+add $r8, $r8, 3974839675 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 32
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x14292967 # H + EP1 + CH + k[0]
+add $r8, $r8, 2477209260 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 33
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x27b70a85 # H + EP1 + CH + k[0]
+add $r8, $r8, 3279611694 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 34
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x2e1b2138 # H + EP1 + CH + k[0]
+add $r8, $r8, 1561569730 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 35
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x4d2c6dfc # H + EP1 + CH + k[0]
+add $r8, $r8, 1603939653 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 36
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x53380d13 # H + EP1 + CH + k[0]
+add $r8, $r8, 3189046280 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 37
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x650a7354 # H + EP1 + CH + k[0]
+add $r8, $r8, 4224804089 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 38
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x766a0abb # H + EP1 + CH + k[0]
+add $r8, $r8, 2646992545 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 39
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x81c2c92e # H + EP1 + CH + k[0]
+add $r8, $r8, 635753112 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 40
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x92722c85 # H + EP1 + CH + k[0]
+add $r8, $r8, 4125081555 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 41
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xa2bfe8a1 # H + EP1 + CH + k[0]
+add $r8, $r8, 1964552335 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 42
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xa81a664b # H + EP1 + CH + k[0]
+add $r8, $r8, 2309306792 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 43
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xc24b8b70 # H + EP1 + CH + k[0]
+add $r8, $r8, 2373507743 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 44
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xc76c51a3 # H + EP1 + CH + k[0]
+add $r8, $r8, 259776332 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 45
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xd192e819 # H + EP1 + CH + k[0]
+add $r8, $r8, 701344636 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 46
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xd6990624 # H + EP1 + CH + k[0]
+add $r8, $r8, 482288624 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 47
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xf40e3585 # H + EP1 + CH + k[0]
+add $r8, $r8, 3399445588 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 48
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x106aa070 # H + EP1 + CH + k[0]
+add $r8, $r8, 2053317424 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 49
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x19a4c116 # H + EP1 + CH + k[0]
+add $r8, $r8, 236667340 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 50
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x1e376c08 # H + EP1 + CH + k[0]
+add $r8, $r8, 3934934314 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 51
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x2748774c # H + EP1 + CH + k[0]
+add $r8, $r8, 1907271339 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 52
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x34b0bcb5 # H + EP1 + CH + k[0]
+add $r8, $r8, 4255195815 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 53
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x391c0cb3 # H + EP1 + CH + k[0]
+add $r8, $r8, 3378026140 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 54
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x4ed8aa4a # H + EP1 + CH + k[0]
+add $r8, $r8, 502208176 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 55
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x5b9cca4f # H + EP1 + CH + k[0]
+add $r8, $r8, 1352423260 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 56
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x682e6ff3 # H + EP1 + CH + k[0]
+add $r8, $r8, 2851041892 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 57
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x748f82ee # H + EP1 + CH + k[0]
+add $r8, $r8, 256006704 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 58
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x78a5636f # H + EP1 + CH + k[0]
+add $r8, $r8, 1790616609 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 59
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x84c87814 # H + EP1 + CH + k[0]
+add $r8, $r8, 1603953582 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 60
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x8cc70208 # H + EP1 + CH + k[0]
+add $r8, $r8, 1998049493 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 61
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0x90befffa # H + EP1 + CH + k[0]
+add $r8, $r8, 4039401960 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 62
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xa4506ceb # H + EP1 + CH + k[0]
+add $r8, $r8, 3952946654 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 63
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xbef9a3f7 # H + EP1 + CH + k[0]
+add $r8, $r8, 3640193746 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# Round 64
+# CH(E, F, G) = (E & F) ^ (~E & G)
+and $r10, $r4, $r5      # (E & F)
+not $r11, $r4, $r4      # ~E
+and $r11, $r11, $r6     # (~E & G)
+xor $r10, $r10, $r11    # (E & F) ^ (~E & G)
+# Ma(A, B, C) = (A & B) ^ (A & C) ^ (B & C)
+and $r11, $r0, $r1      # (A & B)
+and $r12, $r0, $r2      # (A & C)
+and $r13, $r1, $r2      # (B & C)
+xor $r11, $r11, $r12    # (A & B) ^ (A & C)
+xor $r11, $r11, $r13    # (A & B) ^ (A & C) ^ (B & C)
+# EP0(A) = (A >> 2) ^ (A >> 13) ^ (A >> 22)
+srl $r12, $r0, 2        #   (A >> 2)
+sll $r13, $r0, 30       #   (A << 32 - 2)
+or $r12, $r12, $r13     # RR(A, 2)
+srl $r13, $r0, 13       #   (A >> 13)
+sll $r14, $r0, 19       #   (A << 32 - 13)
+or $r13, $r13, $r14     # RR(A, 13)
+srl $r14, $r0, 22       #   (A >> 22)
+sll $r15, $r0, 10       #   (A << 32 - 22)
+or $r14, $r14, $r15     # RR(A, 22)
+xor $r12, $r12, $r13    # (A >> 2) ^ (A >> 13)
+xor $r12, $r12, $r14    # (A >> 2) ^ (A >> 13) ^ (A >> 22)
+# EP1(E) = (E >> 6) ^ (E >> 11) ^ (E >> 25)
+srl $r13, $r4, 6        #   (E >> 6)
+sll $r14, $r4, 26       #   (E << 32 - 6)
+or $r13, $r13, $r14     # RR(E, 6)
+srl $r14, $r4, 11       #   (E >> 11)
+sll $r15, $r4, 21       #   (E << 32 - 11)
+or $r14, $r14, $r15     # RR(E, 11)
+srl $r15, $r4, 25       #   (E >> 25)
+sll $r16, $r4, 7        #   (E << 32 - 25)
+or $r15, $r15, $r16     # RR(E, 25)
+xor $r13, $r13, $r14    # (E >> 6) ^ (E >> 11)
+xor $r13, $r13, $r15    # (E >> 6) ^ (E >> 11) ^ (E >> 25)
+# T1 = H + EP1 + CH + K[j] + W[j];
+add $r8, $r7, $r13      # H + EP1
+add $r8, $r8, $r10      # H + EP1 + CH
+add $r8, $r8, 0xc67178f2 # H + EP1 + CH + k[0]
+add $r8, $r8, 113257106 # H + EP1 + CH + k[0] + w[0]
+# T2 = EP0 + Ma;
+add $r9, $r12, $r11     # T2 = EP0 + Ma
+move $r7, $r6           # h = g;
+move $r6, $r5           # g = f;
+move $r5, $r4           # f = e;
+add $r4, $r3, $r8       # e = d + T1;
+move $r3, $r2           # d = c;
+move $r2, $r1           # c = b;
+move $r1, $r0           # b = a;
+add $r0, $r8, $r9       # a = T1 + T2;
+
+# print $r0
+
+answer $r0, $r0, $r0
+

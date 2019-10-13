@@ -1,0 +1,12 @@
+#ifndef CONFIG_DEFINITIONS_HPP
+#define CONFIG_DEFINITIONS_HPP
+
+#define REGISTERS_NUMBER 30
+
+#define REGISTER_LENGTH 16
+// #define REGISTER_LENGTH 32
+// #define REGISTER_LENGTH 64
+
+#define __PARALLEL__
+
+#endif

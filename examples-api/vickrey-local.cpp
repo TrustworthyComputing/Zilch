@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <time.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include "hyperion-api.hpp"
@@ -45,34 +46,42 @@ void speck32_encrypt(const uint16_t pt[2], uint16_t ct[2], const uint16_t K[ROUN
     }
 }
 
-void speck32_hash(uint16_t hash[2], const uint16_t pt[2], const uint16_t ct[2]) {
-    hash[0] = pt[0] ^ ct[0];
-    hash[1] = pt[1] ^ ct[1];
+void xor_(uint16_t res[2], const uint16_t pt[2], const uint16_t ct[2]) {
+    res[0] = pt[0] ^ ct[0];
+    res[1] = pt[1] ^ ct[1];
+}
+
+void speck32_davies_meyer(uint16_t hash[2], const uint16_t msg[2], uint16_t const iv[2]) {
+    uint16_t key[4] = {0, 0, msg[0], msg[1]};
+    uint16_t exp[ROUNDS];
+    uint16_t enc[2] = { 0 };
+    speck_expand(key, exp);
+    speck32_encrypt(iv, enc, exp);
+    xor_(hash, iv, enc);
 }
 
 int main(int argc, char const *argv[]) {
+    srand(1);
     ofstream privtape_file("vickrey.privtape");
     
     size_t participants = 3;
     std::cout << "Vickrey Auction for " << participants << " participants\n";
 
+    uint16_t iv[2] = { 12, 13 };
+    
+    uint16_t key[participants];
     uint16_t auctions[participants];
     uint16_t commits[participants][2];
+    // commits should be generated localy
     for (size_t i = 0; i < participants; i++) {
         std::cout << "Enter bid for participant " << i << ": ";
         cin >> auctions[i];
-        uint16_t key[4];
-        uint16_t exp[ROUNDS];
-        uint16_t temp[2] = { 0 };
-        uint16_t buf[2] = {0, auctions[i]};
-        std::cout << "Enter secret key to generate commitment:\n";
-        for (size_t j = 0; j < 4; j++) {
-            std::cout << "\t(uint16_t) key[" << j << "] : ";
-            cin >> key[j];
-        }
-        speck_expand(key, exp);
-        speck32_encrypt(buf, temp, exp);
-        speck32_hash(commits[i], buf, temp);
+        key[i] = rand() % 65535; // private randomness for commitment.  
+        std::cout << "Random string " << key[i] << "\n";
+
+        uint16_t buf[2] = { key[i], auctions[i] };
+        speck32_davies_meyer(commits[i], buf, iv);
+        
         cout << "==> Speck hash: " << commits[i][0] << " " << commits[i][1] << "\n\n";
         privtape_file << auctions[i] << '\n';
     }
@@ -92,18 +101,12 @@ int main(int argc, char const *argv[]) {
     for (size_t i = 0; i < participants; i++) {
         if (auctions[i] > ans) {
             std::cout << "Executed vickrey.zmips and the winner is bidder #" << i << "!\n\n";
-            
-            uint16_t key[4];
             uint16_t exp[ROUNDS];
-            std::cout << "Participant " << i << " enter secret key:\n";
-            for (size_t j = 0; j < 4; j++) {
-                std::cout << "\t(uint16_t) key[" << j << "] : ";
-                cin >> key[j];
-            }
-            speck_expand(key, exp);
+            uint16_t buf[4] = { 0, 0, key[i], auctions[i] };
+            speck_expand(buf, exp);
             ofstream privtape_key_file("speck-key.privtape");
-            privtape_key_file << 0 << '\n';
-            privtape_key_file << auctions[i] << '\n';
+            privtape_key_file << iv[0] << '\n';
+            privtape_key_file << iv[1] << '\n';
             for (size_t j = 0; j < ROUNDS; j++) {
                 privtape_key_file << exp[j] << '\n';
             }
@@ -111,15 +114,15 @@ int main(int argc, char const *argv[]) {
             
             std::cout << "Running Speck32 Davies-Meyer to verify the commitment in Hyperion...\n";
 
-            int ans = hyperion_local_prover_verifier("../examples-zmips/speck_DM_hash/speck_DM_hash.zmips", "", "speck-key.privtape", "../framework/hyperion/src/macros.json", 60, false, false);
+            int ans = hyperion_local_prover_verifier("../examples-zmips/speck_DM_hash/speck32_DM_hash.zmips", "", "speck-key.privtape", "../framework/hyperion/src/macros.json", 60, false, false);
             if (ans == commits[i][0]) {
                 std::cout << "Commitment verified!\n";
-                return 0;
+                return EXIT_SUCCESS;
             } else {
                 std::cout << "Commitment " << commits[i][0] << " does not match with " << ans << "!\n";
             }
         }
     }
     
-    return 1;
+    return EXIT_FAILURE;
 }

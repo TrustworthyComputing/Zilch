@@ -10,7 +10,7 @@
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-TraceVariables::TraceVariables(unsigned int pcLength, unsigned int numberOfRegisters) :
+TraceVariables::TraceVariables(size_t pcLength, size_t numberOfRegisters) :
 	timeStamp_("timeStamp"), flag_("flag"), pc_(pcLength, "pc"), registers_(numberOfRegisters, "register"){}
 
 TraceVariables::TraceVariables(const Algebra::Variable timeStamp,const  Algebra::FlagVariable flag,
@@ -26,7 +26,7 @@ int TraceVariables::size() const { return 2 + pc_.size() + registers_.size(); }
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-FollowingTraceVariables::FollowingTraceVariables(unsigned int pcLength, unsigned int numberOfRegisters) :
+FollowingTraceVariables::FollowingTraceVariables(size_t pcLength, size_t numberOfRegisters) :
 						first_(pcLength, numberOfRegisters), second_(pcLength, numberOfRegisters){}
 
 

@@ -62,8 +62,8 @@ void MemoryConstraints::generateWitness(){
 	unpackAddr1_g_->generateWitness();
 	unpackAddr2_g_->generateWitness();
 	compareAddresses_->generateWitness();
-	unsigned int degree1 = pb_->getDegreeOfFElem(pb_->val(first_.timeStamp_));
-	unsigned int degree2 = pb_->getDegreeOfFElem(pb_->val(second_.timeStamp_));
+	size_t degree1 = pb_->getDegreeOfFElem(pb_->val(first_.timeStamp_));
+	size_t degree2 = pb_->getDegreeOfFElem(pb_->val(second_.timeStamp_));
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(unpackTimestamp1_g_)->generateWitness(degree1);
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(unpackTimestamp2_g_)->generateWitness(degree2);
 	compareTimestamps_g_->generateWitness();

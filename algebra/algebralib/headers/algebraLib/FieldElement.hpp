@@ -3,12 +3,18 @@
 #include <vector>
 #include <Element.h>
 
+#include "../../../configs.hpp"
+
 #ifndef  __Field_Element_HPP__
 #define  __Field_Element_HPP__
 
 namespace Algebra {
 
+#if (REGISTER_LENGTH < 64)
 const int ExtensionDegree = 64;
+#else
+const int ExtensionDegree = 128;
+#endif
 
 /* c++11 pseudorandom number generator */
 extern std::mt19937_64 rng;

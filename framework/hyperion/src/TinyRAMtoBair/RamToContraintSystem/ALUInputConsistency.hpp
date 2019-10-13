@@ -23,7 +23,7 @@ public:
 	static GadgetPtr create(ProtoboardPtr pb, const TraceVariables& input, const ALUInput& output);
 	void setProgram(const TinyRAMProgram& program);
 	void generateConstraints();
-	void generateWitness(unsigned int i, const vector<string>& private_lines, size_t& secread_cnt);
+	void generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt);
 
 };
 

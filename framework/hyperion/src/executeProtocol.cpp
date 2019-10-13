@@ -68,7 +68,7 @@ void execute_locally(const string assemblyFile, const string auxTapeFile, const 
     }
 }
 
-void execute_network(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose) {    
+void execute_network(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose, const string& session) {    
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
     TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
@@ -83,8 +83,8 @@ void execute_network(const string assemblyFile, const string auxTapeFile, const 
         sregex_token_iterator pr_it{private_inputs.begin(), private_inputs.end(), regex, -1};
         vector<string> private_lines{pr_it, {}};
         const auto bairWitness = constructWitness(program, t, private_lines);     // witness is generated from the prover
-        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose);
+        libstark::Protocols::executeProverProtocol(bairInstance, bairWitness, address, port_number, verbose, answer_, session);
     } else {
-        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose);
+        libstark::Protocols::executeVerifierProtocol(bairInstance, securityParameter, port_number, verbose, assemblyFile, session);
     }
 }

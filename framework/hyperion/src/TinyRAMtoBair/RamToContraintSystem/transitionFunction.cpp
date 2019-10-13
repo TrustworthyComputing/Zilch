@@ -46,7 +46,7 @@ int TransitionFunction::calcPC(){
 	const FElem g = Algebra::xFE();//  Algebra::FElem(getGF2E_X());
 	FElem x_i = Algebra::one();
 	FElem result = Algebra::zero();
-	for (unsigned int i = 0; i < followingTraceVariable_.first_.pc_.size(); i++){
+	for (size_t i = 0; i < followingTraceVariable_.first_.pc_.size(); i++){
 		result += pb_->val(followingTraceVariable_.first_.pc_[i]) * x_i;
 		x_i *= g;
 	}
@@ -54,7 +54,7 @@ int TransitionFunction::calcPC(){
 
 }
 
-void TransitionFunction::generateWitness(unsigned int i, const vector<string>& private_lines, size_t& secread_cnt){
+void TransitionFunction::generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt){
 	int codeLineNumber = calcPC();
 	GADGETLIB_ASSERT(codeLineNumber < (long)program_.size(), "TransitionFunction: The code line number should be less than program.size()");
 	

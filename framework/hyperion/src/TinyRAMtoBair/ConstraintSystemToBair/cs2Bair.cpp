@@ -66,7 +66,7 @@ void cs2Bair::boundaryConstraints() const{
 	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
 	pb_->addBoundaryConstraint(followingTraceVariable_.first_.flag_, 0, Algebra::zero());
 	pb_->addBoundaryConstraint(followingTraceVariable_.first_.timeStamp_, 0, Algebra::one());
-	for (unsigned int i = 0; i < program_.pcLength(); i++){
+	for (size_t i = 0; i < program_.pcLength(); i++){
 		pb_->addBoundaryConstraint(followingTraceVariable_.first_.pc_[i], 0, Algebra::zero()); 
 	}
 	//for (int i = 0; i < params->numRegisters(); i++){
@@ -88,7 +88,7 @@ void cs2Bair::initInitialVars(){
 }
 
 void cs2Bair::checkMemoryUse(){
-	for (unsigned int i = 0; i < program_.code().size(); ++i){
+	for (size_t i = 0; i < program_.code().size(); ++i){
 		Opcode opcode = program_.code()[i].opcode_;
 		if (opcode == Opcode::STOREB || opcode == Opcode::STOREW ||
 			opcode == Opcode::LOADB || opcode == Opcode::LOADW){
@@ -103,10 +103,10 @@ std::vector<Variable> cs2Bair::variablesToVector(TraceVariables traceVariables){
 	v.emplace_back(traceVariables.flag_);
 	v.emplace_back(traceVariables.timeStamp_);
 	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
-	for (unsigned int i = 0; i < traceVariables.pc_.size(); i++){
+	for (size_t i = 0; i < traceVariables.pc_.size(); i++){
 		v.emplace_back(traceVariables.pc_[i]);
 	}
-	for (unsigned int i = 0; i < params->numRegisters(); i++){
+	for (size_t i = 0; i < params->numRegisters(); i++){
         if (i == SECREAD_RESERVED_REGISTER) continue; // magic register for read-instruction
 		v.emplace_back(traceVariables.registers_[i]);
 	}
@@ -131,7 +131,7 @@ void cs2Bair::copyTraceOutputValuesToTraceInput(){
 	for (int i = 0; i < pcLength; i++){
 		pb_->val(followingTraceVariable_.first_.pc_[i]) = pb_->val(followingTraceVariable_.second_.pc_[i]);
 	}
-	for (unsigned int i = 0; i < params->numRegisters(); i++){
+	for (size_t i = 0; i < params->numRegisters(); i++){
 		pb_->val(followingTraceVariable_.first_.registers_[i]) = pb_->val(followingTraceVariable_.second_.registers_[i]);
 	}
 }
@@ -207,7 +207,7 @@ VariableAssignment cs2Bair::vectorToAssignment(const std::vector<Algebra::FieldE
 //#define falseWitness//checking how good PCP is at finding small errors
 // #define printTrace //print the execution trace (i.e. witness) while generating it
 void cs2Bair::generateWitness() {
-	//const unsigned int transcript_len = POW2(TRANSCIPT_LEN_LOG) - 1;
+	//const size_t transcript_len = POW2(TRANSCIPT_LEN_LOG) - 1;
 	// First Assignment should be zero
     initInitialVars();
 #ifdef printTrace
@@ -277,7 +277,7 @@ void cs2Bair::generateMemoryWitness(){
 	std::vector<MemoryInfo> memoryTrace = pb_->getMemoryTrace();
 	std::sort(memoryTrace.begin(), memoryTrace.end(), sortMemoryInfo);
 	GADGETLIB_ASSERT(memoryTrace.size() == traceAssignmentTable_.size(), "memoryInfo size should be the same as the coloring");
-	for (unsigned int i = 0; i < memoryTrace.size(); i++){
+	for (size_t i = 0; i < memoryTrace.size(); i++){
 		size_t serialNumber1 = memoryTrace[i].getSerialNumber();
 		size_t serialNumber2 = memoryTrace[(i + 1) % memoryTrace.size()].getSerialNumber();
 		memoryPermutation_[serialNumber1] = serialNumber2;
@@ -341,8 +341,8 @@ BairInstance::boundaryConstraints_t cs2Bair::getBoundaryConstraints() const{
 	_COMMON_ASSERT(boundaryAssignment.size() == boundaryVariables.size(),
 		"Number of variabled should be equal to the number os assignments in boundary constraints");
 
-	for (unsigned int i = 0; i < boundaryVariables.size(); ++i){
-		for (unsigned int j = 0; j < translation_.size(); ++j){
+	for (size_t i = 0; i < boundaryVariables.size(); ++i){
+		for (size_t j = 0; j < translation_.size(); ++j){
 			if (translation_[j] == boundaryVariables[i]){
 				BairInstance::point_t location(boundaryTimestamps[i], j);
 				boundaryConstraints[location] = boundaryAssignment[i];
@@ -360,13 +360,13 @@ Algebra::Variable::set cs2Bair::getStateVariables() const {
 	retSet.insert(followingTraceVariable_.second_.timeStamp_);
 	GADGETLIB_ASSERT(followingTraceVariable_.first_.pc_.size() == followingTraceVariable_.second_.pc_.size(), 
 							"CS2Bair: unpacked pc should have the exact same size in both of the states");
-	for (unsigned int i = 0; i < followingTraceVariable_.first_.pc_.size(); i++) {
+	for (size_t i = 0; i < followingTraceVariable_.first_.pc_.size(); i++) {
 		retSet.insert(followingTraceVariable_.first_.pc_[i]);
 		retSet.insert(followingTraceVariable_.second_.pc_[i]);
 	}
 	GADGETLIB_ASSERT(followingTraceVariable_.first_.registers_.size() == followingTraceVariable_.second_.registers_.size(),
 									"CS2Bair: number of registers should be the same in both of the states");
-	for (unsigned int i = 0; i < followingTraceVariable_.first_.registers_.size(); i++) {
+	for (size_t i = 0; i < followingTraceVariable_.first_.registers_.size(); i++) {
 		retSet.insert(followingTraceVariable_.first_.registers_[i]);
 		retSet.insert(followingTraceVariable_.second_.registers_[i]);
 	}

@@ -1625,7 +1625,7 @@ void ALU_SHL_Gadget::generateConstraints(){
     // witnessPoly = Algebra::invExtrConsts[registerLength-1] * (wFlag*wFlag + wFlag) + inputs_.arg1_val_ + Algebra::power(x, registerLength-1) * results_.flag_;
 	pb_->addGeneralConstraint(witnessPoly, "flagWitness", Opcode::SHL);
 	enforceBooleanity(results_.flag_, Opcode::SHL);
-
+    
 	tmpPoly = inputs_.arg1_val_;
 	x_i = x;
 	for (int i = 0; i < registerLogLen; ++i){
@@ -1636,14 +1636,16 @@ void ALU_SHL_Gadget::generateConstraints(){
 	const Variable invRem = auxArr_[registerLength-ALU_SHL_Gadget::idxs::invRem];
 	tmpPoly = tmpPoly * (remainder * invRem + Algebra::one());
 	const Variable doubleResult = auxArr_[registerLength-ALU_SHL_Gadget::idxs::dRes];
-	pb_->addGeneralConstraint(tmpPoly + doubleResult, "doubleResult = tmpPoly", Opcode::SHL);
-
+#if (REGISTER_LENGTH < 64) 
+    pb_->addGeneralConstraint(tmpPoly + doubleResult, "doubleResult = tmpPoly", Opcode::SHL);
+#endif    
 	tmpPoly = remainder * (remainder * invRem + Algebra::one());
 	pb_->addGeneralConstraint(tmpPoly, "rem*(rem * invRem + 1)", Opcode::SHL);
-	if (standAlone_)
-	unpackDouble_g_->generateConstraints();
+	if (standAlone_) {
+        unpackDouble_g_->generateConstraints();
+    }
 	packResult_g_->generateConstraints();
-
+    
 	// add isMemOp = 0
 	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SHL);
 }
@@ -1720,8 +1722,7 @@ GadgetPtr ALU_SHR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const
 
 void ALU_SHR_Gadget::init(){
 	size_t registerLength = tinyRAMparams()->registerLength();
-	unpackDouble_g_ = DoubleUnpack_Gadget::create(pb_, unpackedArg1_, unpackedArg2_,
-		auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes], Opcode::SHR);
+	unpackDouble_g_ = DoubleUnpack_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes], Opcode::SHR);
 	packResult_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, results_.result_, PackingMode::PACK, Opcode::SHR);
 }
 
@@ -1756,7 +1757,7 @@ void ALU_SHR_Gadget::generateConstraints(){
 
 	tmpPoly = Algebra::power(x, registerLength) * inputs_.arg1_val_;
 	x_i = invx;
-	for (int i = 0; i < registerLogLen; ++i){
+	for (int i = 0; i < registerLogLen; ++i) {
 		const Variable v = auxArr_[i];
 		tmpPoly = tmpPoly * (Algebra::one() + v + v * x_i);
 		x_i *= x_i;
@@ -1764,13 +1765,15 @@ void ALU_SHR_Gadget::generateConstraints(){
 	const Variable invRem = auxArr_[registerLength-ALU_SHR_Gadget::idxs::invRem];
 	tmpPoly = tmpPoly * (remainder * invRem + Algebra::one());
 	const Variable doubleResult = auxArr_[registerLength-ALU_SHR_Gadget::idxs::dRes];
-	pb_->addGeneralConstraint(tmpPoly + doubleResult, "doubleResult = tmpPoly", Opcode::SHR);
-
+#if (REGISTER_LENGTH < 64)
+    pb_->addGeneralConstraint(tmpPoly + doubleResult, "doubleResult = tmpPoly", Opcode::SHR);
+#endif
 	tmpPoly = remainder * (remainder * invRem + Algebra::one());
 	pb_->addGeneralConstraint(tmpPoly, "rem*(rem * invRem + 1)", Opcode::SHR);
 	
-	if (standAlone_)
-	 unpackDouble_g_->generateConstraints(); 
+	if (standAlone_) {
+        unpackDouble_g_->generateConstraints(); 
+    }
 	packResult_g_->generateConstraints();
 	// add isMemOp = 0
 	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SHR);
@@ -1803,20 +1806,20 @@ void ALU_SHR_Gadget::generateWitness(){
 	
 	const FElem fRes = Algebra::mapIntegerToFieldElement(0, 1, doubleRes);
 	pb_->val(results_.flag_) = fRes;
-	pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::witnessFlag]) =
-		extractBit(operand1+fRes, 0 /* LSB */); 
-
+	pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::witnessFlag]) = extractBit(operand1+fRes, 0 /* LSB */); 
 	if (r) {
-		pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::invRem]) = remainder.inverse();
-	   pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes]) = Algebra::zero();
-	}
-	else {
+        pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::invRem]) = remainder.inverse();
+        pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes]) = Algebra::zero();
+	} else {
 		pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::invRem]) = Algebra::zero();
-		doubleRes = ((long)operand2 >= registerLength ? 0 : (doubleRes << (registerLength - operand2)));
+#if (REGISTER_LENGTH < 64) 
+        doubleRes = ((long)operand2 >= registerLength) ? 0 : (doubleRes << (registerLength - operand2));
+#else
+        doubleRes = doubleRes >> operand2;
+#endif        
 		pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes]) = Algebra::mapIntegerToFieldElement(0, EXTDIM, doubleRes);
 	}
-
-	 unpackDouble_g_->generateWitness();
+    unpackDouble_g_->generateWitness();
 	packResult_g_->generateWitness();
     
     #ifdef DEBUG

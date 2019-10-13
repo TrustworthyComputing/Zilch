@@ -1,0 +1,4 @@
+secread $r0
+sw $r0, 100($zero)
+lw $r1, 100($zero)
+answer $r1

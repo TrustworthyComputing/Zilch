@@ -15,7 +15,6 @@ using namespace std;
 
 string remove_extension(const string&);
 string fromZMips(string instr, const string&, const string&, const string&);
-inline bool isInteger(const string&);
 string mapMipsRegister(string&);
 void unrollMacros(vector<std::string>&, const string&);
 string parse_zmips(const string, const string, const string&, const bool);
