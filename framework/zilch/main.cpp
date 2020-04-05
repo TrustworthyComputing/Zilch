@@ -4,7 +4,7 @@
 #include "executeProtocol.hpp"
 #include "argParser.hpp"
 #include "zMipsParser.hpp"
-#ifndef PRINT_HELPERS_HPP__  
+#ifndef PRINT_HELPERS_HPP__
 #include <protocols/print_helpers.hpp>
 #endif
 
@@ -33,27 +33,27 @@ const string debug_prefix        = "--debug";
 extern string zmips_filename_;
 
 inline bool file_exists(const string& name) {
-    struct stat buffer;   
-    return (stat (name.c_str(), &buffer) == 0); 
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
 }
 
 void print_help(const string exeName, string errorMsg) {
     if (errorMsg != "") cout << endl << YELLOW << errorMsg << RESET << endl << endl;
     cout << YELLOW << "Usage:\n$ ";
     cout << GREEN << exeName << YELLOW << " " << zmips_file_prefix << RESET << " <zMIPS assembly file path> [" << YELLOW << timesteps_prefix << RESET << " <trace length log_2>] [" << YELLOW << security_prefix << RESET << " <security parameter]> [" << YELLOW << primary_tape_prefix << RESET << " <primaryTapeFile>] [" << YELLOW << private_tape_prefix << RESET << " <auxTapeFile>] [" << YELLOW << run_verifier_prefix << RESET << " | " << YELLOW << run_prover_prefix << RESET << "] [" << YELLOW << address_port_prefix << RESET << " <address:port_number>] [" << YELLOW << session_prefix << RESET << " <sessionID>]" << endl << endl;
-    
+
     cout << YELLOW << help_msg_prefix   << RESET << "      : Display this help message" << endl;
     cout << YELLOW << examples_prefix   << RESET << "  : Display some usage examples" << endl;
     cout << YELLOW << show_asm_prefix   << RESET << "  : Display zMIPS assembly input" << endl;
     cout << YELLOW << verbose_prefix    << RESET << "   : Verbose output, print BAIR, ACSP, APR and FRI specifications" << endl;
     cout << YELLOW << no_proof_prefix   << RESET << "  : Run the zMIPS execution engine (i.e., without generating a proof)." << endl << endl;
-    
+
     cout << YELLOW << zmips_file_prefix << RESET << "       : Path to the zMIPS assembly code " << YELLOW << "(required)" << RESET << endl;
-    cout << YELLOW << timesteps_prefix  << RESET << "    : trace length log_2 (optional, default = 5)" << endl; 
+    cout << YELLOW << timesteps_prefix  << RESET << "    : trace length log_2 (optional, default = 5)" << endl;
     cout << YELLOW << security_prefix   << RESET << "  : security parameter (optional, default = 60)" << endl;
     cout << YELLOW << primary_tape_prefix << RESET << "   : path to the primary tape file (optional, default = none)" << endl;
     cout << YELLOW << private_tape_prefix << RESET << "   : path to the auxiliary tape file (optional, default = none)" << endl << endl;
-    
+
     cout << "The flags below enable verification over the network; if neither is enabled, the execution will be locally. Verifier acts as the server and thus should be executed first." << endl;
     cout << YELLOW << address_port_prefix << RESET << "  : verifier-address:port-number (optional, default = 'localhost:1234')" << endl;
     cout << YELLOW << run_verifier_prefix << RESET << " : enables execution of the verifier, listening on port-number (optional, default = false)" << endl;
@@ -78,15 +78,13 @@ void print_examples(const string exeName) {
 }
 
 void printHeader(void) {
-    cout <<YELLOW <<" _   _                       _";
-    cout << endl << "| | | |                     (_)";
-    cout << endl << "| |_| |_   _ _ __   ___ _ __ _  ___  _ __";
-    cout << endl << "|  _  | | | | \'_ \\ / _ \\ '__| |/ _ \\| '_  \\";
-    cout << endl << "| | | | |_| | |_) |  __/ |  | | (_) | | | |";
-    cout << endl << "\\_| |_/\\__, | .__/ \\___|_|  |_|\\___/|_| |_|";
-    cout << endl << "        __/ | |";
-    cout << endl << "       |___/|_|" << RESET << endl << endl;
+    cout << YELLOW << "  ______ _      _     ";
+    cout << endl << " |__  (_) | ___| |___  ";
+    cout << endl << "   / /| | |/ __| \'_  \\ ";
+    cout << endl << "  / /_| | | (__| | | |";
+    cout << endl << " /____|_|_|\\___|_| |_|" << RESET << endl << endl;
 }
+
 
 int main(int argc, char *argv[]) {
     /* Parse arguments */
@@ -106,8 +104,8 @@ int main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
     }
     const string executable(argv[0]);
-    const string hyperion("hyperion");
-    const string path = executable.substr(0, executable.size() - hyperion.size());
+    const string zilch("zilch");
+    const string path = executable.substr(0, executable.size() - zilch.size());
     /* Input zMIPS file */
     string assemblyFile = args.get_cmd_option(zmips_file_prefix);
     if (!args.cmd_option_exists(zmips_file_prefix) || !file_exists(assemblyFile) ) {
@@ -123,7 +121,7 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
     } else {
-        string rawname = assemblyFile.substr(0, assemblyFile.find_last_of(".")); 
+        string rawname = assemblyFile.substr(0, assemblyFile.find_last_of("."));
         if (file_exists(rawname+".pubtape")) {
             primaryTapeFile = rawname+".pubtape";
             std::cout << "No primary tape file is given, using " << primaryTapeFile << '\n';
@@ -137,7 +135,7 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
     } else {
-        string rawname = assemblyFile.substr(0, assemblyFile.find_last_of(".")); 
+        string rawname = assemblyFile.substr(0, assemblyFile.find_last_of("."));
         if (file_exists(rawname+".auxtape")) {
             auxTapeFile = rawname+".auxtape";
             std::cout << "No private tape file is given, using " << auxTapeFile << '\n';
@@ -184,8 +182,8 @@ int main(int argc, char *argv[]) {
         session = args.get_cmd_option(session_prefix);
     }
     printHeader();
-    /* assembly file can either be a Z-MIPS file or a Hyperion asm file */
-    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, path+"framework/hyperion/src/macros.json", show_asm);
+    /* assembly file can either be a Z-MIPS file or a Zilch asm file */
+    string asmFile = parse_zmips(assemblyFile, primaryTapeFile, path+"framework/zilch/src/macros.json", show_asm);
     if (prover) {
         // cout << "Prover:\nExecuting over the network simulation with assembly from '" + assemblyFile + "' over 2^" + to_string(executionLenLog) +"-1 steps, soundness error at most 2^-" +to_string(securityParameter)+", public inputs from '" << primaryTapeFile <<"' and private inputs from '"+auxTapeFile<<"'. Verifier is at " << address << ":" << port_number<< ".\n\n";
         execute_network(asmFile, auxTapeFile, executionLenLog, securityParameter, prover, address, port_number, verbose, session);

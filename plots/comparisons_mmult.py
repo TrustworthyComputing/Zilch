@@ -16,9 +16,9 @@ pltsize = (4, 3)
 # pltsize = (7, 3)
 
 
-legend = ['Hyperion', 'Bulletproofs', 'Hyrax' ]
+legend = ['Zilch', 'Bulletproofs', 'Hyrax' ]
 
-hyperion_regs =  {   'prover' :      [ 2.273, 1.934, 2.5984, 5.2095, 17.4122, 18.6738, 20.1869, 1.4822 * 60, 2.4466 *60],
+zilch_regs =  {   'prover' :      [ 2.273, 1.934, 2.5984, 5.2095, 17.4122, 18.6738, 20.1869, 1.4822 * 60, 2.4466 *60],
                 'verifier' :    [ 0.1512, 0.1613, 0.2875, 0.5740, 1.1459, 1.3131, 1.5348, 3.0563, 3.5284]
                 }
 
@@ -31,12 +31,12 @@ hyrax = {       'prover' : [ 0.0637, 0.11044, 0.1402, 0.17622, 0.20312, 0.3328, 
                 }
 
 
-N = len(hyperion_regs[benchmark])
+N = len(zilch_regs[benchmark])
 index = np.arange(N)  # the x locations for the groups
 
 fig, ax = plt.subplots(figsize=pltsize)
 
-l1 = ax.plot(index, hyperion_regs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='s', linewidth=0.5, markersize=6)
+l1 = ax.plot(index, zilch_regs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='s', linewidth=0.5, markersize=6)
 l2 = ax.plot(index, bulletproofs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=6)
 l3 = ax.plot(index, hyrax[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='>', linewidth=0.5, markersize=6)
 # l5 = ax.plot(index, hyrax[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='o', linewidth=0.5, markersize=6)

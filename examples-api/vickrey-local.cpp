@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include "hyperion-api.hpp"
+#include "zilch-api.hpp"
 
 #define KEY_LEN 4
 #define ROUNDS 22
@@ -94,9 +94,9 @@ int main(int argc, char const *argv[]) {
     }
     std::cout << "\n";
 
-    std::cout << "Running Vickrey Auction in Hyperion...\n";
+    std::cout << "Running Vickrey Auction in Zilch...\n";
 
-    int ans = hyperion_local_prover_verifier("./vickrey.zmips", "", "./vickrey.privtape", "../framework/hyperion/src/macros.json", 60, false, false);
+    int ans = zilch_local_prover_verifier("./vickrey.zmips", "", "./vickrey.privtape", "../framework/zilch/src/macros.json", 60, false, false);
     
     for (size_t i = 0; i < participants; i++) {
         if (auctions[i] > ans) {
@@ -112,9 +112,9 @@ int main(int argc, char const *argv[]) {
             }
             privtape_key_file.close();
             
-            std::cout << "Running Speck32 Davies-Meyer to verify the commitment in Hyperion...\n";
+            std::cout << "Running Speck32 Davies-Meyer to verify the commitment in Zilch...\n";
 
-            int ans = hyperion_local_prover_verifier("../examples-zmips/speck_DM_hash/speck32_DM_hash.zmips", "", "speck-key.privtape", "../framework/hyperion/src/macros.json", 60, false, false);
+            int ans = zilch_local_prover_verifier("../examples-zmips/speck_DM_hash/speck32_DM_hash.zmips", "", "speck-key.privtape", "../framework/zilch/src/macros.json", 60, false, false);
             if (ans == commits[i][0]) {
                 std::cout << "Commitment verified!\n";
                 return EXIT_SUCCESS;

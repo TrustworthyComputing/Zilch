@@ -18,11 +18,11 @@ SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
 SRCDIRS := $(shell find . -name '*.$(SRCEXT)' -exec dirname {} \; | uniq)
 OBJS    := $(patsubst %.$(SRCEXT),$(OBJDIR)/%.o,$(SRCS))
 
-TARGET=$(BLDDIR)/libhyperion.a
+TARGET=$(BLDDIR)/libzilch.a
 all: $(TARGET)
 
 $(TARGET): buildrepo $(OBJS)
-#	@echo 'Create Hyperion library'
+#	@echo 'Create Zilch library'
 	ar -r $(TARGET) $(OBJS)
 
 $(OBJDIR)/%.o: %.$(SRCEXT) src/TinyRAM/TinyRAMDefinitions.hpp ../../configs.hpp

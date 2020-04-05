@@ -17,27 +17,27 @@ mydpi = 300
 pltsize = (7, 3)
 
 
-# legend = ['Hyperion-1-reg' ,'Hyperion-Regs', 'Hyperion-Tape', 'Hyperion-Tape-NoSeek', 'Bulletproofs', 'Hyrax' ]
-legend = ['Hyperion-Regs', 'Hyperion-Tape', 'Bulletproofs', 'Hyrax' ]
+# legend = ['Zilch-1-reg' ,'Zilch-Regs', 'Zilch-Tape', 'Zilch-Tape-NoSeek', 'Bulletproofs', 'Hyrax' ]
+legend = ['Zilch-Regs', 'Zilch-Tape', 'Bulletproofs', 'Hyrax' ]
 
-# hyperion_1reg = {   'prover' :  [ 0.452401, 2.033594, 2.359311, 8.246474, 5.814676, 13.701671, 16.125765, 39.336746, 53.658344, 4.750684*60, 4.959441*60, 5.177292*60, 5.680984*60 ],
+# zilch_1reg = {   'prover' :  [ 0.452401, 2.033594, 2.359311, 8.246474, 5.814676, 13.701671, 16.125765, 39.336746, 53.658344, 4.750684*60, 4.959441*60, 5.177292*60, 5.680984*60 ],
 #                 'verifier' :    [ 0.080788, 0.137124, 0.242234, 0.466610, 0.494386, 0.875259, 0.975965, 1.682557, 1.791617, 3.239871, 3.380108, 3.542254, 3.714149 ],
 #                 }
 
-hyperion_regs =  {   'prover' :      [ 2.273, 1.934, 2.5984, 5.2095, 17.4122, 18.6738, 20.1869, 1.4822 * 60, 2.4466 *60, 10.1226*60, 12.4469*60, 13.1648*60, 50.7941*60 ],
+zilch_regs =  {   'prover' :      [ 2.273, 1.934, 2.5984, 5.2095, 17.4122, 18.6738, 20.1869, 1.4822 * 60, 2.4466 *60, 10.1226*60, 12.4469*60, 13.1648*60, 50.7941*60 ],
                 'verifier' :    [ 0.1512, 0.1613, 0.2875, 0.5740, 1.1459, 1.3131, 1.5348, 3.0563, 3.5284, 7.0708, 7.9601, 9.0186, 18.1823 ],
                 # 'communication' : [ 304.968, 304.968, 305.4843, 359.4375, 389.1406, 424.5781, 459.1406, 535.5312, 584.9687, 658.1250, 716.7500, 775.3750, 875.2343 ] # KBytes,
                 }
 
-hyperion_tape ={ 'prover' :     [ 1.215575, 1.942465, 4.219186, 6.624356, 8.730812, 13.346925, 15.114755, None, None, None, None, None, None ],
+zilch_tape ={ 'prover' :     [ 1.215575, 1.942465, 4.219186, 6.624356, 8.730812, 13.346925, 15.114755, None, None, None, None, None, None ],
                 'verifier' :    [ 0.055115, 0.046980, 0.062355, 0.075279, 0.086876, 0.066085, 0.072600, None, None, None, None, None, None ],
                 }
 
-# hyperion_tape_noseek = { 'prover' : [ 1.057642, 1.748901, 2.317338, 4.066957, 3.153779, 6.069818, 6.719411, 13.786633, 13.965558, None, None, None, None ],
+# zilch_tape_noseek = { 'prover' : [ 1.057642, 1.748901, 2.317338, 4.066957, 3.153779, 6.069818, 6.719411, 13.786633, 13.965558, None, None, None, None ],
 #                         'verifier' :[ 0.040105, 0.039939, 0.056032, 0.057815, 0.049102, 0.043351, 0.056936, 0.057217, 0.062261, None, None, None, None ],
 #                 }
 # 
-# hyperion_tape_indexes = { 'prover' : [ None, None, None, None, None, None, None, None, None, None, None, None, None ],
+# zilch_tape_indexes = { 'prover' : [ None, None, None, None, None, None, None, None, None, None, None, None, None ],
 #                         'verifier' :[ None, None, None, None, None, None, None, None, None, None, None, None, None ],
 #                 }
                 
@@ -50,18 +50,18 @@ hyrax = {       'prover' : [ 0.0637, 0.11044, 0.1402, 0.17622, 0.20312, 0.3328, 
                 }
 
 
-N = len(hyperion_regs[benchmark])
+N = len(zilch_regs[benchmark])
 index = np.arange(N)  # the x locations for the groups
 
 fig, ax = plt.subplots(figsize=pltsize)
 
-# l1 = ax.plot(index, hyperion_1reg[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:yellow', marker='<', linewidth=0.5, markersize=6)
-# l2 = ax.plot(index, hyperion_regs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='s', linewidth=0.5, markersize=6)
-# l3 = ax.plot(index, hyperion_tape[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=6)
-# l4 = ax.plot(index, hyperion_tape_noseek[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light orange', marker='>', linewidth=0.5, markersize=6)
+# l1 = ax.plot(index, zilch_1reg[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:yellow', marker='<', linewidth=0.5, markersize=6)
+# l2 = ax.plot(index, zilch_regs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='s', linewidth=0.5, markersize=6)
+# l3 = ax.plot(index, zilch_tape[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=6)
+# l4 = ax.plot(index, zilch_tape_noseek[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light orange', marker='>', linewidth=0.5, markersize=6)
 # l5 = ax.plot(index, hyrax[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='o', linewidth=0.5, markersize=6)
-l1 = ax.plot(index, hyperion_regs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:yellow', marker='<', linewidth=0.5, markersize=6)
-l2 = ax.plot(index, hyperion_tape[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='s', linewidth=0.5, markersize=6)
+l1 = ax.plot(index, zilch_regs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:yellow', marker='<', linewidth=0.5, markersize=6)
+l2 = ax.plot(index, zilch_tape[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='s', linewidth=0.5, markersize=6)
 l3 = ax.plot(index, bulletproofs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=6)
 l4 = ax.plot(index, hyrax[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light orange', marker='>', linewidth=0.5, markersize=6)
 # l5 = ax.plot(index, hyrax[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='o', linewidth=0.5, markersize=6)

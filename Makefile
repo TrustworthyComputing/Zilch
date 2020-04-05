@@ -13,47 +13,47 @@ FFTLIB_SRC_DIR		:= algebra/FFT/src
 ALGEBRALIB_DIR		:= $(WD)/algebra/algebralib
 LIBSTARK_DIR		:= $(WD)/libstark
 GADGETLIB3_DIR		:= $(WD)/$(GADGETLIB3_SRC_DIR)
-HYPERION_DIR		:= $(WD)/framework/hyperion
+ZILCH_DIR		:= $(WD)/framework/zilch
 FFTLIB_DIR			:= $(WD)/algebra/FFT
 
-HYPERION_TESTS_DIR 	:= $(WD)/framework/hyperion-tests
+ZILCH_TESTS_DIR 	:= $(WD)/framework/zilch-tests
 
 .PHONY: 							\
 		libstark libstark-clean 	\
-		hyperion hyperion-clean 	\
-		hyperion-lib hyperion-lib-clean \
-		hyperion-tests hyperion-tests-clean 	\
+		zilch zilch-clean 	\
+		zilch-lib zilch-lib-clean \
+		zilch-tests zilch-tests-clean 	\
 		fft fft-clean 				\
 		algebralib algebralib-clean \
 		gadgetlib gadgetlib-clean 	\
 		clean
 
 INCFLAGS=-Isrc -I$(GADGET3INC) -I$(LIBSTARKINC) -I$(ALGEBRAINC) -I$(FFTINC)
-LIBFLAGS= -lhyperion -lgadgetlib -lstark -lalgebralib -lFFT
-LNKFLAGS=-L"$(BLDDIR)/algebralib" -L"$(BLDDIR)/fft" -L"$(BLDDIR)/gadgetlib" -L"$(BLDDIR)/libstark" -L"$(BLDDIR)/hyperion"
-TARGET=hyperion
+LIBFLAGS= -lzilch -lgadgetlib -lstark -lalgebralib -lFFT
+LNKFLAGS=-L"$(BLDDIR)/algebralib" -L"$(BLDDIR)/fft" -L"$(BLDDIR)/gadgetlib" -L"$(BLDDIR)/libstark" -L"$(BLDDIR)/zilch"
+TARGET=zilch
 
-default: hyperion
+default: zilch
 
 help:
 	./$(TARGET) --help
 
-hyperion: hyperion-lib main
+zilch: zilch-lib main
 	$(CC) -o $(TARGET) $(WD)/$(BUILD_DIR)/main.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
-hyperion-clean: hyperion-lib-clean main-clean hyperion-tests-clean
-	$(RM) $(WD)/hyperion
-	$(RM) $(WD)/hyperion-tests
+zilch-clean: zilch-lib-clean main-clean zilch-tests-clean
+	$(RM) $(WD)/zilch
+	$(RM) $(WD)/zilch-tests
 		
 main:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(HYPERION_DIR)/src -c -o $(WD)/$(BUILD_DIR)/main.o $(HYPERION_DIR)/main.cpp
+	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(ZILCH_DIR)/src -c -o $(WD)/$(BUILD_DIR)/main.o $(ZILCH_DIR)/main.cpp
 
 main-clean:
 	$(RM) $(WD)/$(BUILD_DIR)/main.o
 
-hyperion-lib: gadgetlib fft algebralib libstark
-	$(MAKE) -C $(HYPERION_DIR) 					\
-		BLDDIR=$(BLDDIR)/hyperion               \
+zilch-lib: gadgetlib fft algebralib libstark
+	$(MAKE) -C $(ZILCH_DIR) 					\
+		BLDDIR=$(BLDDIR)/zilch               \
 		EXEDIR=$(EXE_DIR) 						\
 		FFTINC=$(FFTLIB_DIR)/src 				\
 		FFTLIBLNKDIR=$(BLDDIR)/fft				\
@@ -64,9 +64,9 @@ hyperion-lib: gadgetlib fft algebralib libstark
 		GADGET3INC=$(GADGETLIB3_DIR)/../.		\
 		GADGET3LNKDIR=$(BLDDIR)/gadgetlib
 
-hyperion-lib-clean:
-	$(MAKE) clean -C $(HYPERION_DIR) 	\
-		BLDDIR=$(BLDDIR)/hyperion 		\
+zilch-lib-clean:
+	$(MAKE) clean -C $(ZILCH_DIR) 	\
+		BLDDIR=$(BLDDIR)/zilch 		\
 		EXEDIR=$(EXE_DIR)
 
 libstark:
@@ -103,12 +103,12 @@ gadgetlib:
 gadgetlib-clean:
 	$(MAKE) -C $(GADGETLIB3_DIR) BLDDIR=$(BLDDIR)/gadgetlib clean
 
-hyperion-tests: hyperion-tests gadgetlib fft algebralib libstark
-	$(MAKE) -C $(HYPERION_TESTS_DIR) 			\
-		BLDDIR=$(BLDDIR)/hyperion-tests     	\
+zilch-tests: zilch-tests gadgetlib fft algebralib libstark
+	$(MAKE) -C $(ZILCH_TESTS_DIR) 			\
+		BLDDIR=$(BLDDIR)/zilch-tests     	\
 		EXEDIR=$(EXE_DIR)		 				\
-		HYPERIONINC_DIR=$(HYPERION_DIR)/src 		\
-		HYPERIONOBJ_DIR=$(BLDDIR)/hyperion 		\
+		ZILCHINC_DIR=$(ZILCH_DIR)/src 		\
+		ZILCHOBJ_DIR=$(BLDDIR)/zilch 		\
 		FFTINC=$(FFTLIB_DIR)/src 				\
 		FFTLIBLNKDIR=$(BLDDIR)/fft				\
 		ALGEBRAINC=$(ALGEBRALIB_DIR)/headers 	\
@@ -118,8 +118,8 @@ hyperion-tests: hyperion-tests gadgetlib fft algebralib libstark
 		GADGET3INC=$(GADGETLIB3_DIR)/../.		\
 		GADGET3LNKDIR=$(BLDDIR)/gadgetlib		
 
-hyperion-tests-clean:
-	$(MAKE) clean -C $(HYPERION_TESTS_DIR) BLDDIR=$(BLDDIR)/hyperion-tests
+zilch-tests-clean:
+	$(MAKE) clean -C $(ZILCH_TESTS_DIR) BLDDIR=$(BLDDIR)/zilch-tests
 
-clean: gadgetlib-clean hyperion-clean libstark-clean fft-clean algebralib-clean
+clean: gadgetlib-clean zilch-clean libstark-clean fft-clean algebralib-clean
 	$(RM) -r $(BLDDIR)

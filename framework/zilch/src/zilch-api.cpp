@@ -1,4 +1,4 @@
-#include "hyperion-api.hpp"
+#include "zilch-api.hpp"
 #include <sys/stat.h>
 
 inline bool file_exists(const string& name) {
@@ -6,7 +6,7 @@ inline bool file_exists(const string& name) {
     return (stat (name.c_str(), &buffer) == 0); 
 }
 
-int hyperion_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const size_t securityParameter, bool verbose, bool no_proof) {
+int zilch_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const size_t securityParameter, bool verbose, bool no_proof) {
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
     initTinyRAMParamsFromEnvVariables();
@@ -35,7 +35,7 @@ int hyperion_local_prover_verifier(const string assemblyFile, const string prima
     return answer_;
 }
 
-int hyperion_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const string& address, uint16_t port_number, const string& session, const size_t t, const size_t securityParameter, bool verbose) {
+int zilch_prover(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const string& address, uint16_t port_number, const string& session, const size_t t, const size_t securityParameter, bool verbose) {
     if (primaryTapeFile != "" && !file_exists(primaryTapeFile)) {
         std::cerr << "File " << primaryTapeFile << " does not exist.\n";
         exit(EXIT_FAILURE);
@@ -66,7 +66,7 @@ int hyperion_prover(const string assemblyFile, const string primaryTapeFile, con
     return answer_;
 }
 
-bool hyperion_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, uint16_t port_number, const string& session, const size_t t, const size_t securityParameter, bool verbose) {
+bool zilch_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, uint16_t port_number, const string& session, const size_t t, const size_t securityParameter, bool verbose) {
     if (primaryTapeFile != "" && !file_exists(primaryTapeFile)) {
         std::cerr << "File " << primaryTapeFile << " does not exist.\n";
         exit(EXIT_FAILURE);

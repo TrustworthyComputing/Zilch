@@ -1,4 +1,4 @@
-# ./hyperion --asm ./examples-zmips/knowledge_of_bignum_factorization.zmips --no-proof
+# ./zilch --asm ./examples-zmips/knowledge_of_bignum_factorization.zmips --no-proof
 
 # read the number of blocks from public tape 
 pubread $r1                                 # the number of blocks of each number (l1)

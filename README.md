@@ -1,10 +1,10 @@
-# The Hyperion Framework [![License MIT][badge-license]](LICENSE) [![Build Status](https://travis-ci.com/TrustworthyComputing/Hyperion.svg?token=gZwZQ8qzAHzETuTPZFp7&branch=master)](https://travis-ci.com/TrustworthyComputing/Hyperion)
+# The Zilch Framework [![License MIT][badge-license]](LICENSE) [![Build Status](https://travis-ci.com/TrustworthyComputing/Zilch.svg?token=gZwZQ8qzAHzETuTPZFp7&branch=master)](https://travis-ci.com/TrustworthyComputing/Zilch)
 
 ## A Framework for Building Zero-Knowledge Proofs for any Application
 
 ### Overview
-Hyperion is a framework that implements _Scalable_ and _Transparent_ (it does not need any trusted-party setup phase) _ARguments_ of _Knowledge_ (STARKs).
-Hyperion consists of two main components: a front-end and a back-end.
+Zilch is a framework that implements _Scalable_ and _Transparent_ (it does not need any trusted-party setup phase) _ARguments_ of _Knowledge_ (STARKs).
+Zilch consists of two main components: a front-end and a back-end.
 
 
 The [front-end](https://github.com/jimouris/zilch-compiler) supports our novel, high-level programming language (called __Zilch__) and our custom compiler for translating the Zilch code to __zMIPS__ assembly instructions; zMIPS is our extension to the MIPS ISA to support programming ZKPs.
@@ -12,16 +12,16 @@ The front-end is complemented by our custom _code optimizer_ that performs stati
 Our high-level programming language syntax resembles C89 for programming convenience, without the need for pointers or system calls, and incorporates a small number of custom Zilch calls for easy creation of ZKPs for any application.
 
 
-The [back-end](https://github.com/TrustworthyComputing/Hyperion) translates the zMIPS assembly instructions to arithmetic circuits and generates ZKPs for verifying the evaluation of these circuits.
+The [back-end](https://github.com/TrustworthyComputing/Zilch) translates the zMIPS assembly instructions to arithmetic circuits and generates ZKPs for verifying the evaluation of these circuits.
 Our back-end builds upon the ZKP constructions of the [libSTARK](https://eprint.iacr.org/2018/046) library, and extends the programming model of libSTARK to our more powerful __zMIPS abstract machine__.
 The latter offers support for two read-only input sources (viewed as "tapes"), one for public and one for private inputs, which support _both sequential and random access reads_.
 zMIPS further supports MACRO instructions and custom labels, which enhances the expressivity of our assembly language.
-Finally, Hyperion supports over-the-network ZKPs without trusted third parties.
+Finally, Zilch supports over-the-network ZKPs without trusted third parties.
 
 _Disclaimer:_ The code is _academic grade_, meant for academic peer review and evaluation. It very likely contains _serious security flaws_.
 
 
-### Compilation 
+### Compilation
 
 ##### Dependencies:
 * OpenMP (https://en.wikipedia.org/wiki/OpenMP)
@@ -30,19 +30,19 @@ _Disclaimer:_ The code is _academic grade_, meant for academic peer review and e
 * libjson (https://github.com/open-source-parsers/jsoncpp) `apt install libjsoncpp-dev`
 
 ```
-git clone https://github.com/TrustworthyComputing/Hyperion
-cd Hyperion
+git clone https://github.com/TrustworthyComputing/Zilch
+cd Zilch
 make -j8
-make hyperion-tests -j8
+make zilch-tests -j8
 ```
 
-To verify the installation type `./hyperion-tests`.
+To verify the installation type `./zilch-tests`.
 
 
 ### Execution:
 
 ```
-$ ./hyperion --asm <zMIPS assembly file path> [--tsteps <trace length log_2>] [--security <security parameter]> [--pubtape <primaryTapeFile>] [--auxtape <auxTapeFile>] [--verifier | --prover] [--address <address:port_number>]
+$ ./zilch --asm <zMIPS assembly file path> [--tsteps <trace length log_2>] [--security <security parameter]> [--pubtape <primaryTapeFile>] [--auxtape <auxTapeFile>] [--verifier | --prover] [--address <address:port_number>]
 ```
 
 #### Prefixes
@@ -65,14 +65,14 @@ The flags below enable verification over the network; if neither is enabled, the
 ```
 see examples below on how to use the prefixes.
 
-__Note:__ If the public tape is in the same directory as the zMIPS assembly file and has the same name but has the `.pubtape` extension the flag `--pubtape` may be omitted. The same applies for the private tape with the extension `.auxtape`. For instance the command `./hyperion --asm ./foo.zmips --pubtape foo.pubtape --auxtape foo.auxtape` is the same as `./hyperion --asm ./foo.zmips`, since Hyperion automatically locates the tapes that end with `.pubtape` and `.auxtape` extensions.
+__Note:__ If the public tape is in the same directory as the zMIPS assembly file and has the same name but has the `.pubtape` extension the flag `--pubtape` may be omitted. The same applies for the private tape with the extension `.auxtape`. For instance the command `./zilch --asm ./foo.zmips --pubtape foo.pubtape --auxtape foo.auxtape` is the same as `./zilch --asm ./foo.zmips`, since Zilch automatically locates the tapes that end with `.pubtape` and `.auxtape` extensions.
 
 
 ## zMIPS ISA
-zMIPS is our extension to the MIPS ISA to support programming ZKPs. In [zMIPS.md](https://github.com/TrustworthyComputing/Hyperion/blob/master/zMIPS.md) we elaborate on the zMIPS enhanced instruction set.
+zMIPS is our extension to the MIPS ISA to support programming ZKPs. In [zMIPS.md](https://github.com/TrustworthyComputing/Zilch/blob/master/zMIPS.md) we elaborate on the zMIPS enhanced instruction set.
 
 ### Labels
-In Hyperion, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
+In Zilch, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
 
 ### zMIPS Input: Enhanced read from tapes instructions
 * `pubread $ri` : Consumes the next word from the public tape (if it has remaining words) and stores it in `$ri`.
@@ -85,7 +85,7 @@ In Hyperion, both the prefix and the suffix of a the label should be `__`. For i
 
 
 ### User-defined Macros
-In [macros.json](https://github.com/TrustworthyComputing/Hyperion/blob/master/framework/hyperion/src/macros.json) the user can define his/her own custom zMIPS macro-instructions.
+In [macros.json](https://github.com/TrustworthyComputing/Zilch/blob/master/framework/zilch/src/macros.json) the user can define his/her own custom zMIPS macro-instructions.
 
 For instance, we have defined `inc` and `min` macro-instructions as shown below :
 ```
@@ -103,7 +103,7 @@ answer $r0, $r0, $r0
 the answer would be 6.
 
 The `min` macro-instruction uses three registers and also labels:
-``` 
+```
 "min": {
     "reg1": "$x",
     "reg2": "$y",
@@ -136,7 +136,7 @@ the answer would be 5.
 
 
 ## Over the Network Verification:
-The default behavior (without flags `--address`, `--verifier`, `--prover`) of the `hyperion` executable results in a local execution. 
+The default behavior (without flags `--address`, `--verifier`, `--prover`) of the `zilch` executable results in a local execution.
 In order to enable over the network verification first the verifier should be executed (`--verifier` flag) and then the prover (`--prover` flag).
 The verifier acts as a server waiting for the prover to connect, executes and prints and returns its decision to the prover.
 
@@ -144,17 +144,17 @@ For instance, a simple read from tapes example over the network:
 
 First run the verifier listening on port `2324`:
 ```
-./hyperion --asm ./examples-zmips/read_test/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape --verifier --address localhost:2324
+./zilch --asm ./examples-zmips/read_test/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape --verifier --address localhost:2324
 ```
 And then the prover to connect to port `2324`:
 ```
-./hyperion --asm ./examples-zmips/read_test/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape --prover --address localhost:2324
+./zilch --asm ./examples-zmips/read_test/read_test.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape --prover --address localhost:2324
 ```
 
 
 ### Example (Collatz Conjecture):
 ```
-./hyperion --asm ./examples-zmips/collatz.zmips --tsteps 10 --security 120
+./zilch --asm ./examples-zmips/collatz.zmips --tsteps 10 --security 120
 ```
 The above execution results in execution of STARK simulation over the collatz program, using at most 1023 (which is 2<sup>10</sup>-1) machine steps, and soundness error at most 2<sup>-120</sup>.
 
@@ -176,14 +176,14 @@ print $r1
 
 answer $r0
 ```
-In order to execute the above program, simply run `./hyperion --asm ./examples-zmips/read_test/read_test.zmips --tsteps 5 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape`.
+In order to execute the above program, simply run `./zilch --asm ./examples-zmips/read_test/read_test.zmips --tsteps 5 --pubtape ./examples-zmips/read_test/read_test.pubtape --auxtape ./examples-zmips/read_test/read_test.auxtape`.
 
 
 ### A more interesting example (Knowledge of Factorization):
 A more interesting example would be to prove the knowledge of the factors of a number (e.g. 15) without disclosing them to the verifier.
 As we already mentioned, all the private inputs (i.e. the inputs that only the prover has knowledge of) are placed in the auxiliary tape.
 ```
-./hyperion --asm ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.auxtape
+./zilch --asm ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_factorization/knowledge_of_factorization.auxtape
 ```
 
 #### zMIPS code for the Knowledge of Factorization example:
@@ -200,13 +200,13 @@ answer $r11             ; return $r11 // $return (r1 * $r2 == 15)
 ```
 
 Also in file [knowledge_of_bignum_factorization.zmips](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.zmips) we have implemented the knowledge of factorization example for big numbers (e.g., 1024 bit arithmetic) based on block multiplication. Private inputs are located [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.auxtape) while public inputs is [here](https://github.com/TrustworthyComputing/IndigoZK/blob/master/examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.pubtape).
-To execute this example simply run `./hyperion --asm ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.zmips -t14 --security 120 --pubtape ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
+To execute this example simply run `./zilch --asm ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.zmips -t14 --security 120 --pubtape ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.pubtape --auxtape ./examples-zmips/knowledge_of_bignum_factorization/knowledge_of_bignum_factorization.auxtape`. The numbers in the auxiliary and public tape are the blocks of [RSA-100](https://en.wikipedia.org/wiki/RSA_numbers) number.
 
 
 ### Another interesting example (Knowledge of RSA Private Key):
 Prover claims he/she posseses the private RSA key of a verifier-chosen public key without revealing anything about the key to the verifier.
 ```
-./hyperion --asm ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.pubtape --auxtape ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.auxtape
+./zilch --asm ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.zmips --tsteps 10 --security 120 --pubtape ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.pubtape --auxtape ./examples-zmips/knowledge_of_RSA_private_key/knowledge_of_RSA_private_key.auxtape
 ```
 
 RSA example:

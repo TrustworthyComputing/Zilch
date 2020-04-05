@@ -22,7 +22,7 @@ script:
     - sudo make
     - sudo cp *.a /usr/lib
     - cd -
-    # Compile Hyperion 
+    # Compile Zilch 
     - make -j8
-    - make hyperion-tests -j8
-    - ./hyperion-tests
+    - make zilch-tests -j8
+    - ./zilch-tests

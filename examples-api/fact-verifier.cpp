@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "hyperion-api.hpp"
+#include "zilch-api.hpp"
 
 using namespace std;
 
@@ -11,7 +11,7 @@ int main(int argc, char const *argv[]) {
     std::cout << "Running Verifier for factorial...\n";
     
     string session("5849b8af");
-    bool result = hyperion_verifier(zmips_asm, "", "", "../framework/hyperion/src/macros.json", 34343, session, 10, 60, false);
+    bool result = zilch_verifier(zmips_asm, "", "", "../framework/zilch/src/macros.json", 34343, session, 10, 60, false);
 
     std::cout << "Executed Verifier for " << zmips_asm << '\n';
     std::cout << "Verifier's result " << result << '\n';

@@ -34,7 +34,7 @@ zMIPS is our extension to the MIPS ISA to support programming ZKPs. Below we pro
 
 
 ## Labels
-In Hyperion, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
+In Zilch, both the prefix and the suffix of a the label should be `__`. For instance `__labelName__`.
 
 ### zMIPS Input: Enhanced read from tapes instructions
 * `pubread $ri` : Consumes the next word from the public tape (if it has remaining words) and stores it in `$ri`.
@@ -48,7 +48,7 @@ In Hyperion, both the prefix and the suffix of a the label should be `__`. For i
 
 
 ## User-defined Macros
-In [macros.json](https://github.com/TrustworthyComputing/Hyperion/blob/master/framework/hyperion/src/macros.json) the user can define her own custom zMIPS macro-instructions.
+In [macros.json](https://github.com/TrustworthyComputing/Zilch/blob/master/framework/zilch/src/macros.json) the user can define her own custom zMIPS macro-instructions.
 
 For instance, we have defined `inc`, `dec` and `min` macro-instructions as shown below :
 ```

@@ -1,6 +1,6 @@
 bin/
-/hyperion
-/hyperion-tests
+/zilch
+/zilch-tests
 examples-zmips/mmult/mmult_*.zmips
 examples-zmips/mmult/mult_*.zmips
 examples-zmips/mmult/mmult_*.auxtape

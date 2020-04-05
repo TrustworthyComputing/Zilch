@@ -17,9 +17,9 @@ mydpi = 300
 pltsize = (7, 3)
 
 
-legend = ['Hyperion', 'Bulletproofs', 'Hyrax' ]
+legend = ['Zilch', 'Bulletproofs', 'Hyrax' ]
 
-hyperion =  {   'prover' :   [ 1.231022*60 ],
+zilch =  {   'prover' :   [ 1.231022*60 ],
                 'verifier' : [ 1.558190 ]
                 }
 
@@ -32,12 +32,12 @@ hyrax = {       'prover' :   [ 27.859260 ],
                 }
 
 
-N = len(hyperion[benchmark])
+N = len(zilch[benchmark])
 index = np.arange(N)  # the x locations for the groups
 
 fig, ax = plt.subplots(figsize=pltsize)
 
-l1 = ax.plot(index, hyperion[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='s', linewidth=0.5, markersize=6)
+l1 = ax.plot(index, zilch[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='s', linewidth=0.5, markersize=6)
 l2 = ax.plot(index, bulletproofs[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=6)
 l3 = ax.plot(index, hyrax[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='>', linewidth=0.5, markersize=6)
 # l5 = ax.plot(index, hyrax[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='o', linewidth=0.5, markersize=6)
