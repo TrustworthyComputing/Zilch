@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
     if (args.cmd_option_exists(session_prefix)) {
         session = args.get_cmd_option(session_prefix);
     }
-    printHeader();
+    // printHeader();
     /* assembly file can either be a Z-MIPS file or a Zilch asm file */
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, path+"framework/zilch/src/macros.json", show_asm);
     if (prover) {

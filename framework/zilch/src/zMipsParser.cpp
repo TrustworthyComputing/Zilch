@@ -8,7 +8,7 @@ bool answer_instruction = false;
 std::string remove_extension(const std::string& filename) {
     size_t lastdot = filename.find_last_of(".");
     if (lastdot == std::string::npos) return filename;
-    return filename.substr(0, lastdot); 
+    return filename.substr(0, lastdot);
 }
 
 std::string fromZMips(string instr, const string& r0 , const string& r1, const string& r2) {
@@ -144,15 +144,18 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
  * $zero is r0
  * SECSECREAD_RESERVED_REGISTER is r1
  * MEMORY_RESERVED_REGISTER is r2
- * r3 and r4 are spare for now.
+ * HEAP_REGISTER is r3
+ * r4 are spare for now.
  * When a user programs with r0, this funciton will return r5. r6 for r1 and so on.
 **/
 string mapMipsRegister(string& r) {
-    if (r == "$zero" || r == "$0") { 
+    if (r == "$zero" || r == "$0") {
         return "r"+to_string(ZERO_REGISTER);
-    } else if (r[0] == '$' && r[1] == 'r') { 
+    } else if (r == "$hp") {
+        return "r"+to_string(HEAP_REGISTER);
+    } else if (r[0] == '$' && r[1] == 'r') {
         int reg_num = stoi(r.substr(2));
-        string reg = "r" + to_string(reg_num+NUM_OF_RESERVED_REGS);
+        string reg = "r" + to_string(reg_num + NUM_OF_RESERVED_REGS);
         return reg;
     } else {
         std::cerr << r << " : Unknown register" << endl;
@@ -214,7 +217,7 @@ void unrollMacros(vector<std::string>& lines, const string& macros_file) {
                     boost::replace_all(macro, "__", "__"+to_string(label_cnt)+"__");
                 }
                 vector<std::string> m_instructions = split_string_to_lines(macro);
-                
+
                 lines[i++] = m_instructions[0];
                 for (size_t k = 1 ; k < m_instructions.size() ; k++) {
                     lines.insert(lines.begin() + (i++), m_instructions[k]);
@@ -225,7 +228,6 @@ void unrollMacros(vector<std::string>& lines, const string& macros_file) {
         }
 		i++;
 	}
-	
 }
 
 string parse_zmips(const string assemblyFile, const string primaryTapeFile, const string& macros_file, const bool show_asm) {
@@ -236,9 +238,9 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<std::string> lines{it, {}};
-    
+
     unrollMacros(lines, macros_file);
-    
+
     // Read public inputs (primaryTapeFile) to public_lines vector
     ifstream primarytapefs(primaryTapeFile);
     string public_inputs((std::istreambuf_iterator<char>(primarytapefs)),std::istreambuf_iterator<char>());
@@ -249,12 +251,6 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
         for (auto& l : store_tape) {
             ofs << l << "\n";
         }
-    }
-    if (show_asm) {
-        std::cout << '\n';
-        // for (auto& l : store_tape) {
-        //     std::cout << l << '\n'; // print line
-        // }
     }
     for (auto& l : lines) {
         std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
@@ -273,7 +269,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
         if (tokens.size() == 4) { // if instruction
             string imm = isMipsReg(tokens[3]) ? mapMipsRegister(tokens[3]) : tokens[3];
             if (is_hex_notation(imm)) {
-                size_t num;   
+                size_t num;
                 std::stringstream ss;
                 ss << std::hex << imm;
                 ss >> num;
@@ -283,7 +279,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
             if (is_number(tokens[2])) {
                 reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : tokens[2];
             } else if (is_hex_notation(tokens[2])) {
-                size_t num;   
+                size_t num;
                 std::stringstream ss;
                 ss << std::hex << tokens[2];
                 ss >> num;
@@ -291,7 +287,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
             } else {
                 reg2 = mapMipsRegister(tokens[2]);
             }
-            
+
             instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), reg2, imm);
         } else if (tokens.size() == 3) { // if lw or sw
             if (is_number(tokens[2])) {
@@ -302,6 +298,10 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
                 ss << std::hex << tokens[2];
                 ss >> num;
                 instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), to_string(num));
+            } else if (isLabel(tokens[2])) {
+                // std::cerr << r << " : is label" << endl;
+            } else if (stringToUpper(tokens[0].substr(0, 3)) == "CMP") {
+                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), mapMipsRegister(tokens[2]));
             } else {
                 tokens[2].erase(std::remove(tokens[2].begin(), tokens[2].end(), ')'), tokens[2].end());
                 int pos = tokens[2].find_first_of('(');
@@ -322,7 +322,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
             exit(EXIT_FAILURE);
         }
         ofs << instr << "\n";
-    }    
+    }
     if (!answer_instruction) {
         std::remove(parsedAsmFile.c_str());
         std::cerr << endl << "zMIPS assembly file should have an answer instruction." << endl << endl;

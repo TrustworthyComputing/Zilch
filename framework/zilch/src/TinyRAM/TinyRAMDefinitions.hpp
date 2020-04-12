@@ -19,8 +19,8 @@
 #define ZERO_REGISTER 0
 #define SECREAD_RESERVED_REGISTER 1
 #define MEMORY_RESERVED_REGISTER 2
-#define DEST_RESERVED_REGISTER 3
-#define NUM_OF_RESERVED_REGS ((DEST_RESERVED_REGISTER+1))
+#define HEAP_REGISTER 3
+#define NUM_OF_RESERVED_REGS ((HEAP_REGISTER+1))
 
 using namespace std;
 
@@ -52,7 +52,7 @@ extern int trRegisterNoPCIndexLen;
 */
 const int trNumOpcodes = NUMBER_OPCODES;
 
-/** 
+/**
  * Holds the length of an opcode representation. Should be Log2ceil(trNumOpcodes).
  */
 const int trOpcodeLen = ::Infrastructure::Log2ceil(trNumOpcodes);

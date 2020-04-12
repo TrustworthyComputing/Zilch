@@ -120,7 +120,8 @@ bool isReg(const string s){
 }
 
 bool isMipsReg(const string s) {
-	return ((s.size()>2) && (s[0]=='$') && (s[1]=='r')) || ((s.size()==2) && (s[0]=='$') && (s[1]=='0'));
+	return  ( (s.size() > 2) && (s[0]=='$') && (s[1]=='r') ) ||
+			( (s.size() == 2) && (s[0]=='$') && (s[1]=='0') );
 }
 
 bool is_number(const string& s) {
@@ -259,7 +260,7 @@ map<string, int> TinyRAMProgram::buildLabelsMap(vector<std::string>& lines){
 }
 
 void TinyRAMProgram::arg2isImmediateToFalse(const size_t pc) {
-	this->code_[pc].arg2isImmediate_ = false;	
+	this->code_[pc].arg2isImmediate_ = false;
 }
 
 void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
@@ -271,7 +272,7 @@ void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
 	// for (auto& l : lines){
 	// 	std::cout << l << std::endl; // print program as is
 	// }
-	
+
 	map<string, int> labels_map = buildLabelsMap(lines); 						// create a map for labels to instruction numbers
     for(const auto& l : lines){
 		if (l.empty()) continue; 												// if instruction is empty, skip it
