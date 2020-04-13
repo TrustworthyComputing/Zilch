@@ -128,13 +128,16 @@ bool isMipsReg(const string s) {
 			return is_number(s.substr(2));
 		} else if (s[1] == 'v') {
 			return is_number(s.substr(2));
+		} else if (s.size() == 3 && s[1] == 'h' && s[2] == 'p') {
+			return true;
+		} else if (s.size() == 3 && s[1] == 's' && s[2] == 'p') {
+			return true;
 		}
 		return false;
 	} else if (s.size() == 2) {
 		return (s[0] == '$') && (s[1] == '0');
 	} else {
-		std::cout << s << " : not a zMIPS register";
-		throw(s + " : not a zMIPS register");
+		return false;
 	}
 }
 

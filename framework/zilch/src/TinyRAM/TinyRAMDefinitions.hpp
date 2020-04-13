@@ -20,15 +20,16 @@
 #define SECREAD_RESERVED_REGISTER 1
 #define MEMORY_RESERVED_REGISTER 2
 #define HEAP_REGISTER 3
-#define RA_REGISTER 4
-#define A0_REGISTER 5
-#define A1_REGISTER 6
-#define A2_REGISTER 7
-#define A3_REGISTER 8
-#define A4_REGISTER 9
-#define V0_REGISTER 10
+#define STACK_REGISTER 4
+#define RA_REGISTER 5
+#define V0_REGISTER 6
+#define A0_REGISTER 7
+#define A1_REGISTER 8
+#define A2_REGISTER 9
+#define A3_REGISTER 10
+#define A4_REGISTER 11
 
-#define NUM_OF_RESERVED_REGS ((V0_REGISTER+1))
+#define NUM_OF_RESERVED_REGS ((A4_REGISTER+1))
 
 using namespace std;
 

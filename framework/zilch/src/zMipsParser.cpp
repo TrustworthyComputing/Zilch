@@ -148,6 +148,8 @@ string mapMipsRegister(string& r) {
         return "r"+to_string(ZERO_REGISTER);
     } else if (r == "$hp") {
         return "r"+to_string(HEAP_REGISTER);
+    } else if (r == "$sp") {
+        return "r"+to_string(STACK_REGISTER);
     } else if (r == "$ra") {
         return "r"+to_string(RA_REGISTER);
     } else if (r == "$v0") {
