@@ -76,7 +76,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "SLT" || instr == "SLTI" || instr == "SLTIU") {
         string l1 = "__" + to_string(labelcnt_++) + "__";
         return "MOV " + r0 + " " + r0 + " 0\n" + "CMPA " + r1 + " " + r1 + " " + r2 + "\nCMJMP " + r1 + " " + r1 + " " + l1 + "\nMOV " + r0 + " " + r0 + " 1\n" + l1;
-    } else if (instr == "MOV" || instr == "MOVE" || instr == "LI" || instr == "MFHI" || instr == "MFLO" || instr == "MTHI" || instr == "MTLO") {
+    } else if (instr == "MOV" || instr == "MOVE" || instr == "LA" || instr == "LI" || instr == "MFHI" || instr == "MFLO" || instr == "MTHI" || instr == "MTLO") {
         return "MOV " + r0 + " " + r1 + " " + r2;
     } else if (instr == "REGMOVE" || instr == "REGMOV") {
         return "REGMOV " + r0 + " " + r1 + " " + r2;
@@ -95,6 +95,8 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "CMOV " + r0 + " " + r1 + " " + r2;
     } else if (instr == "JMP" || instr == "J") {
         return "JMP " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "JR") {
+        return "JR " + r0 + " " + r1 + " " + r2;
     } else if (instr == "CJMP") {
         return "CJMP " + r0 + " " + r1 + " " + r2;
     } else if (instr == "CNJMP") {
@@ -132,27 +134,34 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "PRINTLN " + r0 + " " + r1 + " " + r2;
     } else if (instr == "NUM_OPCODES") {
         return "NUM_OPCODES " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "AES_BOXES") {
-        return "AES_BOXES " + r0 + " " + r1 + " " + r2;
     } else {
         std::cerr << instr << " : unfamiliar instruction" << endl;
         exit(EXIT_FAILURE);
     }
 }
 
-/* Registers r0-r4 are reserverd:
- * $zero is r0
- * SECSECREAD_RESERVED_REGISTER is r1
- * MEMORY_RESERVED_REGISTER is r2
- * HEAP_REGISTER is r3
- * r4 are spare for now.
- * When a user programs with r0, this funciton will return r5. r6 for r1 and so on.
+/**
+ * Convert zmips registers to libstark
 **/
 string mapMipsRegister(string& r) {
     if (r == "$zero" || r == "$0") {
         return "r"+to_string(ZERO_REGISTER);
     } else if (r == "$hp") {
         return "r"+to_string(HEAP_REGISTER);
+    } else if (r == "$ra") {
+        return "r"+to_string(RA_REGISTER);
+    } else if (r == "$v0") {
+        return "r"+to_string(V0_REGISTER);
+    } else if (r == "$a0") {
+        return "r"+to_string(A0_REGISTER);
+    } else if (r == "$a1") {
+        return "r"+to_string(A1_REGISTER);
+    } else if (r == "$a2") {
+        return "r"+to_string(A2_REGISTER);
+    } else if (r == "$a3") {
+        return "r"+to_string(A3_REGISTER);
+    } else if (r == "$a4") {
+        return "r"+to_string(A4_REGISTER);
     } else if (r[0] == '$' && r[1] == 'r') {
         int reg_num = stoi(r.substr(2));
         string reg = "r" + to_string(reg_num + NUM_OF_RESERVED_REGS);
@@ -299,7 +308,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
                 ss >> num;
                 instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), to_string(num));
             } else if (isLabel(tokens[2])) {
-                // std::cerr << r << " : is label" << endl;
+                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), tokens[2]);
             } else if (stringToUpper(tokens[0].substr(0, 3)) == "CMP") {
                 instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), mapMipsRegister(tokens[2]));
             } else {
@@ -314,7 +323,11 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
                 }
             }
         } else if (tokens.size() == 2) { // if j
-            instr = fromZMips(tokens[0], "r0", "r0", tokens[1]);
+            if (tokens[0] == "jr") {
+                instr = fromZMips(tokens[0], "r0", "r0", mapMipsRegister(tokens[1]));
+            } else {
+                instr = fromZMips(tokens[0], "r0", "r0", tokens[1]);
+            }
         } else if (tokens.size() == 1) { // if label
             instr = tokens[0];
         } else {

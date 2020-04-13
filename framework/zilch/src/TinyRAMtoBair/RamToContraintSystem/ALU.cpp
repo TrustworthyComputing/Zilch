@@ -6,11 +6,7 @@
 #include <algebraLib/BitExtract.hpp>
 #include <bitset>
 
-// #ifndef PRINT_HELPERS_HPP__  
-#include "AES_box.hpp"
-// #endif
-
-#ifndef PRINT_HELPERS_HPP__  
+#ifndef PRINT_HELPERS_HPP__
 #include <protocols/print_helpers.hpp>
 #endif
 
@@ -106,7 +102,7 @@ GadgetPtr ALU_Gadget::create(ProtoboardPtr pb,
 	return pGadget;
 }
 
-ALU_Gadget::ALU_Gadget(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables) : 
+ALU_Gadget::ALU_Gadget(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables) :
     Gadget(pb),
 	program_("program",
 	std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters(),
@@ -144,12 +140,12 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::SHR] = ALU_SHR_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::LOADW] = ALU_LOADW_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::STOREW] = ALU_STOREW_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::AES_BOXES] = ALU_AES_BOXES_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::JMP] = ALU_JMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::ANSWER] = ALU_ANSWER_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::PRINT] = ALU_PRINT_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::PRINTLN] = ALU_PRINTLN_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::PRINTLN] = ALU_PRINTLN_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CJMP] = ALU_CJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::JR] = ALU_JR_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -202,7 +198,7 @@ void ALU_Gadget::generateConstraints() {
 		componentPair.second->generateConstraints();
 	}
 	GADGETLIB_ASSERT(program_.size() > 0, "The program should be initalized");
-	
+
 	size_t programLength = (size_t)(program_.size());
 	size_t maxConstraintNum = getMaxConstraintNum(program_, pb_);
 	for (size_t i = 0; i < maxConstraintNum; i++) {
@@ -319,6 +315,9 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::CJMP:
     		components_[Opcode::CJMP]->generateWitness();
     		break;
+        case gadgetlib::Opcode::JR:
+            components_[Opcode::JR]->generateWitness();
+            break;
     	case gadgetlib::Opcode::CNJMP:
     		components_[Opcode::CNJMP]->generateWitness();
     		break;
@@ -337,9 +336,6 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::LOADW:
     		components_[Opcode::LOADW]->generateWitness();
     		break;
-        case gadgetlib::Opcode::AES_BOXES:
-            components_[Opcode::AES_BOXES]->generateWitness();
-            break;
         case gadgetlib::Opcode::PRINT:
     		components_[Opcode::PRINT]->generateWitness();
     		break;
@@ -399,7 +395,7 @@ void ALU_XOR_Gadget::generateWitness(){
 	pb_->val(results_.flag_) = (res == Algebra::zero()) ? Algebra::one() : Algebra::zero();
 	pb_->val(pInverse_) = (res != Algebra::zero()) ? res.inverse() : Algebra::one();
 	GADGETLIB_ASSERT(unpackedArg1_.size() == unpackedArg2_.size(), "XOR_GADGET: Unpacked1.size() == Unpacked2.size()");
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_XOR_Gadget witness\nALUInput XOR:\n";
         inputs_.printALUInput(pb_);
@@ -421,7 +417,7 @@ ALU_AND_Gadget::ALU_AND_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const A
 
 void ALU_AND_Gadget::init(){
 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::AND);
-	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::AND);	
+	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::AND);
 }
 
 GadgetPtr ALU_AND_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
@@ -479,7 +475,7 @@ void ALU_AND_Gadget::generateWitness(){
 		pb_->val(opcodeResult_[i]) = Algebra::zero();
 		pb_->val(opcodeCarry_[i]) = Algebra::zero();
 	}
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_AND_Gadget witness\nALUInput AND:\n";
         inputs_.printALUInput(pb_);
@@ -504,7 +500,7 @@ void ALU_OR_Gadget::init(){
 	//size_t registerLength = tinyRAMparams()->registerLength();
 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::OR);
 	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::OR);
-	
+
 }
 
 GadgetPtr ALU_OR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
@@ -567,7 +563,7 @@ void ALU_OR_Gadget::generateWitness(){
 		pb_->val(opcodeResult_[i]) = Algebra::zero();
 		pb_->val(opcodeCarry_[i]) = Algebra::zero();
 	}
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_OR_Gadget witness\nALUInput OR:\n";
         inputs_.printALUInput(pb_);
@@ -643,7 +639,7 @@ void ALU_NOT_Gadget::generateWitness(){
 		pb_->val(opcodeResult_[i]) = Algebra::zero();
 		pb_->val(opcodeCarry_[i]) = Algebra::zero();
 	}
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_NOT_Gadget witness\nALUInput NOT:\n";
         inputs_.printALUInput(pb_);
@@ -700,7 +696,7 @@ void ALU_ADD_Gadget::generateWitness(){
 	unpackArg2_g_->generateWitness();
 	add_g_->generateWitness();
 	packResult_g_->generateWitness();
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_ADD_Gadget witness\nALUInput ADD:\n";
         inputs_.printALUInput(pb_);
@@ -728,7 +724,7 @@ GadgetPtr ALU_SUB_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const
 }
 
 void ALU_SUB_Gadget::init(){
-	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::SUB);	
+	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::SUB);
 	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, results_.result_, PackingMode::UNPACK, Opcode::SUB);
 	packResult_g_ = CompressionPacking_Gadget::create(pb_, opcodeResult_, inputs_.arg1_val_, PackingMode::PACK, Opcode::SUB);
 	add_g_ = Addition_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, opcodeResult_, opcodeCarry_, results_.flag_, Opcode::SUB);
@@ -758,7 +754,7 @@ void ALU_SUB_Gadget::generateWitness(){
 	unpackArg2_g_->generateWitness();
 	add_g_->generateWitness();
 	//don't do: packResult_g_->generateWitness();
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_SUB_Gadget witness\nALUInput SUB:\n";
         inputs_.printALUInput(pb_);
@@ -844,7 +840,7 @@ void ALU_MULL_Gadget::generateWitness(){
 		pb_->val(pInverse_) = (val(multPartials1_[0])).inverse();
 		pb_->val(results_.flag_) = Algebra::one();
 	}
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_MULL_Gadget witness\nALUInput MULL:\n";
         inputs_.printALUInput(pb_);
@@ -927,7 +923,7 @@ void ALU_UMULH_Gadget::generateWitness(){
 		pb_->val(pInverse_) = (val(results_.result_)).inverse();
 		pb_->val(results_.flag_) = Algebra::one();
 	}
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_UMULH_Gadget witness\nALUInput UMULH:\n";
         inputs_.printALUInput(pb_);
@@ -1019,7 +1015,7 @@ void ALU_SMULH_Gadget::generateWitness(){
 	}
 	pb_->val(invNegative) = (val(results_.result_) + allOnes).inverse();
 	pb_->val(results_.flag_) = Algebra::zero();
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_SMULH_Gadget witness\nALUInput SMULH:\n";
         inputs_.printALUInput(pb_);
@@ -1116,7 +1112,7 @@ void ALU_UDIV_Gadget::generateWitness(){
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(multPackArg1_g_)->generateWitness();
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(multPackRemainder_g_)->generateWitness();
 	GEQ_g_->generateWitness();
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_UDIV_Gadget witness\nALUInput UDIV:\n";
         inputs_.printALUInput(pb_);
@@ -1217,7 +1213,7 @@ void ALU_UMOD_Gadget::generateWitness(){
 	std::dynamic_pointer_cast<MultiplicationPacking_Gadget>(multPackRemainder_g_)->generateWitness();
 	GEQ_g_->generateWitness();
 	packResult_g_->generateWitness();
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_UMOD_Gadget witness\nALUInput UMOD:\n";
         inputs_.printALUInput(pb_);
@@ -1267,7 +1263,7 @@ void ALU_CMPE_Gadget::generateWitness(){
 	pb_->val(results_.flag_) = arg1Val == arg2Val ? Algebra::one() : Algebra::zero();
 	pb_->val(pInverse_) = arg1Val == arg2Val ? Algebra::one() : (arg1Val + arg2Val).inverse();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CMPE_Gadget witness\nALUInput CMPE:\n";
         inputs_.printALUInput(pb_);
@@ -1316,9 +1312,9 @@ void ALU_CMPNE_Gadget::generateWitness(){
 	FElem arg2Val = pb_->val(inputs_.arg2_val_);
 	pb_->val(results_.flag_) = arg1Val == arg2Val ? Algebra::zero() : Algebra::one();
 	pb_->val(pInverse_) = arg1Val == arg2Val ? Algebra::zero() : (arg1Val + arg2Val).inverse();
-    
+
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CMPNE_Gadget witness\nALUInput CMPNE:\n";
         inputs_.printALUInput(pb_);
@@ -1379,7 +1375,7 @@ void ALU_CMPA_Gadget::generateWitness(){
 	FElem arg2Val = pb_->val(inputs_.arg2_val_);
 	pb_->val(results_.flag_) = (Algebra::one()==val(isGEQ_)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CMPA_Gadget witness\nALUInput CMPA:\n";
         inputs_.printALUInput(pb_);
@@ -1441,7 +1437,7 @@ void ALU_CMPAE_Gadget::generateWitness(){
 	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
 	pb_->val(results_.flag_) = ((Algebra::one()==flag)||(g==flag)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CMPAE_Gadget witness\nALUInput CMPAE:\n";
         inputs_.printALUInput(pb_);
@@ -1502,7 +1498,7 @@ void ALU_CMPG_Gadget::generateWitness(){
 	FElem arg2Val = pb_->val(inputs_.arg2_val_);
 	pb_->val(results_.flag_) = (Algebra::one()==val(isGEQ_)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CMPG_Gadget witness\nALUInput CMPG:\n";
         inputs_.printALUInput(pb_);
@@ -1564,7 +1560,7 @@ void ALU_CMPGE_Gadget::generateWitness(){
 	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
 	pb_->val(results_.flag_) = ((Algebra::one()==flag)||(g==flag)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CMPGE_Gadget witness\nALUInput CMPGE:\n";
         inputs_.printALUInput(pb_);
@@ -1625,7 +1621,7 @@ void ALU_SHL_Gadget::generateConstraints(){
     // witnessPoly = Algebra::invExtrConsts[registerLength-1] * (wFlag*wFlag + wFlag) + inputs_.arg1_val_ + Algebra::power(x, registerLength-1) * results_.flag_;
 	pb_->addGeneralConstraint(witnessPoly, "flagWitness", Opcode::SHL);
 	enforceBooleanity(results_.flag_, Opcode::SHL);
-    
+
 	tmpPoly = inputs_.arg1_val_;
 	x_i = x;
 	for (int i = 0; i < registerLogLen; ++i){
@@ -1636,16 +1632,16 @@ void ALU_SHL_Gadget::generateConstraints(){
 	const Variable invRem = auxArr_[registerLength-ALU_SHL_Gadget::idxs::invRem];
 	tmpPoly = tmpPoly * (remainder * invRem + Algebra::one());
 	const Variable doubleResult = auxArr_[registerLength-ALU_SHL_Gadget::idxs::dRes];
-#if (REGISTER_LENGTH < 64) 
+#if (REGISTER_LENGTH < 64)
     pb_->addGeneralConstraint(tmpPoly + doubleResult, "doubleResult = tmpPoly", Opcode::SHL);
-#endif    
+#endif
 	tmpPoly = remainder * (remainder * invRem + Algebra::one());
 	pb_->addGeneralConstraint(tmpPoly, "rem*(rem * invRem + 1)", Opcode::SHL);
 	if (standAlone_) {
         unpackDouble_g_->generateConstraints();
     }
 	packResult_g_->generateConstraints();
-    
+
 	// add isMemOp = 0
 	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SHL);
 }
@@ -1680,7 +1676,7 @@ void ALU_SHL_Gadget::generateWitness(){
 	const FElem fRes = (doubleRes >> (registerLength - 1)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.flag_) = fRes;
 	pb_->val(auxArr_[registerLength - ALU_SHL_Gadget::idxs::witnessFlag]) =
-		extractBit(fToggled, registerLength-1 /* MSB */); 
+		extractBit(fToggled, registerLength-1 /* MSB */);
 
 	if (r) {
 		pb_->val(auxArr_[registerLength - ALU_SHL_Gadget::idxs::invRem]) = remainder.inverse();
@@ -1693,7 +1689,7 @@ void ALU_SHL_Gadget::generateWitness(){
 	}
 	unpackDouble_g_->generateWitness();
 	packResult_g_->generateWitness();
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_SHL_Gadget witness\nALUInput SHL:\n";
         inputs_.printALUInput(pb_);
@@ -1770,9 +1766,9 @@ void ALU_SHR_Gadget::generateConstraints(){
 #endif
 	tmpPoly = remainder * (remainder * invRem + Algebra::one());
 	pb_->addGeneralConstraint(tmpPoly, "rem*(rem * invRem + 1)", Opcode::SHR);
-	
+
 	if (standAlone_) {
-        unpackDouble_g_->generateConstraints(); 
+        unpackDouble_g_->generateConstraints();
     }
 	packResult_g_->generateConstraints();
 	// add isMemOp = 0
@@ -1784,7 +1780,7 @@ void ALU_SHR_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	const long registerLength = long((tinyRAMparams()->registerLength()));
 	const long registerLogLen = long(log2(registerLength));
-	
+
 	size_t operand2 = Algebra::mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
 	size_t r = operand2;
 	for (int i = 0; i < registerLogLen; ++i){
@@ -1803,25 +1799,25 @@ void ALU_SHR_Gadget::generateWitness(){
 
 	const FElem operand1 = pb_->val(inputs_.arg1_val_);
 	size_t doubleRes = Algebra::mapFieldElementToInteger(0, EXTDIM, operand1);
-	
+
 	const FElem fRes = Algebra::mapIntegerToFieldElement(0, 1, doubleRes);
 	pb_->val(results_.flag_) = fRes;
-	pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::witnessFlag]) = extractBit(operand1+fRes, 0 /* LSB */); 
+	pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::witnessFlag]) = extractBit(operand1+fRes, 0 /* LSB */);
 	if (r) {
         pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::invRem]) = remainder.inverse();
         pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes]) = Algebra::zero();
 	} else {
 		pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::invRem]) = Algebra::zero();
-#if (REGISTER_LENGTH < 64) 
+#if (REGISTER_LENGTH < 64)
         doubleRes = ((long)operand2 >= registerLength) ? 0 : (doubleRes << (registerLength - operand2));
 #else
         doubleRes = doubleRes >> operand2;
-#endif        
+#endif
 		pb_->val(auxArr_[registerLength - ALU_SHR_Gadget::idxs::dRes]) = Algebra::mapIntegerToFieldElement(0, EXTDIM, doubleRes);
 	}
     unpackDouble_g_->generateWitness();
 	packResult_g_->generateWitness();
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_SHR_Gadget witness\nALUInput SHR:\n";
         inputs_.printALUInput(pb_);
@@ -1864,7 +1860,7 @@ void ALU_JMP_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_JMP_Gadget witness\nALUInput JMP:\n";
         inputs_.printALUInput(pb_);
@@ -1906,11 +1902,53 @@ void ALU_CJMP_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CJMP_Gadget witness\nALUInput CJMP:\n";
         inputs_.printALUInput(pb_);
         std::cout << "ALUOutput CJMP" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
+/*******************                         ALU_JR_Gadget                    ******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+ALU_JR_Gadget::ALU_JR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
+								: Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+
+GadgetPtr ALU_JR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_JR_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_JR_Gadget::init(){}
+
+void ALU_JR_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_JR_Gadget" << '\n';
+#endif
+	pb_->addGeneralConstraint(results_.flag_ + inputs_.flag_, "inputs.flag_ = results.flag_", Opcode::JR);
+	pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::JR);
+}
+
+void ALU_JR_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
+	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+
+    #ifdef DEBUG
+        std::cout << "\n\nALU_JR_Gadget witness\nALUInput JR:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput JR" << '\n';
         results_.printALUOutput(pb_);
         std::cout << '\n';
     #endif
@@ -1938,7 +1976,7 @@ void ALU_CNJMP_Gadget::init(){}
 void ALU_CNJMP_Gadget::generateConstraints(){
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_CNJMP_Gadget" << '\n';
-#endif    
+#endif
 	pb_->addGeneralConstraint(results_.flag_ + inputs_.flag_, "inputs.flag_ = results.flag_", Opcode::CNJMP);
 	pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::CNJMP);
 }
@@ -1948,7 +1986,7 @@ void ALU_CNJMP_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_CNJMP_Gadget witness\nALUInput CNJMP:\n";
         inputs_.printALUInput(pb_);
@@ -1979,7 +2017,7 @@ void ALU_STOREW_Gadget::init(){}
 void ALU_STOREW_Gadget::generateConstraints(){
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_STOREW_Gadget" << '\n';
-#endif    
+#endif
 	pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::STOREW);
 	pb_->addGeneralConstraint(results_.isLoadOp_, "isLoadOp = 0", Opcode::STOREW);
 	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::STOREW);
@@ -1998,7 +2036,7 @@ void ALU_STOREW_Gadget::generateWitness(){
 	pb_->val(results_.value_) = value;
 	pb_->val(results_.address_) = memoryAddress;
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_STOREW_Gadget witness\nALUInput STOREW:\n";
         inputs_.printALUInput(pb_);
@@ -2046,16 +2084,16 @@ void ALU_LOADW_Gadget::generateWitness(){
 	pb_->val(results_.isMemOp_) = Algebra::one();
 	FElem address = pb_->val(inputs_.arg2_val_); // stores [A] to r_1 - check traceConsistency
 	FElem value = pb_->loadValue(address);
-    
+
 	pb_->val(results_.address_) = address;
 	pb_->val(results_.value_) = value;
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
-    
+
     #ifdef DEBUG
         // int v = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), value);
         // int a = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), address);
         // std::cout << "\tLoaded " << v << " from " << a<< '\n';
-    
+
         std::cout << "\n\nALU_LOADW_Gadget witness\nALUInput LOADW:\n";
         inputs_.printALUInput(pb_);
         std::cout << "ALUOutput LOADW" << '\n';
@@ -2114,7 +2152,7 @@ void ALU_ANSWER_Gadget::generateWitness(){
         specs.print();
         std::cout << "\n";
 	}
-    
+
     #ifdef DEBUG
         std::cout << "\n\nALU_ANSWER_Gadget witness\nALUInput ANSWER:\n";
         inputs_.printALUInput(pb_);
@@ -2237,7 +2275,7 @@ void ALU_MOV_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
-    
+
 #ifdef DEBUG
     std::cout << "\n\nALU_MOV_Gadget witness\nALUInput MOV:\n";
     inputs_.printALUInput(pb_);
@@ -2269,7 +2307,7 @@ void ALU_REGMOV_Gadget::init(){}
 void ALU_REGMOV_Gadget::generateConstraints(){
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_REGMOV_Gadget" << '\n';
-#endif    
+#endif
 	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::REGMOV);
 	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::REGMOV);
 }
@@ -2278,7 +2316,7 @@ void ALU_REGMOV_Gadget::generateWitness(){
 	initMemResult(pb_, results_);
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
     pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
-    
+
 #ifdef DEBUG
     std::cout << "\n\nALU_REGMOV_Gadget witness\nALUInput REGMOV:\n";
     inputs_.printALUInput(pb_);
@@ -2311,7 +2349,7 @@ void ALU_READ_Gadget::init() {}
 void ALU_READ_Gadget::generateConstraints() {
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_READ_Gadget" << '\n';
-#endif    
+#endif
 	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::SECREAD);
 	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::SECREAD);
 }
@@ -2353,7 +2391,7 @@ void ALU_SECSEEK_Gadget::init() {}
 void ALU_SECSEEK_Gadget::generateConstraints() {
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_SECSEEK_Gadget" << '\n';
-#endif    
+#endif
 	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::SECSEEK);
 	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::SECSEEK);
 }
@@ -2397,11 +2435,11 @@ void ALU_RESERVED_OPCODE_24_Gadget::init(){
 void ALU_RESERVED_OPCODE_24_Gadget::generateConstraints(){
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_RESERVED_OPCODE_24_Gadget" << '\n';
-#endif    
+#endif
 	if (standAlone_) {
 		unpackArg1_g_->generateConstraints();
 	}
-	srand(prngseed); 
+	srand(prngseed);
 	rand();
 	CircuitPolynomial t, rPoly = Algebra::zero();
 	for (size_t i = 0; i < ROMSIZE; ++i){
@@ -2427,97 +2465,6 @@ void ALU_RESERVED_OPCODE_24_Gadget::generateWitness(){
 			(void)rand(); //lame, replace with md5 or sha
 	size_t res = rand() - RAND_MAX/2;
 	val(results_.result_) = mapIntegerToFieldElement(0, REGISTER_LENGTH, res);
-}
-
-
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_AES_BOXES_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-ALU_AES_BOXES_Gadget::ALU_AES_BOXES_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
-
-GadgetPtr ALU_AES_BOXES_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_AES_BOXES_Gadget(pb, inputs, results));
-	pGadget->init();
-	return pGadget;
-}
-
-void ALU_AES_BOXES_Gadget::init(){}
-
-void ALU_AES_BOXES_Gadget::generateConstraints(){
-#ifdef DEBUG
-    std::cout << "generateConstraints ALU_AES_BOXES_Gadget" << '\n';
-#endif
-	// pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::AES_BOXES);
-	pb_->addGeneralConstraint(results_.isLoadOp_, "isLoadOp = 0", Opcode::AES_BOXES);
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::AES_BOXES);
-	pb_->addGeneralConstraint(results_.value_ + inputs_.dest_val_, "inputs_.value_ = inputs_.dest_val", Opcode::AES_BOXES);
-}
-
-void ALU_AES_BOXES_Gadget::generateWitness(){
-	initGeneralOpcodes(pb_);
-	initMemResult(pb_, results_);
-	// pb_->val(results_.isMemOp_) = Algebra::one();
-	pb_->val(results_.isLoadOp_) = Algebra::zero();
-	FElem memoryAddress = pb_->val(inputs_.arg2_val_);
-	FElem value = pb_->val(inputs_.dest_val_);
-    pb_->storeValue(memoryAddress, value);
-    
-    // sbox starts at base
-    size_t base = 5000;
-    for (size_t i = 0 ; i < 256 ; i++) {
-    	pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, s[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, inv_s[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_2[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_3[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_9[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_11[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_13[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 256 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, mul_14[i]));
-    }
-    base += 256;
-    for (size_t i = 0 ; i < 176 ; i++) {
-        pb_->storeValue(mapIntegerToFieldElement(0, 16, base+i), mapIntegerToFieldElement(0, 16, expandedKey[i]));
-    }
-    
-	pb_->val(results_.value_) = value;
-	pb_->val(results_.address_) = memoryAddress;
-	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
-    
-    #ifdef DEBUG
-        std::cout << "\n\nALU_AES_BOXES_Gadget witness\nALUInput AES_BOXES:\n";
-        inputs_.printALUInput(pb_);
-        std::cout << "ALUOutput AES_BOXES" << '\n';
-        results_.printALUOutput(pb_);
-        std::cout << '\n';
-    #endif
 }
 
 /*********************************/

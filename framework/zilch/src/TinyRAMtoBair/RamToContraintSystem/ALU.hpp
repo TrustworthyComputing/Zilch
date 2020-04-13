@@ -58,7 +58,7 @@ void resetALU_GadgetGlobalState();
 // A macro to disallow any non-defined constructors
 // This should be used in the private: declarations for a class
 #define DISALLOW_CONSTRUCTION(TypeName) \
-  TypeName();               
+  TypeName();
 
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
@@ -81,11 +81,11 @@ public:
 	virtual void generateConstraints() = 0;
 protected:
 	ALU_Component_Gadget(const ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), inputs_(inputs), results_(results) {}
-	
+
 	typedef ::std::shared_ptr<const TinyRAMProtoboardParams> TRParamsPtr;
 	const TRParamsPtr tinyRAMparams() const;
 	// external variables
-	
+
 	const ALUInput inputs_;
 	const ALUOutput results_;
 private:
@@ -149,7 +149,7 @@ private:
 						const ALUOutput& results);
 	virtual void init();
 
-	
+
 public:
 	static GadgetPtr create(ProtoboardPtr pb,
 					const ALUInput& inputs,
@@ -261,7 +261,7 @@ public:
 						const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
-	
+
 private:
 	// internal gadgets
 	GadgetPtr unpackArg1_g_;
@@ -293,7 +293,7 @@ public:
 						const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
-	
+
 private:
 	// internal gadgets
 	GadgetPtr unpackArg1_g_;
@@ -324,7 +324,7 @@ public:
 						const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
-	
+
 private:
 	Algebra::UnpackedWord multPartials1_;
 	Algebra::UnpackedWord multPartials2_;
@@ -364,7 +364,7 @@ public:
 						const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
-	
+
 private:
 	Algebra::UnpackedWord multPartials1_;
 	Algebra::UnpackedWord multPartials2_;
@@ -402,7 +402,7 @@ public:
 						const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
-	
+
 private:
 	Algebra::UnpackedWord multPartials1_;
 	Algebra::UnpackedWord multPartials2_;
@@ -442,7 +442,7 @@ public:
 						const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
-	
+
 private:
 	Algebra::UnpackedWord cmpFlags_;
 	Algebra::Variable isGEQ_;
@@ -487,7 +487,7 @@ public:
 						const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
-	
+
 private:
 	Algebra::UnpackedWord cmpFlags_;
 	Algebra::Variable isGEQ_;
@@ -788,6 +788,31 @@ public:
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
+/*******************                         ALU_JR_Gadget                     ******************/
+/*******************                                                            ******************/
+/*************************************************************************************************/
+/*************************************************************************************************/
+
+class ALU_JR_Gadget : public ALU_Component_Gadget{
+private:
+	ALU_JR_Gadget(ProtoboardPtr pb,
+					const ALUInput& inputs,
+					const ALUOutput& results);
+	virtual void init();
+
+public:
+	static GadgetPtr create(ProtoboardPtr pb,
+							const ALUInput& inputs,
+							const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+
+	DISALLOW_COPY_AND_ASSIGN(ALU_JR_Gadget);
+};
+
+/*************************************************************************************************/
+/*************************************************************************************************/
+/*******************                                                            ******************/
 /*******************			           ALU_CNJMP_Gadget                     ******************/
 /*******************                                                            ******************/
 /*************************************************************************************************/
@@ -820,7 +845,7 @@ class ALU_STOREW_Gadget : public ALU_Component_Gadget {
 private:
 	ALU_STOREW_Gadget(ProtoboardPtr pb,
 					const ALUInput& inputs,
-					const ALUOutput& results);	
+					const ALUOutput& results);
 	virtual void init();
 public:
 	static GadgetPtr create(ProtoboardPtr pb,
@@ -1046,26 +1071,6 @@ public:
 private:
 	GadgetPtr unpackArg1_g_;
 	DISALLOW_COPY_AND_ASSIGN(ALU_RESERVED_OPCODE_24_Gadget);
-};
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_AES_BOXES_Gadget               ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-class ALU_AES_BOXES_Gadget : public ALU_Component_Gadget {
-private:
-	ALU_AES_BOXES_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);	
-	virtual void init();
-public:
-	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
-	void generateConstraints();
-	void generateWitness();
-
-	DISALLOW_COPY_AND_ASSIGN(ALU_AES_BOXES_Gadget);
 };
 
 /*********************************/

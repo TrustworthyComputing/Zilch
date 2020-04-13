@@ -13,14 +13,22 @@
 #include <common/Infrastructure/Infrastructure.hpp>
 #include "../../../configs.hpp"
 
-#define NUMBER_OPCODES 33
+#define NUMBER_OPCODES 38
 #define BIN_EOF_STRING "EOF"
 
 #define ZERO_REGISTER 0
 #define SECREAD_RESERVED_REGISTER 1
 #define MEMORY_RESERVED_REGISTER 2
 #define HEAP_REGISTER 3
-#define NUM_OF_RESERVED_REGS ((HEAP_REGISTER+1))
+#define RA_REGISTER 4
+#define A0_REGISTER 5
+#define A1_REGISTER 6
+#define A2_REGISTER 7
+#define A3_REGISTER 8
+#define A4_REGISTER 9
+#define V0_REGISTER 10
+
+#define NUM_OF_RESERVED_REGS ((V0_REGISTER+1))
 
 using namespace std;
 

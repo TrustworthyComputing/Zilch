@@ -46,6 +46,7 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::CMOV: return "CMOV";
         case Opcode::JMP: return "JMP";
         case Opcode::CJMP: return "CJMP";
+		case Opcode::JR: return "JR";
         case Opcode::CNJMP: return "CNJMP";
         case Opcode::RESERVED_OPCODE_24: return "RESERVED_OPCODE_24";
         case Opcode::RESERVED_OPCODE_25: return "RESERVED_OPCODE_25";
@@ -56,7 +57,6 @@ std::string opcodeToString(const Opcode& op){
         case Opcode::ANSWER: return "ANSWER";
         case Opcode::PRINT: return "PRINT";
         case Opcode::PRINTLN: return "PRINTLN";
-		case Opcode::AES_BOXES: return "AES_BOXES";
         case Opcode::NUM_OPCODES: return "NUM_OPCODES";
         default :
                   std::cout<<"unfamiliar instruction";
@@ -94,6 +94,7 @@ Opcode opcodeFromString(const string op){
     if(op == "CMOV") return Opcode::CMOV;
     if(op == "JMP") return Opcode::JMP;
     if(op == "CJMP") return Opcode::CJMP;
+	if(op == "JR") return Opcode::JR;
     if(op == "CNJMP") return Opcode::CNJMP;
     if(op == "RESERVED_OPCODE_24") return Opcode::RESERVED_OPCODE_24;
     if(op == "RESERVED_OPCODE_25") return Opcode::RESERVED_OPCODE_25;
@@ -101,7 +102,6 @@ Opcode opcodeFromString(const string op){
     if(op == "LOADB") return Opcode::LOADB;
     if(op == "STOREW") return Opcode::STOREW;
     if(op == "LOADW") return Opcode::LOADW;
-	if(op == "AES_BOXES") return Opcode::AES_BOXES;
     if(op == "ANSWER") return Opcode::ANSWER;
     if(op == "PRINT") return Opcode::PRINT;
     if(op == "PRINTLN") return Opcode::PRINTLN;
@@ -120,8 +120,22 @@ bool isReg(const string s){
 }
 
 bool isMipsReg(const string s) {
-	return  ( (s.size() > 2) && (s[0]=='$') && (s[1]=='r') ) ||
-			( (s.size() == 2) && (s[0]=='$') && (s[1]=='0') );
+	if (s.size() > 2) {
+		if (s[0] != '$') return false;
+		if (s[1] == 'r') {
+			return is_number(s.substr(2));
+		} else if (s[1] == 'a') {
+			return is_number(s.substr(2));
+		} else if (s[1] == 'v') {
+			return is_number(s.substr(2));
+		}
+		return false;
+	} else if (s.size() == 2) {
+		return (s[0] == '$') && (s[1] == '0');
+	} else {
+		std::cout << s << " : not a zMIPS register";
+		throw(s + " : not a zMIPS register");
+	}
 }
 
 bool is_number(const string& s) {

@@ -90,15 +90,13 @@ void TraceConsistency::pcConsistency(){
 	for (size_t i = 0; i < program_.size(); i++){
 		CircuitPolynomial selector_i = getSelector(program_.size(), i, followingTraceVariables_.first_.pc_);
 		Opcode opcode = program_.code()[i].opcode_;
-		if (opcode == Opcode::JMP){
+		if (opcode == Opcode::JMP || opcode == Opcode::JR){
 			//pcPoly = pcPoly + ((pcPacked + aluOutput_.result_) * selector_i);
 			selectorToConstraint[i] = 0;
-		}
-		else if (opcode == Opcode::ANSWER){
+		} else if (opcode == Opcode::ANSWER){
 			//pcPoly = pcPoly + ((pcPacked + prevPcPacked) * selector_i);
 			selectorToConstraint[i] = 1;
-		}
-		else if (opcode == Opcode::CJMP){
+		} else if (opcode == Opcode::CJMP){
 			Algebra::FElem integerAsFElem = mapIntegerToFieldElement(0, pcLength, i + 1);
 			Variable flag = followingTraceVariables_.first_.flag_;
 			//pcPoly = pcPoly + selector_i*(flag * (pcPacked + aluOutput_.result_) +
@@ -106,9 +104,7 @@ void TraceConsistency::pcConsistency(){
 			constraints.push_back((flag * (pcPacked + aluOutput_.result_) +
 				(Algebra::one() + flag) * (pcPacked + integerAsFElem)));
 			selectorToConstraint[i] = constraints.size() - 1;
-
-		}
-		else if (opcode == Opcode::CNJMP){
+		} else if (opcode == Opcode::CNJMP){
 			Algebra::FElem integerAsFElem = mapIntegerToFieldElement(0, pcLength, i + 1);
 			Variable flag = followingTraceVariables_.first_.flag_;
 			//pcPoly = pcPoly + selector_i*((Algebra::one() + flag)  * (pcPacked + aluOutput_.result_) +
@@ -116,9 +112,7 @@ void TraceConsistency::pcConsistency(){
 			constraints.push_back((Algebra::one() + flag)  * (pcPacked + aluOutput_.result_) +
 				flag * (pcPacked + integerAsFElem));
 			selectorToConstraint[i] = constraints.size() - 1;
-
-		}
-		else{
+		} else{
 			Algebra::FElem integerAsFElem = mapIntegerToFieldElement(0, pcLength, i + 1);
 			//pcPoly = pcPoly + ((pcPacked + integerAsFElem) *selector_i);
 			constraints.push_back((pcPacked + integerAsFElem));
@@ -136,9 +130,9 @@ void TraceConsistency::registerConsistency(){
 	size_t numRegistersTrace1 = followingTraceVariables_.first_.registers_.size();
 	size_t numRegistersTrace2 = followingTraceVariables_.second_.registers_.size();
 	GADGETLIB_ASSERT(numRegistersTrace1 == numRegistersTrace2, "TraceConsistency: number of registers should be the same");
-	
 
-	
+
+
 	for (size_t i = 0; i < numRegistersTrace1; ++i){
 		Variable regiSecond = followingTraceVariables_.second_.registers_[i];
 		Variable regiFirst = followingTraceVariables_.first_.registers_[i];
@@ -147,8 +141,8 @@ void TraceConsistency::registerConsistency(){
 		vector<Variable> selectorVariableVector = getPCVars(followingTraceVariables_.first_.pc_);
 		//preparing the vector that will contain the different relevant constraints according to the opcode
 		vector<CircuitPolynomial> constraints;
-		
-		
+
+
 		constraints.push_back(regiSecond + aluOutput_.result_);
 		constraints.push_back(regiSecond + regiFirst);
 		constraints.push_back(regiSecond + aluOutput_.value_);
@@ -188,6 +182,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::JMP:
 					case Opcode::CJMP:
 					case Opcode::CNJMP:
+					case Opcode::JR:
 					case Opcode::CMPE:
 					case Opcode::CMPNE:
 					case Opcode::CMPA:
@@ -195,7 +190,6 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::CMPG:
 					case Opcode::CMPGE:
 					case Opcode::STOREW:
-					case Opcode::AES_BOXES:
 					case Opcode::ANSWER:
 					case Opcode::PRINT:
 					case Opcode::PRINTLN:
@@ -283,6 +277,7 @@ void TraceConsistency::registersWitness(size_t programLine){
 				break;
 			case Opcode::JMP:
 			case Opcode::CJMP:
+			case Opcode::JR:
 			case Opcode::CNJMP:
 			case Opcode::CMPE:
 			case Opcode::CMPNE:
@@ -291,7 +286,6 @@ void TraceConsistency::registersWitness(size_t programLine){
 			case Opcode::CMPG:
 			case Opcode::CMPGE:
 			case Opcode::STOREW:
-			case Opcode::AES_BOXES:
 			case Opcode::ANSWER:
 			case Opcode::PRINT:
 			case Opcode::PRINTLN:
@@ -339,8 +333,8 @@ void TraceConsistency::generateWitness(size_t programLine){
 	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
 	const Algebra::FElem generator = Algebra::FElem(getGF2E_X());
 	timeStampWitness();
-	Opcode opcode = program_.code()[programLine].opcode_;		
-	if (opcode == Opcode::JMP || opcode == Opcode::CJMP || opcode == Opcode::CNJMP){
+	Opcode opcode = program_.code()[programLine].opcode_;
+	if (opcode == Opcode::JMP || opcode == Opcode::CJMP || opcode == Opcode::JR || opcode == Opcode::CNJMP){
 		size_t nextLine;
 		if (program_.code()[programLine].arg2isImmediate_){
 			nextLine = program_.code()[programLine].arg2IdxOrImmediate_;
@@ -350,7 +344,7 @@ void TraceConsistency::generateWitness(size_t programLine){
 		}
 
 		// Calculate PC
-		if (opcode == Opcode::JMP) {
+		if (opcode == Opcode::JMP || opcode == Opcode::JR) {
 			pcWitness(nextLine);
 		} else if (opcode == Opcode::CJMP) {
 			if (pb_->val(followingTraceVariables_.first_.flag_) == Algebra::one()){
@@ -368,7 +362,7 @@ void TraceConsistency::generateWitness(size_t programLine){
 	} else if (opcode == Opcode::ANSWER) {
 		pcWitness(programLine);
 	} else {
-		pcWitness(programLine + 1); 
+		pcWitness(programLine + 1);
 	}
 	registersWitness(programLine);
 }

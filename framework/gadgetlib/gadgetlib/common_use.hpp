@@ -45,6 +45,7 @@ enum class Opcode : int {
 
 	CJMP = 22,
 	CNJMP = 23,
+	JR = 37,
 
 	RESERVED_OPCODE_24 = 24,
 	RESERVED_OPCODE_25 = 25,
@@ -59,10 +60,8 @@ enum class Opcode : int {
 	CMPNE = 33,
 	PRINT = 34,
 	PRINTLN = 35,
-	AES_BOXES = 36,
-	
-	REGMOV = 37,
-	
+	REGMOV = 36,
+
 	NUM_OPCODES = 38
 }; // enum Opcode
 // Check INSTRUCTIONS_NUM
@@ -80,7 +79,7 @@ enum class Opcode : int {
 std::vector<Algebra::Variable> getPCVars(const Algebra::UnpackedWord& pc);
 
 
-// We need the unpackedPC be at least the log(programLength). 
+// We need the unpackedPC be at least the log(programLength).
 // The polynomial is Product (
 Algebra::CircuitPolynomial getSelector(int programLength, int instructionLine, Algebra::UnpackedWord unpackedPC);
 
