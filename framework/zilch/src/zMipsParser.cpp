@@ -221,7 +221,13 @@ void unrollMacros(vector<std::string>& lines, const string& macros_file) {
             if (args_vec[0] == id) {
                 string macro = macros[id]["macro"].asString();
                 for (size_t k = 1 ; k < args_vec.size() ; k++) {
-                    boost::replace_all(macro, macros[id]["reg"+to_string(k)].asString(), args_vec[k]);
+                    if (is_number(args_vec[k])) {
+                        boost::replace_first(macro, macros[id]["reg"+to_string(k)].asString(), "$r0");
+                        boost::replace_first(macro, macros[id]["reg"+to_string(k)].asString(), "$r0");
+                        boost::replace_first(macro, macros[id]["reg"+to_string(k)].asString(), args_vec[k]);
+                    } else {
+                        boost::replace_all(macro, macros[id]["reg"+to_string(k)].asString(), args_vec[k]);
+                    }
                 }
                 if (macros[id]["uses_label"].asString() == "true") {
                     label_cnt++;

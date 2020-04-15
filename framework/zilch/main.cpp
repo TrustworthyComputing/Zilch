@@ -126,6 +126,12 @@ int main(int argc, char *argv[]) {
             primaryTapeFile = rawname+".pubtape";
             std::cout << "No primary tape file is given, using " << primaryTapeFile << '\n';
         }
+        // if file is optimized (ends with .opt.zmips)
+        rawname = rawname.substr(0, rawname.find_last_of("."));
+        if (file_exists(rawname+".pubtape")) {
+            primaryTapeFile = rawname+".pubtape";
+            std::cout << "No primary tape file is given, using " << primaryTapeFile << '\n';
+        }
     }
     string auxTapeFile = "";
     if (args.cmd_option_exists(private_tape_prefix)) {
@@ -136,6 +142,12 @@ int main(int argc, char *argv[]) {
         }
     } else {
         string rawname = assemblyFile.substr(0, assemblyFile.find_last_of("."));
+        if (file_exists(rawname+".auxtape")) {
+            auxTapeFile = rawname+".auxtape";
+            std::cout << "No private tape file is given, using " << auxTapeFile << '\n';
+        }
+        // if file is optimized (ends with .opt.zmips)
+        rawname = rawname.substr(0, rawname.find_last_of("."));
         if (file_exists(rawname+".auxtape")) {
             auxTapeFile = rawname+".auxtape";
             std::cout << "No private tape file is given, using " << auxTapeFile << '\n';
