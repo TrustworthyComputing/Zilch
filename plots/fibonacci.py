@@ -8,13 +8,13 @@ import string
 benchmark = 'fibonacci'
 mydpi = 300
 figname = benchmark+'.png'
-pltsize = (6.4, 2.2)
+pltsize = (6.4, 2.3)
 
 nbits = ['$W = 8$, $\lambda = 60$','$W = 16$, $\lambda = 60$', '$W = 32$, $\lambda = 60$', '$W = 8$, $\lambda = 120$', '$W = 16$, $\lambda = 120$', '$W = 32$, $\lambda = 120$']
 
 data = {
     'fibonacci_s60' : { '8bits' : [0.080329, 0.131446, 0.221845, 0.413722, 0.771309], '16bits' : [0.120351, 0.201161, 0.364322, 0.447337, 0.886423], '32bits' : [0.160044, 0.248045, 0.467424, 0.779899, 1.589399] },
-    
+
     'fibonacci_s120' : { '8bits' : [0.136667, 0.22681, 0.347104, 0.656814, 1.140248], '16bits' : [0.193466, 0.299735, 0.502554, 0.7021, 1.345031], '32bits' : [0.279497, 0.407047, 0.645234, 1.160738, 2.14223] }
 }
 
@@ -38,12 +38,12 @@ width = 0.3       # the width of the bars
 
 fig, ax = plt.subplots(figsize=pltsize)
 
-ax.margins(0.02, 0.02) 
+ax.margins(0.02, 0.02)
 
-rects1_s120 = ax.bar(index - width, data8b_s120, width, color='xkcd:light pink', hatch='xxx', edgecolor='black', linewidth=1)
-rects2_s120 = ax.bar(index, data16b_s120, width, color='xkcd:very light green', hatch='////', edgecolor='black', linewidth=1)
-rects3_s120 = ax.bar(index + width, data32b_s120, width, color='xkcd:very light blue', hatch='...', edgecolor='black', linewidth=1)
-rects1_s60 = ax.bar(index - width, data8b_s60, width, color='xkcd:light pink', edgecolor='black', linewidth=1)
+rects1_s120 = ax.bar(index - width, data8b_s120, width, color='xkcd:light salmon', hatch='xxx', edgecolor='black', linewidth=1)
+rects2_s120 = ax.bar(index, data16b_s120, width, color='xkcd:very light green', hatch='...', edgecolor='black', linewidth=1)
+rects3_s120 = ax.bar(index + width, data32b_s120, width, color='xkcd:very light blue', hatch='////', edgecolor='black', linewidth=1)
+rects1_s60 = ax.bar(index - width, data8b_s60, width, color='xkcd:light salmon', edgecolor='black', linewidth=1)
 rects2_s60 = ax.bar(index, data16b_s60, width, color='xkcd:very light green', edgecolor='black', linewidth=1)
 rects3_s60 = ax.bar(index + width, data32b_s60, width, color='xkcd:very light blue', edgecolor='black', linewidth=1)
 

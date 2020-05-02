@@ -17,12 +17,12 @@ pltsize = (4, 3)
 # pltsize = (6.4, 2.2)
 
 
-legend = ['Factorial', 'Fibonacci', 'Collatz', 'Speck32', 'Simon32', 'Matrix Mult.', 'PIR']
+legend = ['Factorial', 'Fibonacci', 'Collatz', 'PIR', 'Speck32', 'Simon32', 'Matrix Mult.']
 
 
 factorial = {   'prover' : [ 0.093065, 0.119385, 0.178415, 0.260860, 0.478281, 0.903474, 2.161618, 4.565379, 9.022720 ],
                 'verifier' : [ 0.030576, 0.029649, 0.028560, 0.028785, 0.029414, 0.033472, 0.029839, 0.029726, 0.030151 ],
-                'communication' : [ 262.062500, 265.125000, 272.109375, 276.484375, 286.593750, 291.281250, 299.359375, 305.203125, 316.390625 ] } # KBytes,
+                'communication' : [ 212.062500, 215.125000, 222.109375, 226.484375, 236.593750, 241.281250, 249.359375, 262.203125, 266.390625 ] } # KBytes,
 
 fibonacci = {   'prover' : [ 0.073386, 0.091637, 0.145771, 0.247560, 0.468014, 0.888938, 1.975108, 5.247415, 11.333514 ],
                 'verifier' : [ 0.021240, 0.021883, 0.022224, 0.022313, 0.022263, 0.022756, 0.023259, 0.023393, 0.023205 ],
@@ -70,14 +70,13 @@ index = np.arange(N)  # the x locations for the groups
 
 fig, ax = plt.subplots(figsize=pltsize)
 
-# red dashes, blue squares and green triangles
-l1 = ax.plot(index, factorial[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light orange', marker='o', linewidth=0.5, markersize=6)
-l2 = ax.plot(index, fibonacci[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:sage green', marker='^', linewidth=0.5, markersize=6)
-l3 = ax.plot(index, collatz[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light blue', marker='s', linewidth=0.5, markersize=6)
-l4 = ax.plot(index, speck[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light red', marker='D', linewidth=0.5, markersize=6)
-l5 = ax.plot(index, simon[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:yellow', marker='<', linewidth=0.5, markersize=6)
-l6 = ax.plot(index, mmult[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='>', linewidth=0.5, markersize=6)
-l7 = ax.plot(index, pir[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light sky blue', marker='d', linewidth=0.5, markersize=6)
+l7 = ax.plot(index, mmult[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:very light blue', marker='>', linewidth=0.5, markersize=6)
+l6 = ax.plot(index, simon[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:green', marker='<', linewidth=0.5, markersize=6)
+l5 = ax.plot(index, speck[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:sky blue', marker='D', linewidth=0.5, markersize=6)
+l4 = ax.plot(index, pir[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light green', marker='s', linewidth=0.5, markersize=6)
+l3 = ax.plot(index, collatz[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:light orange', marker='d', linewidth=0.5, markersize=6)
+l2 = ax.plot(index, fibonacci[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:butter yellow', marker='^', linewidth=0.5, markersize=6)
+l1 = ax.plot(index, factorial[benchmark], linestyle='solid', color='black', markerfacecolor='xkcd:salmon', marker='o', linewidth=0.5, markersize=6)
 
 
 if benchmark == 'prover':
