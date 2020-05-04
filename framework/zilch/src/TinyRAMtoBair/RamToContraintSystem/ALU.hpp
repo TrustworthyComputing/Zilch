@@ -8,8 +8,6 @@
 
 using namespace gadgetlib;
 
-
-
 extern UnpackedWord unpackedArg1_;
 extern UnpackedWord unpackedArg2_;
 extern UnpackedWord opcodeResult_;
@@ -51,10 +49,6 @@ extern size_t ROMSIZE;
  */
 void resetALU_GadgetGlobalState();
 
-
-/********************************************************/
-/**************** Class Writing Helpers *****************/
-/********************************************************/
 // A macro to disallow any non-defined constructors
 // This should be used in the private: declarations for a class
 #define DISALLOW_CONSTRUCTION(TypeName) \
@@ -65,15 +59,6 @@ void resetALU_GadgetGlobalState();
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
-
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                      ALU_Component_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_Component_Gadget : virtual public Gadget {
 public:
@@ -93,30 +78,16 @@ private:
 }; // class ALU_Component_Gadget
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                            ALU_Gadget                      ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
 class ALU_Gadget : public Gadget {
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputVariables,
-							const ALUOutput& resultVariables);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables);
 	void generateConstraints();
 	void generateWitness(size_t i);
 	void setProgram(const TinyRAMProgram& program);
 	//void applyConstraintsToPB();
 
-
-
 private:
-	ALU_Gadget(ProtoboardPtr pb,
-				const ALUInput& inputVariables,
-				const ALUOutput& resultVariables);
+	ALU_Gadget(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables);
 	virtual void init();
 	void createInternalComponents();
 
@@ -134,26 +105,13 @@ private:
 };
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_XOR_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
 class ALU_XOR_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_XOR_Gadget(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	ALU_XOR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 
-
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -161,24 +119,13 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_XOR_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_AND_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_AND_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_AND_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_AND_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -188,24 +135,13 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_AND_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_OR_Gadget	                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_OR_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_OR_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_OR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -215,24 +151,13 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_OR_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_NOT_Gadget	                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_NOT_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_NOT_Gadget(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	ALU_NOT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -240,25 +165,14 @@ public:
 
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_ADD_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_ADD_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_ADD_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_ADD_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -272,25 +186,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_ADD_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SUB_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_SUB_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_SUB_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_SUB_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -303,25 +206,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_SUB_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_MULL_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_MULL_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_MULL_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_MULL_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -343,25 +235,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_MULL_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_UMULH_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_UMULH_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_UMULH_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_UMULH_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -382,19 +263,10 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_UMULH_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SMULH_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_SMULH_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_SMULH_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_SMULH_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
 	static GadgetPtr create(ProtoboardPtr pb,
@@ -421,25 +293,13 @@ private:
 };
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_UDIV_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
 class ALU_UDIV_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_UDIV_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_UDIV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -466,25 +326,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_UDIV_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_UMOD_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_UMOD_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_UMOD_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_UMOD_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -511,24 +360,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_UMOD_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPE_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 class ALU_CMPE_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_CMPE_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_CMPE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-								const ALUInput& inputs,
-								const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -537,24 +376,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_CMPE_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPNE_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 class ALU_CMPNE_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_CMPNE_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_CMPNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-								const ALUInput& inputs,
-								const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -563,23 +392,12 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_CMPNE_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPA_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 class ALU_CMPA_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_CMPA_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_CMPA_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-								const ALUInput& inputs,
-								const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -591,23 +409,13 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_CMPA_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPAE_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 class ALU_CMPAE_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_CMPAE_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_CMPAE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-								const ALUInput& inputs,
-								const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -619,23 +427,13 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_CMPAE_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPG_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 class ALU_CMPG_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_CMPG_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_CMPG_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-								const ALUInput& inputs,
-								const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -647,23 +445,13 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_CMPG_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPGE_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 class ALU_CMPGE_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_CMPGE_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_CMPGE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-								const ALUInput& inputs,
-								const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -675,24 +463,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_CMPGE_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SHL_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 class ALU_SHL_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_SHL_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_SHL_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
 	enum idxs {dRes=1, rem=2, invRem=3, witnessFlag=4};
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -704,24 +482,14 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_SHL_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SHR_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 class ALU_SHR_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_SHR_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_SHR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
 	enum idxs {dRes=1, rem=2, invRem=3, witnessFlag=4};
-	static GadgetPtr create(ProtoboardPtr pb,
-						const ALUInput& inputs,
-						const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
@@ -732,194 +500,227 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_SHR_Gadget);
 };
 
-/*********************************/
-/***       END OF Gadget       ***/
-/*********************************/
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_JMP_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_JMP_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_JMP_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_JMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_JMP_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CJMP_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_CJMP_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_CJMP_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_CJMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
 	DISALLOW_COPY_AND_ASSIGN(ALU_CJMP_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_JR_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-class ALU_JR_Gadget : public ALU_Component_Gadget{
-private:
-	ALU_JR_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
-	virtual void init();
-
-public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
-	void generateConstraints();
-	void generateWitness();
-
-	DISALLOW_COPY_AND_ASSIGN(ALU_JR_Gadget);
-};
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************			           ALU_CNJMP_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_CNJMP_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_CNJMP_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_CNJMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
 	DISALLOW_COPY_AND_ASSIGN(ALU_CNJMP_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_STOEW_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-class ALU_STOREW_Gadget : public ALU_Component_Gadget {
+
+class ALU_JR_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_STOREW_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_JR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+
+	DISALLOW_COPY_AND_ASSIGN(ALU_JR_Gadget);
+};
+
+
+class ALU_BEQ_Gadget : public ALU_Component_Gadget{
+private:
+	ALU_BEQ_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+
+	DISALLOW_COPY_AND_ASSIGN(ALU_BEQ_Gadget);
+};
+
+
+class ALU_BNE_Gadget : public ALU_Component_Gadget{
+private:
+	ALU_BNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+
+	DISALLOW_COPY_AND_ASSIGN(ALU_BNE_Gadget);
+};
+
+
+class ALU_BLT_Gadget : public ALU_Component_Gadget {
+private:
+	ALU_BLT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+private:
+	Algebra::UnpackedWord cmpFlags_;
+	Algebra::Variable isGEQ_;
+	GadgetPtr unpack1_g_;
+	GadgetPtr unpack2_g_;
+	GadgetPtr compareArgs_;
+	DISALLOW_COPY_AND_ASSIGN(ALU_BLT_Gadget);
+};
+
+
+class ALU_BLE_Gadget : public ALU_Component_Gadget{
+private:
+	ALU_BLE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+private:
+	Algebra::UnpackedWord cmpFlags_;
+	Algebra::Variable isGEQ_;
+	GadgetPtr unpack1_g_;
+	GadgetPtr unpack2_g_;
+	GadgetPtr compareArgs_;
+	DISALLOW_COPY_AND_ASSIGN(ALU_BLE_Gadget);
+};
+
+
+class ALU_SEQ_Gadget : public ALU_Component_Gadget{
+private:
+	ALU_SEQ_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+
+	DISALLOW_COPY_AND_ASSIGN(ALU_SEQ_Gadget);
+};
+
+
+class ALU_SNE_Gadget : public ALU_Component_Gadget{
+private:
+	ALU_SNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+
+	DISALLOW_COPY_AND_ASSIGN(ALU_SNE_Gadget);
+};
+
+
+class ALU_SLT_Gadget : public ALU_Component_Gadget {
+private:
+	ALU_SLT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+private:
+	Algebra::UnpackedWord cmpFlags_;
+	Algebra::Variable isGEQ_;
+	GadgetPtr unpack1_g_;
+	GadgetPtr unpack2_g_;
+	GadgetPtr compareArgs_;
+	DISALLOW_COPY_AND_ASSIGN(ALU_SLT_Gadget);
+};
+
+
+class ALU_SLE_Gadget : public ALU_Component_Gadget {
+private:
+	ALU_SLE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	void generateConstraints();
+	void generateWitness();
+private:
+	Algebra::UnpackedWord cmpFlags_;
+	Algebra::Variable isGEQ_;
+	GadgetPtr unpack1_g_;
+	GadgetPtr unpack2_g_;
+	GadgetPtr compareArgs_;
+	DISALLOW_COPY_AND_ASSIGN(ALU_SLE_Gadget);
+};
+
+
+class ALU_STOREW_Gadget : public ALU_Component_Gadget {
+private:
+	ALU_STOREW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	virtual void init();
+public:
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
 	DISALLOW_COPY_AND_ASSIGN(ALU_STOREW_Gadget);
 };
 
-/*********************************/
-/***       END OF Gadget       ***/
-/*********************************/
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_LOADW_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 class ALU_LOADW_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_LOADW_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_LOADW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
 	DISALLOW_COPY_AND_ASSIGN(ALU_LOADW_Gadget);
 };
 
-/*********************************/
-/***       END OF Gadget       ***/
-/*********************************/
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_ANSWER_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_ANSWER_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_ANSWER_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_ANSWER_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
 	DISALLOW_COPY_AND_ASSIGN(ALU_ANSWER_Gadget);
 };
 
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_PRINT_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_PRINT_Gadget : public ALU_Component_Gadget{
 private:
@@ -934,14 +735,6 @@ public:
 };
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_PRINTLN_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
 class ALU_PRINTLN_Gadget : public ALU_Component_Gadget{
 private:
 	ALU_PRINTLN_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
@@ -954,25 +747,14 @@ public:
 	DISALLOW_COPY_AND_ASSIGN(ALU_PRINTLN_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_MOV_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_MOV_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_MOV_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_MOV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
@@ -980,39 +762,19 @@ public:
 };
 
 
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_REGMOV_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
 class ALU_REGMOV_Gadget : public ALU_Component_Gadget{
 private:
-	ALU_REGMOV_Gadget(ProtoboardPtr pb,
-					const ALUInput& inputs,
-					const ALUOutput& results);
+	ALU_REGMOV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-							const ALUInput& inputs,
-							const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
 	DISALLOW_COPY_AND_ASSIGN(ALU_REGMOV_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_READ_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_READ_Gadget : public ALU_Component_Gadget{
 private:
@@ -1027,13 +789,6 @@ public:
 	DISALLOW_COPY_AND_ASSIGN(ALU_READ_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SECSEEK_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_SECSEEK_Gadget : public ALU_Component_Gadget{
 private:
@@ -1048,35 +803,19 @@ public:
 	DISALLOW_COPY_AND_ASSIGN(ALU_SECSEEK_Gadget);
 };
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************          ALU_RESERVED_OPCODE_24_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 class ALU_RESERVED_OPCODE_24_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_RESERVED_OPCODE_24_Gadget(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	ALU_RESERVED_OPCODE_24_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
-	static GadgetPtr create(ProtoboardPtr pb,
-		const ALUInput& inputs,
-		const ALUOutput& results);
+	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 private:
 	GadgetPtr unpackArg1_g_;
 	DISALLOW_COPY_AND_ASSIGN(ALU_RESERVED_OPCODE_24_Gadget);
 };
-
-/*********************************/
-/***       END OF Gadget       ***/
-/*********************************/
-
 
 
 #endif //_RAMTOCOSTRAINTSYSTEM_ALU_HPP_

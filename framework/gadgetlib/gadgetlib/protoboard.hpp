@@ -20,7 +20,7 @@
 #include <gadgetlib/infrastructure.hpp>
 #include <algebraLib/CircuitPolynomial.hpp>
 
-#define INSTRUCTIONS_NUM 40
+#define NUMBER_OPCODES 46
 
 #define ASSERT_CONSTRAINTS_SATISFIED(pb) \
     ASSERT_TRUE(pb->isSatisfied(PrintOptions::DBG_PRINT_IF_NOT_SATISFIED))
@@ -55,7 +55,7 @@ private:
 	Algebra::VariableAssignment assignment_;
 	size_t numInputs_;
 	size_t numConstratins_;
-    ProtoboardParamsCPtr pParams_; // TODO try to refactor this out 
+    ProtoboardParamsCPtr pParams_; // TODO try to refactor this out
 
 	// We translate between my indices to Michaels
 	std::map<Algebra::VarIndex_t, Algebra::VarIndex_t>  old2newID_;
@@ -66,7 +66,7 @@ private:
 	// Simulate the code
 	std::vector<MemoryInfo> memoryTrace_;
 	// Memory Implementaion - Mapping between an address and a value.
-	// Notice that for now we assume that each 
+	// Notice that for now we assume that each
 	std::map<Algebra::FElem, Algebra::FElem, Algebra::classCompElements> memory_;
 	// Boundary consistency
 	BoundaryVariables boundaryVariables_;
@@ -79,8 +79,8 @@ private:
 
 
 
-    // INSTRUCTIONS_NUM constraints. To add more instructions, the numbe should be incremented!!!
-	Protoboard(ProtoboardParamsCPtr pParams) : opcodeConstraintSystem_(INSTRUCTIONS_NUM, ConstraintSystem()), numInputs_(0), numConstratins_(0), pParams_(pParams) {};
+    // NUMBER_OPCODES constraints. To add more instructions, the numbe should be incremented!!!
+	Protoboard(ProtoboardParamsCPtr pParams) : opcodeConstraintSystem_(NUMBER_OPCODES, ConstraintSystem()), numInputs_(0), numConstratins_(0), pParams_(pParams) {};
 
 	void addBoundaryVariable(const Algebra::Variable& var) { boundaryVariables_.emplace_back(var); }
 	void addBoundaryTimestamp(const size_t timeStamp) { boundaryTimestamps_.emplace_back(timeStamp); }

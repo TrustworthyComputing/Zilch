@@ -1,0 +1,124 @@
+move $r1, 1
+move $r2, 2
+
+move $r3, 0
+beq $r1, $r2, __beq_end_1__
+    move $r3, 1
+__beq_end_1__
+print $r3
+
+move $r3, 1
+beq $r2, $r2, __beq_end_2__
+    move $r3, 0
+__beq_end_2__
+print $r3
+
+
+move $r3, 0
+bne $r2, $r2, __bne_end_1__
+    move $r3, 2
+__bne_end_1__
+print $r3
+
+move $r3, 2
+bne $r1, $r2, __bne_end_2__
+    move $r3, 0
+__bne_end_2__
+print $r3
+
+
+move $r3, 0
+blt $r2, $r1, __blt_end_1__
+    move $r3, 3
+__blt_end_1__
+print $r3
+
+move $r3, 3
+blt $r1, $r2, __blt_end_2__
+    move $r3, 0
+__blt_end_2__
+print $r3
+
+
+move $r3, 0
+ble $r2, $r1, __ble_end_1__
+    move $r3, 4
+__ble_end_1__
+print $r3
+
+move $r3, 4
+ble $r1, $r2, __ble_end_2__
+    move $r3, 0
+__ble_end_2__
+print $r3
+
+move $r3, 4
+ble $r2, $r2, __ble_end_3__
+    move $r3, 0
+__ble_end_3__
+print $r3
+
+move $r1, 5
+
+move $r3, 0
+seq $r3, $r1, 5
+print $r3
+
+move $r3, 0
+seq $r3, $r1, 2
+print $r3
+
+move $r3, 0
+seq $r3, $r1, 7
+print $r3
+println $r0
+
+
+move $r3, 0
+sne $r3, $r1, 5
+print $r3
+
+move $r3, 0
+sne $r3, $r1, 2
+print $r3
+
+move $r3, 0
+sne $r3, $r1, 7
+print $r3
+println $r0
+
+
+# 1
+move $r3, 0
+slt $r3, $r1, 10
+print $r3
+
+# 0
+move $r3, 0
+slt $r3, $r1, 2
+print $r3
+
+# 0
+move $r3, 0
+slt $r3, $r1, 5
+print $r3
+println $r0
+
+# 1
+move $r3, 0
+sle $r3, $r1, 10
+print $r3
+
+# 0
+move $r3, 0
+sle $r3, $r1, 2
+print $r3
+
+# 1
+move $r3, 0
+sle $r3, $r1, 5
+print $r3
+println $r0
+
+
+answer $r3

@@ -13,7 +13,7 @@
 #include <common/Infrastructure/Infrastructure.hpp>
 #include "../../../configs.hpp"
 
-#define NUMBER_OPCODES 38
+#define NUMBER_OPCODES 46
 #define BIN_EOF_STRING "EOF"
 
 #define ZERO_REGISTER 0

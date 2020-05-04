@@ -16,13 +16,7 @@
 #define EXTDIM Algebra::ExtensionDegree
 using namespace std;
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         General Variables                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
+
 Algebra::Variable pInverse_("pInverse");
 UnpackedWord unpackedArg1_(REGISTER_LENGTH, "unpackedArg1_");
 UnpackedWord unpackedArg2_(REGISTER_LENGTH, "unpackedArg2_");
@@ -75,28 +69,11 @@ void initGeneralOpcodes(ProtoboardPtr pb){
 	}
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                      ALU_Component_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 const ALU_Component_Gadget::TRParamsPtr ALU_Component_Gadget::tinyRAMparams() const {
 	return std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                            ALU_Gadget                      ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-GadgetPtr ALU_Gadget::create(ProtoboardPtr pb,
-							const ALUInput& inputVariables,
-							const ALUOutput& resultVariables) {
+GadgetPtr ALU_Gadget::create(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables) {
 	GadgetPtr pGadget(new ALU_Gadget(pb, inputVariables, resultVariables));
 	pGadget->init();
 	return pGadget;
@@ -113,9 +90,8 @@ ALU_Gadget::ALU_Gadget(ProtoboardPtr pb, const ALUInput& inputVariables, const A
 void ALU_Gadget::init() {
 	createInternalComponents();
 	//this used to appear in internal inits. Moved it here so won't be repetition of booleanity checks multiplied by selectors
-	 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputVariables_.arg1_val_, PackingMode::UNPACK, Opcode::NONE);
-		unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputVariables_.arg2_val_, PackingMode::UNPACK, Opcode::NONE);
-
+ 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputVariables_.arg1_val_, PackingMode::UNPACK, Opcode::NONE);
+	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputVariables_.arg2_val_, PackingMode::UNPACK, Opcode::NONE);
 }
 
 void ALU_Gadget::createInternalComponents() {
@@ -145,8 +121,16 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::PRINT] = ALU_PRINT_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::PRINTLN] = ALU_PRINTLN_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CJMP] = ALU_CJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::JR] = ALU_JR_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::CNJMP] = ALU_CNJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::BEQ] = ALU_BEQ_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::BNE] = ALU_BNE_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::BLT] = ALU_BLT_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::BLE] = ALU_BLE_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::SEQ] = ALU_SEQ_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::SNE] = ALU_SNE_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::SLT] = ALU_SLT_Gadget::create(pb_, inputVariables_, resultVariables_);
+    components_[Opcode::SLE] = ALU_SLE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::REGMOV] = ALU_REGMOV_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -157,8 +141,6 @@ void ALU_Gadget::createInternalComponents() {
 void ALU_Gadget::setProgram(const TinyRAMProgram& program){
 	program_ = program;
 }
-
-
 
 
 set<Opcode> getUsedOpcodes(const TinyRAMProgram& program){
@@ -315,12 +297,36 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::CJMP:
     		components_[Opcode::CJMP]->generateWitness();
     		break;
+        case gadgetlib::Opcode::CNJMP:
+            components_[Opcode::CNJMP]->generateWitness();
+            break;
         case gadgetlib::Opcode::JR:
             components_[Opcode::JR]->generateWitness();
             break;
-    	case gadgetlib::Opcode::CNJMP:
-    		components_[Opcode::CNJMP]->generateWitness();
-    		break;
+        case gadgetlib::Opcode::BEQ:
+            components_[Opcode::BEQ]->generateWitness();
+            break;
+        case gadgetlib::Opcode::BNE:
+            components_[Opcode::BNE]->generateWitness();
+            break;
+        case gadgetlib::Opcode::BLT:
+            components_[Opcode::BLT]->generateWitness();
+            break;
+        case gadgetlib::Opcode::BLE:
+            components_[Opcode::BLE]->generateWitness();
+            break;
+        case gadgetlib::Opcode::SEQ:
+            components_[Opcode::SEQ]->generateWitness();
+            break;
+        case gadgetlib::Opcode::SNE:
+            components_[Opcode::SNE]->generateWitness();
+            break;
+        case gadgetlib::Opcode::SLT:
+            components_[Opcode::SLT]->generateWitness();
+            break;
+        case gadgetlib::Opcode::SLE:
+            components_[Opcode::SLE]->generateWitness();
+            break;
     	case gadgetlib::Opcode::RESERVED_OPCODE_24:
     		components_[Opcode::RESERVED_OPCODE_24]->generateWitness();
     		break;
@@ -353,15 +359,8 @@ void ALU_Gadget::generateWitness(size_t i) {
 	++max_timestep;
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_XOR_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-ALU_XOR_Gadget::ALU_XOR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-								:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+ALU_XOR_Gadget::ALU_XOR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 void ALU_XOR_Gadget::init(){}
 
@@ -405,15 +404,8 @@ void ALU_XOR_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_AND_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-ALU_AND_Gadget::ALU_AND_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+ALU_AND_Gadget::ALU_AND_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 void ALU_AND_Gadget::init(){
 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::AND);
@@ -485,22 +477,13 @@ void ALU_AND_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_OR_Gadget                      ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-ALU_OR_Gadget::ALU_OR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
+ALU_OR_Gadget::ALU_OR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 void ALU_OR_Gadget::init(){
 	//size_t registerLength = tinyRAMparams()->registerLength();
 	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::OR);
 	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::OR);
-
 }
 
 GadgetPtr ALU_OR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
@@ -573,16 +556,8 @@ void ALU_OR_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_NOT_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-ALU_NOT_Gadget::ALU_NOT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
+ALU_NOT_Gadget::ALU_NOT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 void ALU_NOT_Gadget::init(){}
 
@@ -650,16 +625,7 @@ void ALU_NOT_Gadget::generateWitness(){
 }
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_ADD_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-ALU_ADD_Gadget::ALU_ADD_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_ADD_Gadget::ALU_ADD_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_ADD_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_ADD_Gadget(pb, inputs, results));
@@ -706,13 +672,6 @@ void ALU_ADD_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SUB_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 ALU_SUB_Gadget::ALU_SUB_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
 									:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
@@ -764,13 +723,6 @@ void ALU_SUB_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_MULL_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 ALU_MULL_Gadget::ALU_MULL_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
 	:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
@@ -850,13 +802,6 @@ void ALU_MULL_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_UMULH_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 ALU_UMULH_Gadget::ALU_UMULH_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
 	:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
@@ -933,13 +878,6 @@ void ALU_UMULH_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SMULH_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 ALU_SMULH_Gadget::ALU_SMULH_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
 	:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
@@ -1025,14 +963,6 @@ void ALU_SMULH_Gadget::generateWitness(){
     #endif
 }
 
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_UDIV_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 ALU_UDIV_Gadget::ALU_UDIV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) :
     Gadget(pb),
@@ -1122,13 +1052,6 @@ void ALU_UDIV_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_UMOD_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 ALU_UMOD_Gadget::ALU_UMOD_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) :
     Gadget(pb),
@@ -1223,16 +1146,8 @@ void ALU_UMOD_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPE_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_CMPE_Gadget::ALU_CMPE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-										:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_CMPE_Gadget::ALU_CMPE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_CMPE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CMPE_Gadget(pb, inputs, results));
@@ -1273,16 +1188,8 @@ void ALU_CMPE_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPNE_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_CMPNE_Gadget::ALU_CMPNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-										:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_CMPNE_Gadget::ALU_CMPNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_CMPNE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CMPNE_Gadget(pb, inputs, results));
@@ -1312,7 +1219,6 @@ void ALU_CMPNE_Gadget::generateWitness(){
 	FElem arg2Val = pb_->val(inputs_.arg2_val_);
 	pb_->val(results_.flag_) = arg1Val == arg2Val ? Algebra::zero() : Algebra::one();
 	pb_->val(pInverse_) = arg1Val == arg2Val ? Algebra::zero() : (arg1Val + arg2Val).inverse();
-
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
 
     #ifdef DEBUG
@@ -1324,17 +1230,8 @@ void ALU_CMPNE_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPA_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_CMPA_Gadget::ALU_CMPA_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-										:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
-										 cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+ALU_CMPA_Gadget::ALU_CMPA_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
 
 GadgetPtr ALU_CMPA_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CMPA_Gadget(pb, inputs, results));
@@ -1385,17 +1282,8 @@ void ALU_CMPA_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPAE_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_CMPAE_Gadget::ALU_CMPAE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-										:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
-										 cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+ALU_CMPAE_Gadget::ALU_CMPAE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
 
 GadgetPtr ALU_CMPAE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CMPAE_Gadget(pb, inputs, results));
@@ -1447,17 +1335,8 @@ void ALU_CMPAE_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPG_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_CMPG_Gadget::ALU_CMPG_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-										:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
-										 cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+ALU_CMPG_Gadget::ALU_CMPG_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
 
 GadgetPtr ALU_CMPG_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CMPG_Gadget(pb, inputs, results));
@@ -1466,8 +1345,8 @@ GadgetPtr ALU_CMPG_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, cons
 }
 
 void ALU_CMPG_Gadget::init(){
-		unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::CMPG);
-		unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK ,Opcode::CMPG);
+	unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::CMPG);
+	unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK ,Opcode::CMPG);
 	compareArgs_ = GreaterEqual_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, cmpFlags_, isGEQ_, true, Opcode::CMPG);
 }
 
@@ -1508,17 +1387,8 @@ void ALU_CMPG_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CMPGE_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_CMPGE_Gadget::ALU_CMPGE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-										:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
-										 cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+ALU_CMPGE_Gadget::ALU_CMPGE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
 
 GadgetPtr ALU_CMPGE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CMPGE_Gadget(pb, inputs, results));
@@ -1560,7 +1430,6 @@ void ALU_CMPGE_Gadget::generateWitness(){
 	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
 	pb_->val(results_.flag_) = ((Algebra::one()==flag)||(g==flag)) ? Algebra::one() : Algebra::zero();
 	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
-
     #ifdef DEBUG
         std::cout << "\n\nALU_CMPGE_Gadget witness\nALUInput CMPGE:\n";
         inputs_.printALUInput(pb_);
@@ -1570,16 +1439,8 @@ void ALU_CMPGE_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SHL_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_SHL_Gadget::ALU_SHL_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-	:Gadget(pb), ALU_Component_Gadget(pb, inputs, results), auxArr_(opcodeAux1_){}
+ALU_SHL_Gadget::ALU_SHL_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), auxArr_(opcodeAux1_){}
 
 GadgetPtr ALU_SHL_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_SHL_Gadget(pb, inputs, results));
@@ -1699,16 +1560,8 @@ void ALU_SHL_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_SHR_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_SHR_Gadget::ALU_SHR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-	:Gadget(pb), ALU_Component_Gadget(pb, inputs, results), auxArr_(opcodeAux1_){}
+ALU_SHR_Gadget::ALU_SHR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), auxArr_(opcodeAux1_){}
 
 GadgetPtr ALU_SHR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_SHR_Gadget(pb, inputs, results));
@@ -1828,16 +1681,7 @@ void ALU_SHR_Gadget::generateWitness(){
 }
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_JMP_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-ALU_JMP_Gadget::ALU_JMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									: Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+ALU_JMP_Gadget::ALU_JMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
 GadgetPtr ALU_JMP_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_JMP_Gadget(pb, inputs, results));
@@ -1870,16 +1714,8 @@ void ALU_JMP_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_CJMP_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_CJMP_Gadget::ALU_CJMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-								: Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+ALU_CJMP_Gadget::ALU_CJMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
 GadgetPtr ALU_CJMP_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CJMP_Gadget(pb, inputs, results));
@@ -1912,58 +1748,8 @@ void ALU_CJMP_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_JR_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_JR_Gadget::ALU_JR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-								: Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
-
-GadgetPtr ALU_JR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_JR_Gadget(pb, inputs, results));
-	pGadget->init();
-	return pGadget;
-}
-
-void ALU_JR_Gadget::init(){}
-
-void ALU_JR_Gadget::generateConstraints(){
-#ifdef DEBUG
-    std::cout << "generateConstraints ALU_JR_Gadget" << '\n';
-#endif
-	pb_->addGeneralConstraint(results_.flag_ + inputs_.flag_, "inputs.flag_ = results.flag_", Opcode::JR);
-	pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::JR);
-}
-
-void ALU_JR_Gadget::generateWitness(){
-	initGeneralOpcodes(pb_);
-	initMemResult(pb_, results_);
-	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
-	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
-
-    #ifdef DEBUG
-        std::cout << "\n\nALU_JR_Gadget witness\nALUInput JR:\n";
-        inputs_.printALUInput(pb_);
-        std::cout << "ALUOutput JR" << '\n';
-        results_.printALUOutput(pb_);
-        std::cout << '\n';
-    #endif
-}
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************						ALU_CNJMP_Gadget                    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-ALU_CNJMP_Gadget::ALU_CNJMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									: Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+ALU_CNJMP_Gadget::ALU_CNJMP_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
 GadgetPtr ALU_CNJMP_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_CNJMP_Gadget(pb, inputs, results));
@@ -1996,15 +1782,402 @@ void ALU_CNJMP_Gadget::generateWitness(){
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_STOREW_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-ALU_STOREW_Gadget::ALU_STOREW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+ALU_JR_Gadget::ALU_JR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
+								: Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+
+GadgetPtr ALU_JR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_JR_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_JR_Gadget::init(){}
+
+void ALU_JR_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_JR_Gadget" << '\n';
+#endif
+	pb_->addGeneralConstraint(results_.flag_ + inputs_.flag_, "inputs.flag_ = results.flag_", Opcode::JR);
+	pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::JR);
+}
+
+void ALU_JR_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
+	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
+    #ifdef DEBUG
+        std::cout << "\n\nALU_JR_Gadget witness\nALUInput JR:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput JR" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_BEQ_Gadget::ALU_BEQ_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+
+GadgetPtr ALU_BEQ_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_BEQ_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_BEQ_Gadget::init(){}
+
+void ALU_BEQ_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_BEQ_Gadget" << '\n';
+#endif
+    CircuitPolynomial flagConstarint1((inputs_.dest_val_ + inputs_.arg1_val_) * results_.flag_);
+    CircuitPolynomial flagConstarint2((inputs_.dest_val_ + inputs_.arg1_val_) * pInverse_);
+    CircuitPolynomial flagConstraint3(Algebra::one() + results_.flag_);
+    pb_->addGeneralConstraint(flagConstarint1, "flag * (dest_val + arg1_val)= 0", Opcode::BEQ);
+    pb_->addGeneralConstraint(flagConstarint2 + flagConstraint3, "(dest_val + arg1_val) * invResult = 1 - flag", Opcode::BEQ);
+    pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::BEQ); // for jumping
+    pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::BEQ);
+}
+
+void ALU_BEQ_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+    FElem first_arg_val = pb_->val(inputs_.dest_val_);
+    FElem second_arg_val = pb_->val(inputs_.arg1_val_);
+    pb_->val(results_.flag_) = first_arg_val == second_arg_val ? Algebra::one() : Algebra::zero();
+    pb_->val(pInverse_) = first_arg_val == second_arg_val ? Algebra::one() : (first_arg_val + second_arg_val).inverse();
+    pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_); // for jumping
+    #ifdef DEBUG
+        std::cout << "\n\nALU_BEQ_Gadget witness\nALUInput BEQ:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput BEQ" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_BNE_Gadget::ALU_BNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+
+GadgetPtr ALU_BNE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_BNE_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_BNE_Gadget::init(){}
+
+void ALU_BNE_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_BNE_Gadget" << '\n';
+#endif
+    CircuitPolynomial flagConstarint1((inputs_.dest_val_ + inputs_.arg1_val_) * (Algebra::one() + results_.flag_));
+    CircuitPolynomial flagConstarint2((inputs_.dest_val_ + inputs_.arg1_val_) * pInverse_);
+    CircuitPolynomial flagConstraint3(results_.flag_);
+    pb_->addGeneralConstraint(flagConstarint1, "(1 - flag) * (dest_val + arg1_val)= 0", Opcode::BNE);
+    pb_->addGeneralConstraint(flagConstarint2 + flagConstraint3, "(dest_val + arg1_val) * invResult = flag", Opcode::BNE);
+    pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::BNE); // for jumping
+    pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::BNE);
+}
+
+void ALU_BNE_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+    FElem first_arg_val = pb_->val(inputs_.dest_val_);
+    FElem second_arg_val = pb_->val(inputs_.arg1_val_);
+    pb_->val(results_.flag_) = first_arg_val == second_arg_val ? Algebra::zero() : Algebra::one();
+    pb_->val(pInverse_) = first_arg_val == second_arg_val ? Algebra::zero() : (first_arg_val + second_arg_val).inverse();
+    pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_); // for jumping
+    #ifdef DEBUG
+        std::cout << "\n\nALU_BNE_Gadget witness\nALUInput BNE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput BNE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_BLT_Gadget::ALU_BLT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+
+GadgetPtr ALU_BLT_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_BLT_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_BLT_Gadget::init() {
+    unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::BLT);
+    unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.dest_val_, PackingMode::UNPACK ,Opcode::BLT);
+    compareArgs_ = GreaterEqual_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, cmpFlags_, isGEQ_, true, Opcode::BLT);
+}
+
+void ALU_BLT_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_BLT_Gadget" << '\n';
+#endif
+    if (standAlone_){
+        unpack1_g_->generateConstraints();
+        unpack2_g_->generateConstraints();
+    }
+    compareArgs_->generateConstraints();
+	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+	const Algebra::FElem inv = (Algebra::one() + g).inverse();
+	CircuitPolynomial c(results_.flag_ + isGEQ_*(isGEQ_ + g)*inv);
+	pb_->addGeneralConstraint(c, "flag=isGEQ*(isGEQ+g)*(1+g)^{-1}", Opcode::BLT);
+    pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::BLT); // for jumping
+    pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::BLT);
+}
+
+void ALU_BLT_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+    unpack1_g_->generateWitness();
+	unpack2_g_->generateWitness();
+	compareArgs_->generateWitness();
+	pb_->val(results_.flag_) = (Algebra::one() == val(isGEQ_)) ? Algebra::one() : Algebra::zero();
+    pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_); // for jumping
+    #ifdef DEBUG
+        std::cout << "\n\nALU_BLT_Gadget witness\nALUInput BLT:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput BLT" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_BLE_Gadget::ALU_BLE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+
+GadgetPtr ALU_BLE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_BLE_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_BLE_Gadget::init(){
+	unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::BLE);
+	unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.dest_val_, PackingMode::UNPACK ,Opcode::BLE);
+	compareArgs_ = GreaterEqual_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, cmpFlags_, isGEQ_, true, Opcode::BLE);
+}
+
+void ALU_BLE_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_BLE_Gadget" << '\n';
+#endif
+	if (standAlone_){
+		unpack1_g_->generateConstraints();
+		unpack2_g_->generateConstraints();
+	}
+	compareArgs_->generateConstraints();
+	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+	const Algebra::FElem inv1 = (Algebra::one() + g).inverse();
+	const Algebra::FElem inv2 = g.inverse() * inv1;
+	CircuitPolynomial c(results_.flag_ + isGEQ_*(isGEQ_ + g)*inv1 + isGEQ_*(isGEQ_ + Algebra::one())*inv2);
+	pb_->addGeneralConstraint(c, "flag=isGEQ*(isGEQ+g)*(1+g)^{-1}+isGEQ*(isGEQ+1)*(g(1+g))^{-1}", Opcode::BLE);
+    pb_->addGeneralConstraint(results_.result_ + inputs_.arg2_val_, "inputs.arg2_val = result.result", Opcode::BLT); // for jumping
+	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::BLE);
+}
+
+void ALU_BLE_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	unpack1_g_->generateWitness();
+	unpack2_g_->generateWitness();
+	compareArgs_->generateWitness();
+	FElem flag = pb_->val(isGEQ_);
+	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+	pb_->val(results_.flag_) = ((Algebra::one()==flag)||(g==flag)) ? Algebra::one() : Algebra::zero();
+    pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_); // for jumping
+    #ifdef DEBUG
+        std::cout << "\n\nALU_BLE_Gadget witness\nALUInput BLE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput BLE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_SEQ_Gadget::ALU_SEQ_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+
+GadgetPtr ALU_SEQ_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_SEQ_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_SEQ_Gadget::init(){}
+
+void ALU_SEQ_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_SEQ_Gadget" << '\n';
+#endif
+    CircuitPolynomial flagConstarint1((inputs_.arg1_val_ + inputs_.arg2_val_) * results_.result_);
+    CircuitPolynomial flagConstarint2((inputs_.arg1_val_ + inputs_.arg2_val_) * pInverse_);
+    CircuitPolynomial flagConstraint3(Algebra::one() + results_.result_);
+    pb_->addGeneralConstraint(flagConstarint1, "result.result * (arg1_val + arg2_val)= 0", Opcode::SEQ);
+    pb_->addGeneralConstraint(flagConstarint2 + flagConstraint3, "(arg1_val + arg2_val) * invResult = 1 - result.result", Opcode::SEQ);
+    pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SEQ);
+}
+
+void ALU_SEQ_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+    FElem first_arg_val = pb_->val(inputs_.arg1_val_);
+    FElem second_arg_val = pb_->val(inputs_.arg2_val_);
+    pb_->val(results_.result_) = first_arg_val == second_arg_val ? Algebra::one() : Algebra::zero();
+    pb_->val(pInverse_) = first_arg_val == second_arg_val ? Algebra::one() : (first_arg_val + second_arg_val).inverse();
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SEQ_Gadget witness\nALUInput SEQ:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SEQ" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_SNE_Gadget::ALU_SNE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
+
+GadgetPtr ALU_SNE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_SNE_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_SNE_Gadget::init(){}
+
+void ALU_SNE_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_SNE_Gadget" << '\n';
+#endif
+    // CircuitPolynomial flagConstarint1((inputs_.arg1_val_ + inputs_.arg2_val_) * (Algebra::one() + results_.flag_));
+    CircuitPolynomial flagConstarint1((inputs_.arg1_val_ + inputs_.arg2_val_) * (Algebra::one() + results_.result_));
+    CircuitPolynomial flagConstarint2((inputs_.arg1_val_ + inputs_.arg2_val_) * pInverse_);
+    CircuitPolynomial flagConstraint3(results_.result_);
+    pb_->addGeneralConstraint(flagConstarint1, "(1 - result.result) * (arg1_val + arg2_val)= 0", Opcode::SNE);
+    pb_->addGeneralConstraint(flagConstarint2 + flagConstraint3, "(arg1_val + arg2_val) * invResult = result.result", Opcode::SNE);
+    pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SNE);
+}
+
+void ALU_SNE_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+    FElem first_arg_val = pb_->val(inputs_.arg1_val_);
+    FElem second_arg_val = pb_->val(inputs_.arg2_val_);
+    pb_->val(results_.result_) = first_arg_val == second_arg_val ? Algebra::zero() : Algebra::one();
+    pb_->val(pInverse_) = first_arg_val == second_arg_val ? Algebra::zero() : (first_arg_val + second_arg_val).inverse();
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SNE_Gadget witness\nALUInput SNE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SNE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+
+ALU_SLT_Gadget::ALU_SLT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+
+GadgetPtr ALU_SLT_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_SLT_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_SLT_Gadget::init() {
+    unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg2_val_, PackingMode::UNPACK ,Opcode::SLT);
+    unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::SLT);
+    compareArgs_ = GreaterEqual_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, cmpFlags_, isGEQ_, true, Opcode::SLT);
+}
+
+void ALU_SLT_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_SLT_Gadget" << '\n';
+#endif
+    if (standAlone_){
+        unpack1_g_->generateConstraints();
+        unpack2_g_->generateConstraints();
+    }
+    compareArgs_->generateConstraints();
+	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+	const Algebra::FElem inv = (Algebra::one() + g).inverse();
+	CircuitPolynomial c(results_.result_ + isGEQ_*(isGEQ_ + g)*inv);
+	pb_->addGeneralConstraint(c, "result.result=isGEQ*(isGEQ+g)*(1+g)^{-1}", Opcode::SLT);
+    pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SLT);
+}
+
+void ALU_SLT_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+    unpack1_g_->generateWitness();
+	unpack2_g_->generateWitness();
+	compareArgs_->generateWitness();
+	pb_->val(results_.result_) = (Algebra::one() == val(isGEQ_)) ? Algebra::one() : Algebra::zero();
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SLT_Gadget witness\nALUInput SLT:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SLT" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_SLE_Gadget::ALU_SLE_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+
+GadgetPtr ALU_SLE_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_SLE_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_SLE_Gadget::init(){
+	unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg2_val_, PackingMode::UNPACK ,Opcode::SLE);
+	unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::SLE);
+	compareArgs_ = GreaterEqual_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, cmpFlags_, isGEQ_, true, Opcode::SLE);
+}
+
+void ALU_SLE_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_SLE_Gadget" << '\n';
+#endif
+	if (standAlone_){
+		unpack1_g_->generateConstraints();
+		unpack2_g_->generateConstraints();
+	}
+	compareArgs_->generateConstraints();
+	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+	const Algebra::FElem inv1 = (Algebra::one() + g).inverse();
+	const Algebra::FElem inv2 = g.inverse() * inv1;
+	CircuitPolynomial c(results_.result_ + isGEQ_*(isGEQ_ + g)*inv1 + isGEQ_*(isGEQ_ + Algebra::one())*inv2);
+	pb_->addGeneralConstraint(c, "result.result=isGEQ*(isGEQ+g)*(1+g)^{-1}+isGEQ*(isGEQ+1)*(g(1+g))^{-1}", Opcode::SLE);
+	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SLE);
+}
+
+void ALU_SLE_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	unpack1_g_->generateWitness();
+	unpack2_g_->generateWitness();
+	compareArgs_->generateWitness();
+	FElem flag = pb_->val(isGEQ_);
+	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+	pb_->val(results_.result_) = ((Algebra::one()==flag)||(g==flag)) ? Algebra::one() : Algebra::zero();
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SLE_Gadget witness\nALUInput SLE:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SLE" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_STOREW_Gadget::ALU_STOREW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_STOREW_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_STOREW_Gadget(pb, inputs, results));
@@ -2046,19 +2219,8 @@ void ALU_STOREW_Gadget::generateWitness(){
     #endif
 }
 
-/*********************************/
-/***       END OF Gadget       ***/
-/*********************************/
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_LOADW_Gadget                   ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-ALU_LOADW_Gadget::ALU_LOADW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_LOADW_Gadget::ALU_LOADW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_LOADW_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_LOADW_Gadget(pb, inputs, results));
@@ -2103,21 +2265,7 @@ void ALU_LOADW_Gadget::generateWitness(){
 }
 
 
-/*********************************/
-/***       END OF Gadget       ***/
-/*********************************/
-
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_ANSWER_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-ALU_ANSWER_Gadget::ALU_ANSWER_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									: Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_ANSWER_Gadget::ALU_ANSWER_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_ANSWER_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_ANSWER_Gadget(pb, inputs, results));
@@ -2163,16 +2311,7 @@ void ALU_ANSWER_Gadget::generateWitness(){
 }
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_PRINT_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-ALU_PRINT_Gadget::ALU_PRINT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									: Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_PRINT_Gadget::ALU_PRINT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_PRINT_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_PRINT_Gadget(pb, inputs, results));
@@ -2201,16 +2340,8 @@ void ALU_PRINT_Gadget::generateWitness() {
     #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_PRINTLN_Gadget                  ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_PRINTLN_Gadget::ALU_PRINTLN_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-									: Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_PRINTLN_Gadget::ALU_PRINTLN_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_PRINTLN_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_PRINTLN_Gadget(pb, inputs, results));
@@ -2243,17 +2374,7 @@ void ALU_PRINTLN_Gadget::generateWitness() {
     #endif
 }
 
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_MOV_Gadget						******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
-ALU_MOV_Gadget::ALU_MOV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-											: Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_MOV_Gadget::ALU_MOV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_MOV_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_MOV_Gadget(pb, inputs, results));
@@ -2285,16 +2406,8 @@ void ALU_MOV_Gadget::generateWitness(){
 #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_REGMOV_Gadget						******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_REGMOV_Gadget::ALU_REGMOV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-											: Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_REGMOV_Gadget::ALU_REGMOV_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_REGMOV_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_REGMOV_Gadget(pb, inputs, results));
@@ -2326,15 +2439,6 @@ void ALU_REGMOV_Gadget::generateWitness(){
 #endif
 }
 
-
-
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************                         ALU_READ_Gadget						******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
 ALU_READ_Gadget::ALU_READ_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
@@ -2370,14 +2474,6 @@ void ALU_READ_Gadget::generateWitness() {
 }
 
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************         ALU_SECSEEK_Gadget : Random Access Read 		    ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
-
 ALU_SECSEEK_Gadget::ALU_SECSEEK_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results): Gadget(pb), ALU_Component_Gadget(pb, inputs, results) {}
 
 GadgetPtr ALU_SECSEEK_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
@@ -2411,16 +2507,8 @@ void ALU_SECSEEK_Gadget::generateWitness() {
 #endif
 }
 
-/*************************************************************************************************/
-/*************************************************************************************************/
-/*******************                                                            ******************/
-/*******************          ALU_RESERVED_OPCODE_24_Gadget                     ******************/
-/*******************                                                            ******************/
-/*************************************************************************************************/
-/*************************************************************************************************/
 
-ALU_RESERVED_OPCODE_24_Gadget::ALU_RESERVED_OPCODE_24_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
-	:Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_RESERVED_OPCODE_24_Gadget::ALU_RESERVED_OPCODE_24_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
 GadgetPtr ALU_RESERVED_OPCODE_24_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
 	GadgetPtr pGadget(new ALU_RESERVED_OPCODE_24_Gadget(pb, inputs, results));
@@ -2466,8 +2554,3 @@ void ALU_RESERVED_OPCODE_24_Gadget::generateWitness(){
 	size_t res = rand() - RAND_MAX/2;
 	val(results_.result_) = mapIntegerToFieldElement(0, REGISTER_LENGTH, res);
 }
-
-/*********************************/
-/***       END OF Gadget       ***/
-/*********************************/
-

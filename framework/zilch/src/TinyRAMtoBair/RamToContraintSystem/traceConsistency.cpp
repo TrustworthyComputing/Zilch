@@ -104,6 +104,11 @@ void TraceConsistency::pcConsistency(){
 			constraints.push_back((flag * (pcPacked + aluOutput_.result_) +
 				(Algebra::one() + flag) * (pcPacked + integerAsFElem)));
 			selectorToConstraint[i] = constraints.size() - 1;
+		} else if (opcode == Opcode::BEQ || opcode == Opcode::BNE || opcode == Opcode::BLT || opcode == Opcode::BLE) {
+			Algebra::FElem integerAsFElem = mapIntegerToFieldElement(0, pcLength, i + 1);
+			Variable flag = followingTraceVariables_.second_.flag_;
+			constraints.push_back((flag * (pcPacked + aluOutput_.result_) + (Algebra::one() + flag) * (pcPacked + integerAsFElem)));
+			selectorToConstraint[i] = constraints.size() - 1;
 		} else if (opcode == Opcode::CNJMP){
 			Algebra::FElem integerAsFElem = mapIntegerToFieldElement(0, pcLength, i + 1);
 			Variable flag = followingTraceVariables_.first_.flag_;
@@ -131,8 +136,6 @@ void TraceConsistency::registerConsistency(){
 	size_t numRegistersTrace2 = followingTraceVariables_.second_.registers_.size();
 	GADGETLIB_ASSERT(numRegistersTrace1 == numRegistersTrace2, "TraceConsistency: number of registers should be the same");
 
-
-
 	for (size_t i = 0; i < numRegistersTrace1; ++i){
 		Variable regiSecond = followingTraceVariables_.second_.registers_[i];
 		Variable regiFirst = followingTraceVariables_.first_.registers_[i];
@@ -141,7 +144,6 @@ void TraceConsistency::registerConsistency(){
 		vector<Variable> selectorVariableVector = getPCVars(followingTraceVariables_.first_.pc_);
 		//preparing the vector that will contain the different relevant constraints according to the opcode
 		vector<CircuitPolynomial> constraints;
-
 
 		constraints.push_back(regiSecond + aluOutput_.result_);
 		constraints.push_back(regiSecond + regiFirst);
@@ -175,6 +177,10 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::SMULH:
 					case Opcode::UDIV:
 					case Opcode::UMOD:
+					case Opcode::SEQ:
+					case Opcode::SNE:
+					case Opcode::SLT:
+					case Opcode::SLE:
 					case Opcode::RESERVED_OPCODE_24:
 						selectorToConstraint[j] = 0;
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.result_));
@@ -182,6 +188,10 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::JMP:
 					case Opcode::CJMP:
 					case Opcode::CNJMP:
+					case Opcode::BEQ:
+					case Opcode::BNE:
+					case Opcode::BLT:
+					case Opcode::BLE:
 					case Opcode::JR:
 					case Opcode::CMPE:
 					case Opcode::CMPNE:
@@ -201,8 +211,8 @@ void TraceConsistency::registerConsistency(){
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.value_));
 						break;
 					default:
-						std::cout << "Trace Consistency: No Such opcode exists" << '\n';
-						GADGETLIB_FATAL("Trace Consistency: No Such opcode exists");
+						std::cout << "Trace Consistency: No such opcode exists" << '\n';
+						GADGETLIB_FATAL("Trace Consistency: No such opcode exists");
 						break;
 				}
 			} else {
@@ -272,13 +282,21 @@ void TraceConsistency::registersWitness(size_t programLine){
 			case Opcode::SMULH:
 			case Opcode::UDIV:
 			case Opcode::UMOD:
+			case Opcode::SEQ:
+			case Opcode::SNE:
+			case Opcode::SLT:
+			case Opcode::SLE:
 			case Opcode::RESERVED_OPCODE_24:
 				pb_->val(regiSecond) = pb_->val(aluOutput_.result_);
 				break;
 			case Opcode::JMP:
 			case Opcode::CJMP:
-			case Opcode::JR:
 			case Opcode::CNJMP:
+			case Opcode::BEQ:
+			case Opcode::BNE:
+			case Opcode::BLT:
+			case Opcode::BLE:
+			case Opcode::JR:
 			case Opcode::CMPE:
 			case Opcode::CMPNE:
 			case Opcode::CMPA:
@@ -323,7 +341,6 @@ void TraceConsistency::generateConstraints(){
 	timeStampConsistency();
 	pcConsistency();
 	registerConsistency();
-
 }
 
 
@@ -334,7 +351,9 @@ void TraceConsistency::generateWitness(size_t programLine){
 	const Algebra::FElem generator = Algebra::FElem(getGF2E_X());
 	timeStampWitness();
 	Opcode opcode = program_.code()[programLine].opcode_;
-	if (opcode == Opcode::JMP || opcode == Opcode::CJMP || opcode == Opcode::JR || opcode == Opcode::CNJMP){
+	if (opcode == Opcode::JMP || opcode == Opcode::CJMP || opcode == Opcode::JR || opcode == Opcode::CNJMP
+	 	|| opcode == Opcode::BEQ || opcode == Opcode::BNE || opcode == Opcode::BLT || opcode == Opcode::BLE)
+	{
 		size_t nextLine;
 		if (program_.code()[programLine].arg2isImmediate_){
 			nextLine = program_.code()[programLine].arg2IdxOrImmediate_;
@@ -352,12 +371,21 @@ void TraceConsistency::generateWitness(size_t programLine){
 			} else{
 				pcWitness(programLine + 1);
 			}
-		} else {
+		} else if (opcode == Opcode::BEQ || opcode == Opcode::BNE || opcode == Opcode::BLT || opcode == Opcode::BLE) {
+			if (pb_->val(followingTraceVariables_.second_.flag_) == Algebra::one()){
+				pcWitness(nextLine);
+			} else{
+				pcWitness(programLine + 1);
+			}
+		} else if (opcode == Opcode::CNJMP) {
 			if (pb_->val(followingTraceVariables_.first_.flag_) == Algebra::zero()){
 				pcWitness(nextLine);
 			} else{
 				pcWitness(programLine + 1);
 			}
+		} else {
+			std::cout<<"Trace Consistency: unfamiliar instruction";
+			throw("Trace Consistency: unfamiliar instruction");
 		}
 	} else if (opcode == Opcode::ANSWER) {
 		pcWitness(programLine);

@@ -47,6 +47,16 @@ enum class Opcode : int {
 	CNJMP = 23,
 	JR = 37,
 
+	BEQ = 38,
+	BNE = 39,
+	BLT = 40,
+	BLE = 41,
+
+	SEQ = 42,
+	SNE = 43,
+	SLT = 44,
+	SLE = 45,
+
 	RESERVED_OPCODE_24 = 24,
 	RESERVED_OPCODE_25 = 25,
 
@@ -62,9 +72,9 @@ enum class Opcode : int {
 	PRINTLN = 35,
 	REGMOV = 36,
 
-	NUM_OPCODES = 38
+	NUM_OPCODES = 46
 }; // enum Opcode
-// Check INSTRUCTIONS_NUM
+// Check NUMBER_OPCODES
 
 
 /*************************************************************************************************/

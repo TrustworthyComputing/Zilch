@@ -48,7 +48,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "CMPE") {
         return "CMPE " + r0 + " " + r1 + " " + r2;
     } else if (instr == "BEQ") {
-        return "CMPE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
+        return "BEQ " + r0 + " " + r1 + " " + r2;
     } else if (instr == "BEQZ") {
         return "CMPE " + r0 + " " + r0 + " " + zeroreg + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "CMPNE") {
@@ -56,7 +56,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "BNEZ") {
         return "CMPNE " + r0 + " " + r0 + " " + zeroreg + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "BNE") {
-        return "CMPNE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
+        return "BNE " + r0 + " " + r1 + " " + r2;
     } else if (instr == "CMPA") {
         return "CMPA " + r0 + " " + r1 + " " + r2;
     } else if (instr == "CMPAE") {
@@ -70,9 +70,17 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "BGE") {
         return "CMPGE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "BLT") {
-        return "CMPG " + r1 + " " + r1 + " " + r0 + "\nCJMP " + r1 + " " + r1 + " " + r2;
+        return "BLT " + r0 + " " + r1 + " " + r2;
     } else if (instr == "BLE") {
-        return "CMPGE " + r1 + " " + r1 + " " + r0 + "\nCJMP " + r1 + " " + r1 + " " + r2;
+        return "BLE " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "SEQ") {
+        return "SEQ " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "SNE") {
+        return "SNE " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "SLT") {
+        return "SLT " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "SLE") {
+        return "SLE " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SLT" || instr == "SLTI" || instr == "SLTIU") {
         string l1 = "__" + to_string(labelcnt_++) + "__";
         return "MOV " + r0 + " " + r0 + " 0\n" + "CMPA " + r1 + " " + r1 + " " + r2 + "\nCMJMP " + r1 + " " + r1 + " " + l1 + "\nMOV " + r0 + " " + r0 + " 1\n" + l1;
@@ -132,8 +140,6 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "PRINT " + r0 + " " + r1 + " " + r2;
     } else if (instr == "PRINTLN") {
         return "PRINTLN " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "NUM_OPCODES") {
-        return "NUM_OPCODES " + r0 + " " + r1 + " " + r2;
     } else {
         std::cerr << instr << " : unfamiliar instruction" << endl;
         exit(EXIT_FAILURE);
