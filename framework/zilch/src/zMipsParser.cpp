@@ -5,13 +5,13 @@ using namespace std;
 int labelcnt_ = 1000;
 bool answer_instruction = false;
 
-std::string remove_extension(const std::string& filename) {
+string remove_extension(const string& filename) {
     size_t lastdot = filename.find_last_of(".");
-    if (lastdot == std::string::npos) return filename;
+    if (lastdot == string::npos) return filename;
     return filename.substr(0, lastdot);
 }
 
-std::string fromZMips(string instr, const string& r0 , const string& r1, const string& r2) {
+string fromZMips(string instr, const string& r0 , const string& r1, const string& r2) {
     instr = stringToUpper(instr);
     string zero = "$zero";
     string zeroreg = mapMipsRegister(zero);
@@ -29,50 +29,28 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "ADD " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SUB" || instr == "SUBU" || instr == "SUBI" || instr == "SUBIU") {
         return "SUB " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "MULL" || instr == "MUL" || instr == "MULT") {
-        return "MULL " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "UMULH" || instr == "MULTU") {
-        return "UMULH " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SMULH") {
-        return "SMULH " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "UDIV" || instr == "DIV" || instr == "DIVU") {
+    } else if (instr == "MULT") {
+        return "MULT " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "UDIV" || instr == "DIV") {
         return "UDIV " + r0 + " " + r1 + " " + r2;
     } else if (instr == "UMOD" || instr == "MOD") {
         return "UMOD " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SHL" || instr == "SLL" || instr == "SLA") {
+    } else if (instr == "SLL" || instr == "SLA") {
         return "SHL " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SHR" || instr == "SRL" || instr == "SRA") {
+    } else if (instr == "SRL" || instr == "SRA") {
         return "SHR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SHAR") {
-        return "SHAR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "CMPE") {
-        return "CMPE " + r0 + " " + r1 + " " + r2;
     } else if (instr == "BEQ") {
         return "BEQ " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BEQZ") {
-        return "CMPE " + r0 + " " + r0 + " " + zeroreg + "\nCJMP " + r0 + " " + r0 + " " + r2;
-    } else if (instr == "CMPNE") {
-        return "CMPNE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BNEZ") {
-        return "CMPNE " + r0 + " " + r0 + " " + zeroreg + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "BNE") {
         return "BNE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "CMPA") {
-        return "CMPA " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "CMPAE") {
-        return "CMPAE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "CMPG") {
-        return "CMPG " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "CMPGE") {
-        return "CMPGE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BGT") {
-        return "CMPG " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
-    } else if (instr == "BGE") {
-        return "CMPGE " + r0 + " " + r0 + " " + r1 + "\nCJMP " + r0 + " " + r0 + " " + r2;
     } else if (instr == "BLT") {
         return "BLT " + r0 + " " + r1 + " " + r2;
     } else if (instr == "BLE") {
         return "BLE " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "BGT") {
+        return "BLT " + r1 + " " + r0 + " " + r2;
+    } else if (instr == "BGE") {
+        return "BLE " + r1 + " " + r0 + " " + r2;
     } else if (instr == "SEQ") {
         return "SEQ " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SNE") {
@@ -81,57 +59,34 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
         return "SLT " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SLE") {
         return "SLE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SLT" || instr == "SLTI" || instr == "SLTIU") {
-        string l1 = "__" + to_string(labelcnt_++) + "__";
-        return "MOV " + r0 + " " + r0 + " 0\n" + "CMPA " + r1 + " " + r1 + " " + r2 + "\nCMJMP " + r1 + " " + r1 + " " + l1 + "\nMOV " + r0 + " " + r0 + " 1\n" + l1;
-    } else if (instr == "MOV" || instr == "MOVE" || instr == "LA" || instr == "LI" || instr == "MFHI" || instr == "MFLO" || instr == "MTHI" || instr == "MTLO") {
-        return "MOV " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "REGMOVE" || instr == "REGMOV") {
-        return "REGMOV " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "ROM") {
-        return "RESERVED_OPCODE_24 " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "MOVE" || instr == "LA" || instr == "LI") {
+        return "MOVE " + r0 + " " + r1 + " " + r2;
+    } else if (instr == "REGMOVE") {
+        return "REGMOVE " + r0 + " " + r1 + " " + r2;
     } else if (instr == "SECREAD") {
         return "SECREAD " + r0 + " " + r1 + " " + r2;
     } else if (instr == "PUBREAD") {
         string base = "r" + to_string(MEMORY_RESERVED_REGISTER);
-        return "LOADW " + r0 + " " + r0 + " " + base + "\nADD " + base + " "  + base + " 1";
+        return "LW " + r0 + " " + r0 + " " + base + "\nADD " + base + " "  + base + " 1";
     } else if (instr == "SECSEEK") {
         return "SECSEEK " + r0 + " " + r1 + " " + r2;
     } else if (instr == "PUBSEEK") {
-        return "LOADW " + r0 + " " + r0 + " " + r1;
-    } else if (instr == "CMOV") {
-        return "CMOV " + r0 + " " + r1 + " " + r2;
+        return "LW " + r0 + " " + r0 + " " + r1;
     } else if (instr == "JMP" || instr == "J") {
         return "JMP " + r0 + " " + r1 + " " + r2;
     } else if (instr == "JR") {
         return "JR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "CJMP") {
-        return "CJMP " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "CNJMP") {
-        return "CNJMP " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "RESERVED_OPCODE_24") {
-        return "RESERVED_OPCODE_24 " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "RESERVED_OPCODE_25") {
-        return "RESERVED_OPCODE_25 " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "STOREB" || instr == "SB" || instr == "SBU" || instr == "SHU") {
-        return "STOREB " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "LOADB" || instr == "LB" || instr == "LBU" || instr == "LHU") {
-        return "LOADB " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "STOREW") {
-        return "STOREW " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SW" || instr == "SWU" || instr == "SUI") {
+    } else if (instr == "SW") {
         if (is_number(r2) && stoi(r2) == 0) {
-            return "STOREW " + r0 + " " + r1 + " " + r1;
+            return "SW " + r0 + " " + r1 + " " + r1;
         } else {
-            return "ADD " + r1 + " " + r1 + " " + r2 + "\nSTOREW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+            return "ADD " + r1 + " " + r1 + " " + r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
         }
-    } else if (instr == "LOADW") {
-        return "LOADW " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "LW" || instr == "LWU" || instr == "LUI") {
+    } else if (instr == "LW") {
         if (is_number(r2) && stoi(r2) == 0) {
-            return "LOADW " + r0 + " " + r1 + " " + r1;
+            return "LW " + r0 + " " + r1 + " " + r1;
         } else {
-            return "ADD " + r1 + " " + r1 + " " + r2 + "\nLOADW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+            return "ADD " + r1 + " " + r1 + " " + r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
         }
     } else if (instr == "ANSWER") {
         answer_instruction = true;
@@ -141,7 +96,7 @@ std::string fromZMips(string instr, const string& r0 , const string& r1, const s
     } else if (instr == "PRINTLN") {
         return "PRINTLN " + r0 + " " + r1 + " " + r2;
     } else {
-        std::cerr << instr << " : unfamiliar instruction" << endl;
+        std::cerr << "zMIPS parser: " << instr << " was not recognized" << endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -180,11 +135,11 @@ string mapMipsRegister(string& r) {
     }
 }
 
-std::vector<std::string> split_string_to_lines(const std::string& str) {
-    std::vector<std::string> strings;
-    std::string::size_type pos = 0;
-    std::string::size_type prev = 0;
-    while ((pos = str.find("\n", prev)) != std::string::npos) {
+std::vector<string> split_string_to_lines(const string& str) {
+    std::vector<string> strings;
+    string::size_type pos = 0;
+    string::size_type prev = 0;
+    while ((pos = str.find("\n", prev)) != string::npos) {
         strings.push_back(str.substr(prev, pos - prev));
         prev = pos + 1;
     }
@@ -192,21 +147,21 @@ std::vector<std::string> split_string_to_lines(const std::string& str) {
     return strings;
 }
 
-vector<std::string> initPublicTape(const vector<string> public_lines) {
+vector<string> initPublicTape(const vector<string> public_lines) {
     vector<string> store_tape;
     string reg = "r" + to_string(MEMORY_RESERVED_REGISTER);
     for (size_t i = 0 ; i < public_lines.size() ; i++) {
-        string instr1 = "MOV " + reg + " " + reg + " " + public_lines[i];
-        string instr2 = "STOREW " + reg + " r0 " + to_string(i);
+        string instr1 = "MOVE " + reg + " " + reg + " " + public_lines[i];
+        string instr2 = "SW " + reg + " r0 " + to_string(i);
         store_tape.push_back(instr1);
         store_tape.push_back(instr2);
     }
-    string instr = "MOV " + reg + " " + reg + " 0";
+    string instr = "MOVE " + reg + " " + reg + " 0";
     store_tape.push_back(instr);
     return store_tape;
 }
 
-void unrollMacros(vector<std::string>& lines, const string& macros_file) {
+void unrollMacros(vector<string>& lines, const string& macros_file) {
 	std::vector<string>::size_type size = lines.size();
 	ifstream ifs(macros_file);
 	Json::Reader reader;
@@ -239,7 +194,7 @@ void unrollMacros(vector<std::string>& lines, const string& macros_file) {
                     label_cnt++;
                     boost::replace_all(macro, "__", "__"+to_string(label_cnt)+"__");
                 }
-                vector<std::string> m_instructions = split_string_to_lines(macro);
+                vector<string> m_instructions = split_string_to_lines(macro);
 
                 lines[i++] = m_instructions[0];
                 for (size_t k = 1 ; k < m_instructions.size() ; k++) {
@@ -260,7 +215,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
     string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
-    vector<std::string> lines{it, {}};
+    vector<string> lines{it, {}};
 
     unrollMacros(lines, macros_file);
 
@@ -276,7 +231,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
         }
     }
     for (auto& l : lines) {
-        std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
+        string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
         instr_without_comment = trim(instr_without_comment);
         instr_without_comment = instr_without_comment.substr(0, instr_without_comment.find("#")); // keep only the instruction before comment
         instr_without_comment = trim(instr_without_comment);
@@ -293,7 +248,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
             string imm = isMipsReg(tokens[3]) ? mapMipsRegister(tokens[3]) : tokens[3];
             if (is_hex_notation(imm)) {
                 size_t num;
-                std::stringstream ss;
+                stringstream ss;
                 ss << std::hex << imm;
                 ss >> num;
                 imm = to_string(num);
@@ -303,7 +258,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
                 reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : tokens[2];
             } else if (is_hex_notation(tokens[2])) {
                 size_t num;
-                std::stringstream ss;
+                stringstream ss;
                 ss << std::hex << tokens[2];
                 ss >> num;
                 reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : to_string(num);
@@ -317,7 +272,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
                 instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), tokens[2]);
             } else if (is_hex_notation(tokens[2])) {
                 size_t num;
-                std::stringstream ss;
+                stringstream ss;
                 ss << std::hex << tokens[2];
                 ss >> num;
                 instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), to_string(num));
@@ -328,8 +283,8 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
             } else {
                 tokens[2].erase(std::remove(tokens[2].begin(), tokens[2].end(), ')'), tokens[2].end());
                 int pos = tokens[2].find_first_of('(');
-                std::string reg = tokens[2].substr(pos+1);
-                std::string addr = tokens[2].substr(0, pos);
+                string reg = tokens[2].substr(pos+1);
+                string addr = tokens[2].substr(0, pos);
                 if (is_number(addr)) {
                     instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), addr);
                 } else {

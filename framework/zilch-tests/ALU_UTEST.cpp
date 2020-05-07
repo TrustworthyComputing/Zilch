@@ -233,7 +233,7 @@ namespace {
 		}
 	}
 
-	TEST(ALU, MULL_TEST){
+	TEST(ALU, MULT_TEST){
 		initTinyRAMParamsFromEnvVariables();
 		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
@@ -241,7 +241,7 @@ namespace {
 		ALUInput aluInput;
 		ALUOutput aluOutput;
 		standAlone_ = true;
-		GadgetPtr mullGadget = ALU_MULL_Gadget::create(pb, aluInput, aluOutput);
+		GadgetPtr mullGadget = ALU_MULT_Gadget::create(pb, aluInput, aluOutput);
 		mullGadget->generateConstraints();
 		for (int i = 3000; i < 3000+ROUNDS; i++){ // result > 2^16
 			for (int j = 3000; j < 3000+ROUNDS; j++){
@@ -252,7 +252,7 @@ namespace {
 				EXPECT_EQ(pb->val(aluOutput.result_), res);
 				EXPECT_EQ(pb->val(aluOutput.flag_), (i*j)>>trRegisterLen ? Algebra::one() : Algebra::zero());
 				//std::cout << "R=" << i*j << std::endl;
-				EXPECT_TRUE(pb->isSatisfied(Opcode::MULL));
+				EXPECT_TRUE(pb->isSatisfied(Opcode::MULT));
 			}
 		}
 	}
@@ -327,7 +327,7 @@ namespace {
 				EXPECT_EQ(pb->val(aluOutput.result_), res);
 				EXPECT_EQ(pb->val(aluOutput.flag_), j ? Algebra::zero() : Algebra::one());
 				//std::cout << "R=" << (j ? i/j : 0) << std::endl;
-				EXPECT_TRUE(pb->isSatisfied(Opcode::MULL));
+				EXPECT_TRUE(pb->isSatisfied(Opcode::MULT));
 			}
 		}
 	}
@@ -351,7 +351,7 @@ namespace {
 				EXPECT_EQ(pb->val(aluOutput.result_), res);
 				EXPECT_EQ(pb->val(aluOutput.flag_), j ? Algebra::zero() : Algebra::one());
 				//std::cout << "div=" << (j ? i/j : 0) << " mod=" << (j ? i%j : 0) << std::endl;
-				EXPECT_TRUE(pb->isSatisfied(Opcode::MULL));
+				EXPECT_TRUE(pb->isSatisfied(Opcode::MULT));
 			}
 		}
 	}
@@ -518,14 +518,14 @@ namespace {
 		}
 	}
 
-	TEST(ALU, STOREW_TEST){
+	TEST(ALU, SW_TEST){
 		initTinyRAMParamsFromEnvVariables();
 		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
 		ALUOutput aluOutput;
-		GadgetPtr storeGadget = ALU_STOREW_Gadget::create(pb, aluInput, aluOutput);
+		GadgetPtr storeGadget = ALU_SW_Gadget::create(pb, aluInput, aluOutput);
 		storeGadget->generateConstraints();
 		for (int i = 0; i < ROUNDS; i++){
 			for (int j = 0; j < ROUNDS; j++){
@@ -538,20 +538,20 @@ namespace {
 				EXPECT_EQ(pb->val(aluOutput.isLoadOp_), Algebra::zero());
 				EXPECT_EQ(pb->loadValue(address), value);
 				EXPECT_NE(pb->loadValue(address), value + Algebra::one());
-				EXPECT_TRUE(pb->isSatisfied(Opcode::STOREW));
+				EXPECT_TRUE(pb->isSatisfied(Opcode::SW));
 			}
 		}
 	}
 
 
-	TEST(ALU, LOADW_TEST){
+	TEST(ALU, LW_TEST){
 		initTinyRAMParamsFromEnvVariables();
 		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
 		ALUOutput aluOutput;
-		GadgetPtr loadGadget = ALU_LOADW_Gadget::create(pb, aluInput, aluOutput);
+		GadgetPtr loadGadget = ALU_LW_Gadget::create(pb, aluInput, aluOutput);
 		loadGadget->generateConstraints();
 		for (int i = 0; i < ROUNDS; i++){
 			for (int j = 0; j < ROUNDS; j++){
@@ -564,7 +564,7 @@ namespace {
 				EXPECT_EQ(pb->val(aluOutput.isLoadOp_), Algebra::one());
 				EXPECT_EQ(pb->val(aluOutput.value_), value);
 				EXPECT_NE(pb->val(aluOutput.value_), value + Algebra::one());
-				EXPECT_TRUE(pb->isSatisfied(Opcode::LOADW));
+				EXPECT_TRUE(pb->isSatisfied(Opcode::LW));
 			}
 		}
 	}

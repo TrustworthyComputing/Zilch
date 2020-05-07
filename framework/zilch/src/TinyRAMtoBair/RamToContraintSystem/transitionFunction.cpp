@@ -7,15 +7,12 @@
 
 
 
-TransitionFunction::TransitionFunction(ProtoboardPtr pb,
-									const FollowingTraceVariables& followingTraceVariable,
-									const MemoryFollowingTraceVariables& memoryFollowingTraceVariables,
-									const TinyRAMProgram& program) :
+TransitionFunction::TransitionFunction(ProtoboardPtr pb, const FollowingTraceVariables& followingTraceVariable, const MemoryFollowingTraceVariables& memoryFollowingTraceVariables, const TinyRAMProgram& program) :
 		Gadget(pb),
         program_(program),
         followingTraceVariable_(followingTraceVariable),
 		memoryFollowingTraceVariables_(memoryFollowingTraceVariables),
-        inputTraceLine_(followingTraceVariable.first_), 
+        inputTraceLine_(followingTraceVariable.first_),
         outputTraceLine_(followingTraceVariable.second_),
 		aluInput(followingTraceVariable.first_.flag_, followingTraceVariable.first_.pc_),
 		aluOutput(followingTraceVariable.second_.flag_, memoryFollowingTraceVariables_.first_.isMemOp_,memoryFollowingTraceVariables_.first_.address_,
@@ -51,25 +48,22 @@ int TransitionFunction::calcPC(){
 		x_i *= g;
 	}
 	return mapFieldElementToInteger(0, followingTraceVariable_.first_.pc_.size(), result);
-
 }
 
 void TransitionFunction::generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt){
 	int codeLineNumber = calcPC();
 	GADGETLIB_ASSERT(codeLineNumber < (long)program_.size(), "TransitionFunction: The code line number should be less than program.size()");
-	
+
 	(::std::dynamic_pointer_cast<ALUInputConsistency>(aluInputConsistnecy_g_))->generateWitness(codeLineNumber, private_lines, secread_cnt);
 	(::std::dynamic_pointer_cast<ALU_Gadget>(alu_g_))->generateWitness(codeLineNumber);
 	(::std::dynamic_pointer_cast<TraceConsistency>(traceConsistency_g_))->generateWitness(codeLineNumber);
-
 
 	// Update Memory Info
 	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
 	MemoryInfo memInfo;
 	memInfo.updateSerialNumber(i);
 	Opcode opcode = program_.code()[codeLineNumber].opcode_;
-	if (Opcode::STOREB == opcode || Opcode::STOREW == opcode || 
-		Opcode::LOADB == opcode || Opcode::LOADW == opcode)  {
+	if (Opcode::SW == opcode || Opcode::LW == opcode) {
 		// isMemOp = true
 		memInfo.updateIsMemOp(true);
 		// Update timeStamp;
@@ -88,9 +82,8 @@ void TransitionFunction::generateWitness(size_t i, const vector<string>& private
 		// Update value;
 		FElem value = pb_->loadValue(address);
 		// Update Is Load Opcode
-		bool isLoad = (Opcode::LOADB == opcode || Opcode::LOADW == opcode) ? true : false;
+		bool isLoad = (Opcode::LW == opcode) ? true : false;
 		memInfo.updateIsLoadOp(isLoad);
 	}
 	pb_->addMemoryInfo(memInfo);
-
 };

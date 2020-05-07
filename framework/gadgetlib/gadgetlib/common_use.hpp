@@ -24,55 +24,52 @@ enum class Opcode : int {
 	NOT = 3,
 	ADD = 4,
 	SUB = 5,
-	MULL = 6,
+	MULT = 6,
 	UMULH = 7,
 	SMULH = 8,
 	UDIV = 9,
 	UMOD = 10,
 	SHL = 11,
 	SHR = 12,
-	SHAR = 13,
 
-	CMPE = 14,
-	CMPA = 15,
-	CMPAE = 16,
-	CMPG = 17,
-	CMPGE = 18,
+	MOVE = 13,
+	REGMOVE = 14,
 
-	MOV = 19,
-	CMOV = 20,
-	JMP = 21,
+	BEQ = 15,
+	BNE = 16,
+	BLT = 17,
+	BLE = 18,
 
-	CJMP = 22,
-	CNJMP = 23,
-	JR = 37,
+	SEQ = 19,
+	SNE = 20,
+	SLT = 21,
+	SLE = 22,
 
-	BEQ = 38,
-	BNE = 39,
-	BLT = 40,
-	BLE = 41,
-
-	SEQ = 42,
-	SNE = 43,
-	SLT = 44,
-	SLE = 45,
+	JMP = 23,
+	JR = 25,
 
 	RESERVED_OPCODE_24 = 24,
-	RESERVED_OPCODE_25 = 25,
 
-	STOREB = 26,
-	LOADB = 27,
-	STOREW = 28,
-	LOADW = 29,
-	SECREAD = 30,
-	SECSEEK = 31,
+	SW = 26,
+	LW = 27,
+
+	SECREAD = 28,
+	SECSEEK = 29,
+
+	PRINT = 30,
+	PRINTLN = 31,
 	ANSWER = 32,
-	CMPNE = 33,
-	PRINT = 34,
-	PRINTLN = 35,
-	REGMOV = 36,
 
-	NUM_OPCODES = 46
+	CMPE = 33,
+	CMPNE = 34,
+	CMPA = 35,
+	CMPAE = 36,
+	CMPG = 37,
+	CMPGE = 38,
+	CJMP = 39,
+	CNJMP = 40,
+
+	NUM_OPCODES = 41
 }; // enum Opcode
 // Check NUMBER_OPCODES
 
@@ -94,7 +91,6 @@ std::vector<Algebra::Variable> getPCVars(const Algebra::UnpackedWord& pc);
 Algebra::CircuitPolynomial getSelector(int programLength, int instructionLine, Algebra::UnpackedWord unpackedPC);
 
 
-
 /*************************************************************************************************/
 /*************************************************************************************************/
 /*******************                                                            ******************/
@@ -114,9 +110,7 @@ private:
 	Algebra::FElem value_;
 public:
 	MemoryInfo();
-	MemoryInfo(int serialNumber, bool isMemOp, bool isLoadOp,
-		const Algebra::FElem& timestamp, int timestampDegree,
-		const Algebra::FElem& address, const Algebra::FElem& value);
+	MemoryInfo(int serialNumber, bool isMemOp, bool isLoadOp, const Algebra::FElem& timestamp, int timestampDegree, const Algebra::FElem& address, const Algebra::FElem& value);
 	int getSerialNumber() const{ return serialNumber_; }
 	bool getIsMemOp() const{ return isMemOp_; }
 	bool getIsLoadOp() const { return isLoadOp_; }

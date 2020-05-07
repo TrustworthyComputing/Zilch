@@ -166,13 +166,11 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::OR:
 					case Opcode::XOR:
 					case Opcode::NOT:
-					case Opcode::MOV:
-					case Opcode::REGMOV:
-					case Opcode::CMOV:
+					case Opcode::MOVE:
+					case Opcode::REGMOVE:
 					case Opcode::SHL:
 					case Opcode::SHR:
-					case Opcode::SHAR:
-					case Opcode::MULL:
+					case Opcode::MULT:
 					case Opcode::UMULH:
 					case Opcode::SMULH:
 					case Opcode::UDIV:
@@ -199,14 +197,14 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::CMPAE:
 					case Opcode::CMPG:
 					case Opcode::CMPGE:
-					case Opcode::STOREW:
+					case Opcode::SW:
 					case Opcode::ANSWER:
 					case Opcode::PRINT:
 					case Opcode::PRINTLN:
 						selectorToConstraint[j] = 1;
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + regiFirst));
 						break;
-					case Opcode::LOADW:
+					case Opcode::LW:
 						selectorToConstraint[j] = 2;
 						//constraintPoly = constraintPoly + (selector_j * (regiSecond + aluOutput_.value_));
 						break;
@@ -271,13 +269,11 @@ void TraceConsistency::registersWitness(size_t programLine){
 			case Opcode::OR:
 			case Opcode::XOR:
 			case Opcode::NOT:
-			case Opcode::MOV:
-			case Opcode::REGMOV:
-			case Opcode::CMOV:
+			case Opcode::MOVE:
+			case Opcode::REGMOVE:
 			case Opcode::SHL:
 			case Opcode::SHR:
-			case Opcode::SHAR:
-			case Opcode::MULL:
+			case Opcode::MULT:
 			case Opcode::UMULH:
 			case Opcode::SMULH:
 			case Opcode::UDIV:
@@ -303,13 +299,13 @@ void TraceConsistency::registersWitness(size_t programLine){
 			case Opcode::CMPAE:
 			case Opcode::CMPG:
 			case Opcode::CMPGE:
-			case Opcode::STOREW:
+			case Opcode::SW:
 			case Opcode::ANSWER:
 			case Opcode::PRINT:
 			case Opcode::PRINTLN:
 				pb_->val(regiSecond) = pb_->val(regiFirst);
 				break;
-			case Opcode::LOADW:
+			case Opcode::LW:
 				pb_->val(regiSecond) = pb_->val(aluOutput_.value_);
 				break;
 			default:

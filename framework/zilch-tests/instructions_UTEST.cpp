@@ -133,26 +133,8 @@ TEST(instructions, beq16) {
 	EXPECT_EQ(answer_, 1);
 }
 
-TEST(instructions, beqz16) {
-	string assembly_file = "./framework/zilch-tests/instruction-tests/beqz.zmips";
-	string private_tape = "./framework/zilch-tests/instruction-tests/16.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
-	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
-	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 1);
-}
-
 TEST(instructions, bne16) {
 	string assembly_file = "./framework/zilch-tests/instruction-tests/bne.zmips";
-	string private_tape = "./framework/zilch-tests/instruction-tests/16.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
-	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
-	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 1);
-}
-
-TEST(instructions, bnez16) {
-	string assembly_file = "./framework/zilch-tests/instruction-tests/bnez.zmips";
 	string private_tape = "./framework/zilch-tests/instruction-tests/16.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
 	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
@@ -324,26 +306,8 @@ TEST(instructions, beq32) {
 	EXPECT_EQ(answer_, 1);
 }
 
-TEST(instructions, beqz32) {
-	string assembly_file = "./framework/zilch-tests/instruction-tests/beqz.zmips";
-	string private_tape = "./framework/zilch-tests/instruction-tests/32.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
-	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
-	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 1);
-}
-
 TEST(instructions, bne32) {
 	string assembly_file = "./framework/zilch-tests/instruction-tests/bne.zmips";
-	string private_tape = "./framework/zilch-tests/instruction-tests/32.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
-	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
-	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 1);
-}
-
-TEST(instructions, bnez32) {
-	string assembly_file = "./framework/zilch-tests/instruction-tests/bnez.zmips";
 	string private_tape = "./framework/zilch-tests/instruction-tests/32.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
 	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
@@ -515,26 +479,8 @@ TEST(instructions, beq64) {
 	EXPECT_EQ(answer_, 1);
 }
 
-TEST(instructions, beqz64) {
-	string assembly_file = "./framework/zilch-tests/instruction-tests/beqz.zmips";
-	string private_tape = "./framework/zilch-tests/instruction-tests/64.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
-	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
-	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 1);
-}
-
 TEST(instructions, bne64) {
 	string assembly_file = "./framework/zilch-tests/instruction-tests/bne.zmips";
-	string private_tape = "./framework/zilch-tests/instruction-tests/64.auxtape";
-	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
-	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);
-	std::remove(asm_parsed.c_str());
-	EXPECT_EQ(answer_, 1);
-}
-
-TEST(instructions, bnez64) {
-	string assembly_file = "./framework/zilch-tests/instruction-tests/bnez.zmips";
 	string private_tape = "./framework/zilch-tests/instruction-tests/64.auxtape";
 	string asm_parsed = parse_zmips(assembly_file, "", "./framework/zilch/src/macros.json", false);
 	execute_locally(asm_parsed, private_tape, 0, 60, false, true, false);

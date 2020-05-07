@@ -26,7 +26,7 @@ namespace {
 		TinyRAMProgram program("inputConsistencyTEST", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::ADD, false, 1, 2, 3);
 		program.addInstruction(instruction1);
-		MachineInstruction instruction2(Opcode::MULL, false, 0, 1, 2);
+		MachineInstruction instruction2(Opcode::MULT, false, 0, 1, 2);
 		program.addInstruction(instruction2);
 		MachineInstruction instruction3(Opcode::AND, false, 4, 5, 6);
 		program.addInstruction(instruction3); 

@@ -20,7 +20,7 @@
 #include <gadgetlib/infrastructure.hpp>
 #include <algebraLib/CircuitPolynomial.hpp>
 
-#define NUMBER_OPCODES 46
+#define NUMBER_OPCODES 41
 
 #define ASSERT_CONSTRAINTS_SATISFIED(pb) \
     ASSERT_TRUE(pb->isSatisfied(PrintOptions::DBG_PRINT_IF_NOT_SATISFIED))
@@ -97,11 +97,8 @@ public:
 	Algebra::FElem& val(const Algebra::Variable& var);
 	const Algebra::FElem val(const Algebra::Variable& var) const;
 	const Algebra::FElem val(const Algebra::LinearCombination& lc) const;
-	void addGeneralConstraint(const Polynomial& a,
-		                      const ::std::string& name,
-							  Opcode opcode);
-	void addMemoryConstraint(const Polynomial& a,
-							const std::string& name);
+	void addGeneralConstraint(const Polynomial& a, const ::std::string& name, Opcode opcode);
+	void addMemoryConstraint(const Polynomial& a, const std::string& name);
 	bool isSatisfied(Opcode opcode,const PrintOptions& printOnFail = PrintOptions::NO_DBG_PRINT);
 	void enforceBooleanity(const Algebra::Variable& var,Opcode opcode);
 	bool flagIsSet(const Algebra::FlagVariable& flag) const { return val(flag) == Algebra::one(); }

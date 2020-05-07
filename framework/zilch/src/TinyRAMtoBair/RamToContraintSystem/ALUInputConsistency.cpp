@@ -44,14 +44,14 @@ void ALUInputConsistency::generateConstraints(){
 		bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 		CircuitPolynomial arg2Poly;
 		if (!arg2IsImmediate) { // if not immediate -- SECREAD uses reg SECREAD_RESERVED_REGISTER DO NOT USE IN PROGRAM
-			if (Opcode::REGMOV == opcode) {
+			if (Opcode::REGMOVE == opcode) {
 				// size_t new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
 				// arg2Poly = input_.registers_[new_arg2 + NUM_OF_RESERVED_REGS] + output_.arg2_val_;
 			} else {
 				arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
 			}
 		} else {
-			if (Opcode::REGMOV == opcode) {
+			if (Opcode::REGMOVE == opcode) {
 				arg2Poly = input_.registers_[arg2 + NUM_OF_RESERVED_REGS] + output_.arg2_val_;
 			} else {
 				arg2Poly = mapIntegerToFieldElement(0, params->registerLength(), arg2) + output_.arg2_val_;
@@ -121,14 +121,14 @@ void ALUInputConsistency::generateWitness(size_t i, const vector<string>& privat
 	
 	bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 	if (!arg2IsImmediate) {
-		if (Opcode::REGMOV == opcode) {
+		if (Opcode::REGMOVE == opcode) {
 			size_t new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
 			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[ new_arg2 + NUM_OF_RESERVED_REGS ]);
 		} else {
 			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2]);
 		}
 	} else {
-		if (Opcode::REGMOV == opcode) {
+		if (Opcode::REGMOVE == opcode) {
 			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2 + NUM_OF_RESERVED_REGS]);
 		} else {
 			pb_->val(output_.arg2_val_) = mapIntegerToFieldElement(0, params->registerLength(), program_.code()[i].arg2IdxOrImmediate_);

@@ -30,7 +30,7 @@ namespace{
 		if (programNumber == 0){
 			MachineInstruction instruction1(Opcode::XOR, false, 2, 1, 1);
 			program.addInstruction(instruction1);
-			MachineInstruction instruction2(Opcode::STOREW, true, 2, 3, 3);
+			MachineInstruction instruction2(Opcode::SW, true, 2, 3, 3);
 			program.addInstruction(instruction2);
 			MachineInstruction instruction3(Opcode::AND, false, 3, 2, 2);
 			program.addInstruction(instruction3);
@@ -70,13 +70,13 @@ namespace{
 			program.addInstruction(instruction1);
 			MachineInstruction instruction2(Opcode::ADD, true, 1, 1, 1);
 			program.addInstruction(instruction2);
-			MachineInstruction instruction3(Opcode::STOREW, true, 1, 0, 3); // store r[1] in address 3(as FElem)
+			MachineInstruction instruction3(Opcode::SW, true, 1, 0, 3); // store r[1] in address 3(as FElem)
 			program.addInstruction(instruction3);
-			MachineInstruction instruction4(Opcode::LOADW, true, 2, 0, 3); // load from address 3(as FElem) to r2
+			MachineInstruction instruction4(Opcode::LW, true, 2, 0, 3); // load from address 3(as FElem) to r2
 			program.addInstruction(instruction4);
 			MachineInstruction instruction5(Opcode::ADD, true, 1, 1, 1);
 			program.addInstruction(instruction5);
-			MachineInstruction instruction6(Opcode::STOREW, true, 1, 0, 5); // store r[1] in address 3(as FElem)
+			MachineInstruction instruction6(Opcode::SW, true, 1, 0, 5); // store r[1] in address 3(as FElem)
 			program.addInstruction(instruction6);
 			MachineInstruction instruction7(Opcode::ANSWER, true, 0, 0, 0);
 			program.addInstruction(instruction7);
@@ -150,7 +150,7 @@ TEST(cs2Bair, Collatz){
 	}
 
 	TinyRAMProgram program("3n+1", REGISTERS_NUMBER, trRegisterLen);
-	MachineInstruction instruction0(Opcode::MOV, true, 8, 0, aux_param);
+	MachineInstruction instruction0(Opcode::MOVE, true, 8, 0, aux_param);
     program.addInstruction(instruction0);
 	MachineInstruction instruction1(Opcode::CMPE, true, 0, 8, 1);
 	program.addInstruction(instruction1);
@@ -197,17 +197,17 @@ TEST(cs2Bair, Collatz){
 		cout << endl;
 
 		TinyRAMProgram program("coNPsubsetsum", 5, trRegisterLen);
-		MachineInstruction instruction0(Opcode::MOV, true, 0, 0, 1);
+		MachineInstruction instruction0(Opcode::MOVE, true, 0, 0, 1);
 		program.addInstruction(instruction0);
 		/*label=L1*/MachineInstruction instruction1(Opcode::CMPE, true, 0, 0, (1 << how_many) & 0xffff);
 		program.addInstruction(instruction1);
 		MachineInstruction instruction2(Opcode::CJMP, true, 0, 0, 20 /*L5*/);
 		program.addInstruction(instruction2);
-		MachineInstruction instruction3(Opcode::MOV, true, 1, 0, 0);
+		MachineInstruction instruction3(Opcode::MOVE, true, 1, 0, 0);
 		program.addInstruction(instruction3);
-		MachineInstruction instruction4(Opcode::MOV, false, 2, 0, 0);
+		MachineInstruction instruction4(Opcode::MOVE, false, 2, 0, 0);
 		program.addInstruction(instruction4);
-		MachineInstruction instruction5(Opcode::MOV, true, 3, 0, 0);
+		MachineInstruction instruction5(Opcode::MOVE, true, 3, 0, 0);
 		program.addInstruction(instruction5);
 		/*label=L2*/MachineInstruction instruction6(Opcode::AND, true, 4, 2, 1);
 		program.addInstruction(instruction6);
@@ -237,7 +237,7 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction18);
 		MachineInstruction instruction19(Opcode::JMP, true, 0, 0, 1 /*L1*/);
 		program.addInstruction(instruction19);
-		/*label=L5*/MachineInstruction instruction20(Opcode::MOV, true, 0, 0, 0);
+		/*label=L5*/MachineInstruction instruction20(Opcode::MOVE, true, 0, 0, 0);
 		program.addInstruction(instruction20);
 		/*label=L6*/MachineInstruction instruction21(Opcode::ANSWER, false, 0, 0, 0);
 		program.addInstruction(instruction21);
@@ -272,77 +272,77 @@ TEST(cs2Bair, Collatz){
 
 		srand(seed); rand();
 		for (int i = 0; i < 2 * half; i++) {
-			//m.push_back(new MachineInstruction(Opcode::MOV, true, 9, 0, (int16_t)(rand() - RAND_MAX / 2))); p.addInstruction(*(m.back()));
-			//m.push_back(new MachineInstruction(Opcode::STOREW, true, 9, 0, MEMssuminpaddr + i)); p.addInstruction(*(m.back()));
-			p.addInstruction(MachineInstruction(Opcode::MOV, true, 9, 0, (uint16_t)((rand() >> cut) - (RAND_MAX >> (cut + 1)))));
-			p.addInstruction(MachineInstruction(Opcode::STOREW, true, 9, 0, MEMssuminpaddr + i));
+			//m.push_back(new MachineInstruction(Opcode::MOVE, true, 9, 0, (int16_t)(rand() - RAND_MAX / 2))); p.addInstruction(*(m.back()));
+			//m.push_back(new MachineInstruction(Opcode::SW, true, 9, 0, MEMssuminpaddr + i)); p.addInstruction(*(m.back()));
+			p.addInstruction(MachineInstruction(Opcode::MOVE, true, 9, 0, (uint16_t)((rand() >> cut) - (RAND_MAX >> (cut + 1)))));
+			p.addInstruction(MachineInstruction(Opcode::SW, true, 9, 0, MEMssuminpaddr + i));
 		}
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 0, 0, MEMssuminpaddr));
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 1, 0, MEMssumbaseaddr1)); //sort first half
-		/*L1:PrepareHalf*/p.addInstruction(MachineInstruction(Opcode::MOV, true, 9, 0, 0));
-		p.addInstruction(MachineInstruction(Opcode::STOREW, false, 9, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 0, 0, MEMssuminpaddr));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 1, 0, MEMssumbaseaddr1)); //sort first half
+		/*L1:PrepareHalf*/p.addInstruction(MachineInstruction(Opcode::MOVE, true, 9, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::SW, false, 9, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 2, 1, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::STOREW, false, 9, 0, 2));
-		p.addInstruction(MachineInstruction(Opcode::MOV, false, 2, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::SW, false, 9, 0, 2));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, false, 2, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 4, 1, 1));
-		p.addInstruction(MachineInstruction(Opcode::MOV, false, 5, 0, 4));
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 8, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, false, 5, 0, 4));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 8, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 9, 0, half));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 0));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 43 + 4 * half /*L5*/));
 		/*L2:MergeIteration*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 0, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 9, 0));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 59 + 4 * half /*L7*/));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 0));
 		p.addInstruction(MachineInstruction(Opcode::SHL, true, 8, 8, 1));
-		p.addInstruction(MachineInstruction(Opcode::MOV, false, 5, 0, 4));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, false, 5, 0, 4));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 43 + 4 * half /*L5*/));
 		/*L3:MergeCompare*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 7, 4, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::STOREW, false, 6, 0, 7));
+		p.addInstruction(MachineInstruction(Opcode::SW, false, 6, 0, 7));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 4, 4, 1));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 5, 1));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 35 + 4 * half /*L4*/));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 5, 2));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 13 + 4 * half /*L2*/));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 2));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 2));
 		p.addInstruction(MachineInstruction(Opcode::ADD, false, 6, 6, 3));
-		p.addInstruction(MachineInstruction(Opcode::STOREW, false, 6, 0, 4));
+		p.addInstruction(MachineInstruction(Opcode::SW, false, 6, 0, 4));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 6, 2, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 6));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 6));
 		p.addInstruction(MachineInstruction(Opcode::XOR, false, 6, 6, 8));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 2, 2, 1));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 20 + 4 * half /*L3*/));
 		/*L4:MergeOne*/p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 5, 2));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 43 + 4 * half /*L5*/));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 1));
-		p.addInstruction(MachineInstruction(Opcode::STOREW, false, 6, 0, 4));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::SW, false, 6, 0, 4));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 6, 1, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 6));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 6));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 1, 1));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 20 + 4 * half /*L3*/));
-		/*L5:MergeBoth*/p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 1));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 7, 0, 2));
+		/*L5:MergeBoth*/p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 7, 0, 2));
 		p.addInstruction(MachineInstruction(Opcode::ADD, false, 7, 7, 3));
 		p.addInstruction(MachineInstruction(Opcode::CMPG, false, 0, 6, 7));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 53 + 4 * half /*L6*/));
-		p.addInstruction(MachineInstruction(Opcode::STOREW, false, 6, 0, 4));
+		p.addInstruction(MachineInstruction(Opcode::SW, false, 6, 0, 4));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 6, 1, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 6));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 6));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 1, 1));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 20 + 4 * half /*L3*/));
-		/*L6:MergeOther*/p.addInstruction(MachineInstruction(Opcode::STOREW, false, 7, 0, 4));
+		/*L6:MergeOther*/p.addInstruction(MachineInstruction(Opcode::SW, false, 7, 0, 4));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 6, 2, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 6));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 6));
 		p.addInstruction(MachineInstruction(Opcode::XOR, false, 6, 6, 8));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 2, 2, 1));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 20 + 4 * half /*L3*/));
 		/*L7:EndOfPrepareHalf*/p.addInstruction(MachineInstruction(Opcode::CMPA, true, 0, 1, MEMssumbaseaddr2));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 63 + 4 * half /*L8*/));
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 1, 0, MEMssumbaseaddr2)); //sort second half
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 1, 0, MEMssumbaseaddr2)); //sort second half
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 2 + 4 * half /*L1*/));
-		/*L8:InitSearch*/p.addInstruction(MachineInstruction(Opcode::MOV, true, 0, 0, MEMssumbaseaddr1 + (1 << (half + 1)) - 2));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 2, 0, 0));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 1));
+		/*L8:InitSearch*/p.addInstruction(MachineInstruction(Opcode::MOVE, true, 0, 0, MEMssumbaseaddr1 + (1 << (half + 1)) - 2));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 2, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 1));
 		/*L9:SearchLoop*/p.addInstruction(MachineInstruction(Opcode::ADD, false, 4, 2, 3));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 4, target_sum));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 82 + 4 * half /*L12*/));
@@ -351,18 +351,18 @@ TEST(cs2Bair, Collatz){
 		p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 1, MEMssumbaseaddr2 + (1 << (half + 1)) - 2));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 81 + 4 * half /*L11*/));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 1, 1));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 66 + 4 * half /*L9*/));
 		/*L10:SearchOther*/p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 0, MEMssumbaseaddr1));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 81 + 4 * half /*L11*/));
 		p.addInstruction(MachineInstruction(Opcode::SUB, true, 0, 0, 1));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 2, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 2, 0, 0));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 66 + 4 * half /*L9*/));
 		/*L11:ReturnFalse*/p.addInstruction(MachineInstruction(Opcode::ANSWER, true, 0, 0, 0));
 		/*L12:ReturnTrue*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 2, 0, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 2, 0, 2));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 2, 0, 2));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 3, 1, MEMssumoffset));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 3));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 3));
 		p.addInstruction(MachineInstruction(Opcode::SHL, true, 3, 3, half));
 		p.addInstruction(MachineInstruction(Opcode::XOR, false, 2, 2, 3));
 		p.addInstruction(MachineInstruction(Opcode::ANSWER, false, 0, 0, 2));
@@ -387,13 +387,13 @@ TEST(cs2Bair, Collatz){
 		cout << endl;
 
 		gadgetlib::TinyRAMProgram program("sharpPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
-		MachineInstruction instruction0(Opcode::MOV, true, 8, 0, 0);
+		MachineInstruction instruction0(Opcode::MOVE, true, 8, 0, 0);
 		program.addInstruction(instruction0);
-		MachineInstruction instruction1(Opcode::MOV, true, 7, 0, target_sum);
+		MachineInstruction instruction1(Opcode::MOVE, true, 7, 0, target_sum);
 		program.addInstruction(instruction1);
-		MachineInstruction instruction2(Opcode::MOV, false, 6, 0, 7);
+		MachineInstruction instruction2(Opcode::MOVE, false, 6, 0, 7);
 		program.addInstruction(instruction2);
-		MachineInstruction instruction3(Opcode::MOV, true, 0, 0, 0);
+		MachineInstruction instruction3(Opcode::MOVE, true, 0, 0, 0);
 		program.addInstruction(instruction3);
 		/*label=L1*/MachineInstruction instruction4(Opcode::ADD, true, 0, 0, 1);
 		program.addInstruction(instruction4);
@@ -401,11 +401,11 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction5);
 		MachineInstruction instruction6(Opcode::CJMP, true, 0, 0, 28 /*L5*/);
 		program.addInstruction(instruction6);
-		MachineInstruction instruction7(Opcode::MOV, true, 1, 0, 0);
+		MachineInstruction instruction7(Opcode::MOVE, true, 1, 0, 0);
 		program.addInstruction(instruction7);
-		MachineInstruction instruction8(Opcode::MOV, false, 2, 0, 0);
+		MachineInstruction instruction8(Opcode::MOVE, false, 2, 0, 0);
 		program.addInstruction(instruction8);
-		MachineInstruction instruction9(Opcode::MOV, true, 3, 0, 0);
+		MachineInstruction instruction9(Opcode::MOVE, true, 3, 0, 0);
 		program.addInstruction(instruction9);
 		/*label=L2*/MachineInstruction instruction10(Opcode::AND, true, 4, 2, 1);
 		program.addInstruction(instruction10);
@@ -437,9 +437,9 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction23);
 		MachineInstruction instruction24(Opcode::CNJMP, true, 0, 0, 4 /*L1*/);
 		program.addInstruction(instruction24);
-		MachineInstruction instruction25(Opcode::MOV, false, 6, 0, 4);
+		MachineInstruction instruction25(Opcode::MOVE, false, 6, 0, 4);
 		program.addInstruction(instruction25);
-		MachineInstruction instruction26(Opcode::MOV, false, 8, 0, 0);
+		MachineInstruction instruction26(Opcode::MOVE, false, 8, 0, 0);
 		program.addInstruction(instruction26);
 		MachineInstruction instruction27(Opcode::JMP, true, 0, 0, 4 /*L1*/);
 		program.addInstruction(instruction27);
@@ -530,59 +530,59 @@ TEST(cs2Bair, Collatz){
 
 		srand(seed); rand();
 		for (int i = 0; i < 2 * half; i++) {
-			p.addInstruction(MachineInstruction(Opcode::MOV, true, 1, 0, (int16_t)((rand() >> cut) - (RAND_MAX >> (cut + 1)))));
-			p.addInstruction(MachineInstruction(Opcode::STOREW, true, 1, 0, MEMssuminpaddr + i));
+			p.addInstruction(MachineInstruction(Opcode::MOVE, true, 1, 0, (int16_t)((rand() >> cut) - (RAND_MAX >> (cut + 1)))));
+			p.addInstruction(MachineInstruction(Opcode::SW, true, 1, 0, MEMssuminpaddr + i));
 		}
 
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 0, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 0, 0, 0));
 
 		/*L1:Verify*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 0, expo));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 1, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 1, 0, 1));
 
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 2, 0, 0)); //verify sum
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 3, 0, 0));
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 4, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 2, 0, 0)); //verify sum
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 3, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 4, 0, 1));
 		/*L2:VerifySumLoop*/p.addInstruction(MachineInstruction(Opcode::AND, false, 5, 1, 4));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 11 + 4 * half /*L3*/));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 5, 3, MEMssuminpaddr));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 5, 0, 5));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 5, 0, 5));
 		p.addInstruction(MachineInstruction(Opcode::ADD, false, 2, 2, 5));
 		/*L3:VerifySumEscape*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 3, 3, 1));
 		p.addInstruction(MachineInstruction(Opcode::SHL, true, 4, 4, 1));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 3, half));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 6 + 4 * half /*L2*/));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 6, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 6, 0, 0));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 2, 6));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 75 + 4 * half /*L10*/));
 
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 1, 2 * expo)); //verify permu
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 1, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 1, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 1, 0));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 75 + 4 * half /*L10*/));
 
 
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 0, 4 * expo));  //2nd half
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 1, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 1, 0, 1));
 
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 2, 0, 0));  //verify sum
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 3, 0, half));
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 4, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 2, 0, 0));  //verify sum
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 3, 0, half));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 4, 0, 1));
 		/*L4:VerifySumLoop*/p.addInstruction(MachineInstruction(Opcode::AND, false, 5, 1, 4));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 32 + 4 * half /*L5*/));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 5, 3, MEMssuminpaddr));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 5, 0, 5));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 5, 0, 5));
 		p.addInstruction(MachineInstruction(Opcode::ADD, false, 2, 2, 5));
 		/*L5:VerifySumEscape*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 3, 3, 1));
 		p.addInstruction(MachineInstruction(Opcode::SHL, true, 4, 4, 1));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 3, 2 * half));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 27 + 4 * half /*L4*/));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 5, 0, 3 * expo));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 5, 0, 5));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 5, 0, 5));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 2, 5));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 75 + 4 * half /*L10*/));
 
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 1, 5 * expo)); //verify permu
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 1, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 1, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, false, 0, 1, 0));
 		p.addInstruction(MachineInstruction(Opcode::CNJMP, true, 0, 0, 75 + 4 * half /*L10*/));
 
@@ -597,15 +597,15 @@ TEST(cs2Bair, Collatz){
 		/*L6:EscapeVerifyOrder*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 0, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 0, expo));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 56 + 4 * half /*L7*/));
-		p.addInstruction(MachineInstruction(Opcode::MOV, false, 7, 0, 6));
-		p.addInstruction(MachineInstruction(Opcode::MOV, false, 8, 0, 5));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, false, 7, 0, 6));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, false, 8, 0, 5));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 1 + 4 * half /*L1*/));
 
 
-		/*L7:InitSearch*/p.addInstruction(MachineInstruction(Opcode::MOV, true, 0, 0, expo - 1));
-		p.addInstruction(MachineInstruction(Opcode::MOV, true, 1, 0, 3 * expo));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 2, 0, 0));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 1));
+		/*L7:InitSearch*/p.addInstruction(MachineInstruction(Opcode::MOVE, true, 0, 0, expo - 1));
+		p.addInstruction(MachineInstruction(Opcode::MOVE, true, 1, 0, 3 * expo));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 2, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 1));
 		/*L8:SearchLoop*/p.addInstruction(MachineInstruction(Opcode::ADD, false, 4, 2, 3));
 		p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 4, target_sum));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 76 + 4 * half /*L11*/));
@@ -614,18 +614,18 @@ TEST(cs2Bair, Collatz){
 		p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 1, 4 * expo - 1));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 75 + 4 * half /*L10*/));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 1, 1));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 60 + 4 * half /*L8*/));
 		/*L9:SearchOther*/p.addInstruction(MachineInstruction(Opcode::CMPE, true, 0, 0, 0));
 		p.addInstruction(MachineInstruction(Opcode::CJMP, true, 0, 0, 75 + 4 * half /*L10*/));
 		p.addInstruction(MachineInstruction(Opcode::SUB, true, 0, 0, 1));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 2, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 2, 0, 0));
 		p.addInstruction(MachineInstruction(Opcode::JMP, true, 0, 0, 60 + 4 * half /*L8*/));
 		/*L10:ReturnFalse*/p.addInstruction(MachineInstruction(Opcode::ANSWER, true, 0, 0, 0));
 		/*L11:ReturnTrue*/p.addInstruction(MachineInstruction(Opcode::ADD, true, 0, 0, expo));
 		p.addInstruction(MachineInstruction(Opcode::ADD, true, 1, 1, expo));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 2, 0, 0));
-		p.addInstruction(MachineInstruction(Opcode::LOADW, false, 3, 0, 1));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 2, 0, 0));
+		p.addInstruction(MachineInstruction(Opcode::LW, false, 3, 0, 1));
 		p.addInstruction(MachineInstruction(Opcode::SHL, true, 3, 3, half));
 		p.addInstruction(MachineInstruction(Opcode::XOR, false, 2, 2, 3));
 		p.addInstruction(MachineInstruction(Opcode::ANSWER, false, 0, 0, 2));
@@ -654,28 +654,28 @@ TEST(cs2Bair, Collatz){
 		TinyRAMProgram program("ccompilerMEMcoNPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
 		srand(seed); rand();
 		for (int i = 0; i < 2 * half; i++) {
-			program.addInstruction(MachineInstruction(Opcode::MOV, true, 9, 0, (int16_t)((rand() >> cut) - (RAND_MAX >> (cut + 1)))));
-			program.addInstruction(MachineInstruction(Opcode::STOREW, true, 9, 0, 0 + 2 * i));
+			program.addInstruction(MachineInstruction(Opcode::MOVE, true, 9, 0, (int16_t)((rand() >> cut) - (RAND_MAX >> (cut + 1)))));
+			program.addInstruction(MachineInstruction(Opcode::SW, true, 9, 0, 0 + 2 * i));
 		}
-		MachineInstruction instruction9(Opcode::MOV, true, 9, 0, 0);
+		MachineInstruction instruction9(Opcode::MOVE, true, 9, 0, 0);
 		program.addInstruction(instruction9);
-		MachineInstruction instruction10(Opcode::MOV, true, 12, 0, 28);
+		MachineInstruction instruction10(Opcode::MOVE, true, 12, 0, 28);
 		program.addInstruction(instruction10);
-		MachineInstruction instruction11(Opcode::MOV, false, 8, 0, 12);
+		MachineInstruction instruction11(Opcode::MOVE, false, 8, 0, 12);
 		program.addInstruction(instruction11);
 		MachineInstruction instruction12(Opcode::ADD, true, 13, 8, 4);
 		program.addInstruction(instruction12);
-		MachineInstruction instruction13(Opcode::MOV, false, 4, 0, 13);
+		MachineInstruction instruction13(Opcode::MOVE, false, 4, 0, 13);
 		program.addInstruction(instruction13);
-		MachineInstruction instruction14(Opcode::MOV, true, 2, 0, 0);
+		MachineInstruction instruction14(Opcode::MOVE, true, 2, 0, 0);
 		program.addInstruction(instruction14);
 		MachineInstruction instruction15(Opcode::ADD, true, 0, 8, 2);
 		program.addInstruction(instruction15);
-		MachineInstruction instruction16(Opcode::STOREW, false, 2, 0, 0);
+		MachineInstruction instruction16(Opcode::SW, false, 2, 0, 0);
 		program.addInstruction(instruction16);
-		MachineInstruction instruction17(Opcode::STOREW, false, 2, 0, 8);
+		MachineInstruction instruction17(Opcode::SW, false, 2, 0, 8);
 		program.addInstruction(instruction17);
-		MachineInstruction instruction18(Opcode::MOV, true, 14, 0, 1);
+		MachineInstruction instruction18(Opcode::MOVE, true, 14, 0, 1);
 		program.addInstruction(instruction18);
 		MachineInstruction instruction19(Opcode::ADD, true, 5, 9, 14);
 		program.addInstruction(instruction19);
@@ -687,25 +687,25 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction22);
 		MachineInstruction instruction23(Opcode::CJMP, true, 0, 0, 80 + 4 * half - 9);
 		program.addInstruction(instruction23);
-		MachineInstruction instruction24(Opcode::LOADW, false, 3, 0, 12);
+		MachineInstruction instruction24(Opcode::LW, false, 3, 0, 12);
 		program.addInstruction(instruction24);
-		MachineInstruction instruction25(Opcode::LOADW, false, 2, 0, 9);
+		MachineInstruction instruction25(Opcode::LW, false, 2, 0, 9);
 		program.addInstruction(instruction25);
 		MachineInstruction instruction26(Opcode::ADD, false, 2, 3, 2);
 		program.addInstruction(instruction26);
 		MachineInstruction instruction27(Opcode::ADD, true, 12, 12, 2);
 		program.addInstruction(instruction27);
-		MachineInstruction instruction28(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction28(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction28);
 		MachineInstruction instruction29(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction29);
-		MachineInstruction instruction30(Opcode::LOADW, false, 2, 0, 12);
+		MachineInstruction instruction30(Opcode::LW, false, 2, 0, 12);
 		program.addInstruction(instruction30);
 		MachineInstruction instruction31(Opcode::XOR, false, 2, 14, 2);
 		program.addInstruction(instruction31);
 		MachineInstruction instruction32(Opcode::ADD, true, 12, 12, 2);
 		program.addInstruction(instruction32);
-		MachineInstruction instruction33(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction33(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction33);
 		MachineInstruction instruction34(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction34);
@@ -723,19 +723,19 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction40);
 		MachineInstruction instruction41(Opcode::CJMP, true, 0, 0, 80 + 4 * half - 9);
 		program.addInstruction(instruction41);
-		MachineInstruction instruction42(Opcode::LOADW, false, 2, 0, 8);
+		MachineInstruction instruction42(Opcode::LW, false, 2, 0, 8);
 		program.addInstruction(instruction42);
 		MachineInstruction instruction43(Opcode::ADD, true, 8, 8, 2);
 		program.addInstruction(instruction43);
-		MachineInstruction instruction44(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction44(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction44);
 		MachineInstruction instruction45(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction45);
-		MachineInstruction instruction46(Opcode::LOADW, false, 2, 0, 8);
+		MachineInstruction instruction46(Opcode::LW, false, 2, 0, 8);
 		program.addInstruction(instruction46);
 		MachineInstruction instruction47(Opcode::ADD, true, 8, 8, 2);
 		program.addInstruction(instruction47);
-		MachineInstruction instruction48(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction48(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction48);
 		MachineInstruction instruction49(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction49);
@@ -745,55 +745,55 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction51);
 		MachineInstruction instruction52(Opcode::JMP, true, 0, 0, 80 + 4 * half - 9);
 		program.addInstruction(instruction52);
-		MachineInstruction instruction53(Opcode::LOADW, false, 2, 0, 12);
+		MachineInstruction instruction53(Opcode::LW, false, 2, 0, 12);
 		program.addInstruction(instruction53);
-		MachineInstruction instruction54(Opcode::LOADW, false, 3, 0, 9);
+		MachineInstruction instruction54(Opcode::LW, false, 3, 0, 9);
 		program.addInstruction(instruction54);
 		MachineInstruction instruction55(Opcode::ADD, false, 3, 2, 3);
 		program.addInstruction(instruction55);
-		MachineInstruction instruction56(Opcode::LOADW, false, 2, 0, 8);
+		MachineInstruction instruction56(Opcode::LW, false, 2, 0, 8);
 		program.addInstruction(instruction56);
 		MachineInstruction instruction57(Opcode::CMPG, false, 2, 2, 3);
 		program.addInstruction(instruction57);
 		MachineInstruction instruction58(Opcode::CNJMP, true, 0, 0, 71 + 4 * half - 9);
 		program.addInstruction(instruction58);
-		MachineInstruction instruction59(Opcode::LOADW, false, 3, 0, 12);
+		MachineInstruction instruction59(Opcode::LW, false, 3, 0, 12);
 		program.addInstruction(instruction59);
-		MachineInstruction instruction60(Opcode::LOADW, false, 2, 0, 9);
+		MachineInstruction instruction60(Opcode::LW, false, 2, 0, 9);
 		program.addInstruction(instruction60);
 		MachineInstruction instruction61(Opcode::ADD, false, 2, 3, 2);
 		program.addInstruction(instruction61);
 		MachineInstruction instruction62(Opcode::ADD, true, 12, 12, 2);
 		program.addInstruction(instruction62);
-		MachineInstruction instruction63(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction63(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction63);
 		MachineInstruction instruction64(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction64);
-		MachineInstruction instruction65(Opcode::LOADW, false, 2, 0, 12);
+		MachineInstruction instruction65(Opcode::LW, false, 2, 0, 12);
 		program.addInstruction(instruction65);
 		MachineInstruction instruction66(Opcode::XOR, false, 2, 14, 2);
 		program.addInstruction(instruction66);
 		MachineInstruction instruction67(Opcode::ADD, true, 12, 12, 2);
 		program.addInstruction(instruction67);
-		MachineInstruction instruction68(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction68(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction68);
 		MachineInstruction instruction69(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction69);
 		MachineInstruction instruction70(Opcode::JMP, true, 0, 0, 20 + 4 * half - 9);
 		program.addInstruction(instruction70);
-		MachineInstruction instruction71(Opcode::LOADW, false, 2, 0, 8);
+		MachineInstruction instruction71(Opcode::LW, false, 2, 0, 8);
 		program.addInstruction(instruction71);
 		MachineInstruction instruction72(Opcode::ADD, true, 8, 8, 2);
 		program.addInstruction(instruction72);
-		MachineInstruction instruction73(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction73(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction73);
 		MachineInstruction instruction74(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction74);
-		MachineInstruction instruction75(Opcode::LOADW, false, 2, 0, 8);
+		MachineInstruction instruction75(Opcode::LW, false, 2, 0, 8);
 		program.addInstruction(instruction75);
 		MachineInstruction instruction76(Opcode::ADD, true, 8, 8, 2);
 		program.addInstruction(instruction76);
-		MachineInstruction instruction77(Opcode::STOREW, false, 2, 0, 4);
+		MachineInstruction instruction77(Opcode::SW, false, 2, 0, 4);
 		program.addInstruction(instruction77);
 		MachineInstruction instruction78(Opcode::ADD, true, 4, 4, 2);
 		program.addInstruction(instruction78);
@@ -807,7 +807,7 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction82);
 		MachineInstruction instruction83(Opcode::SHL, true, 14, 14, 1);
 		program.addInstruction(instruction83);
-		MachineInstruction instruction84(Opcode::MOV, false, 13, 0, 4);
+		MachineInstruction instruction84(Opcode::MOVE, false, 13, 0, 4);
 		program.addInstruction(instruction84);
 		MachineInstruction instruction85(Opcode::JMP, true, 0, 0, 20 + 4 * half - 9);
 		program.addInstruction(instruction85);
@@ -815,17 +815,17 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction86);
 		MachineInstruction instruction87(Opcode::CJMP, true, 0, 0, 91 + 4 * half - 9);
 		program.addInstruction(instruction87);
-		MachineInstruction instruction88(Opcode::MOV, false, 12, 0, 4);
+		MachineInstruction instruction88(Opcode::MOVE, false, 12, 0, 4);
 		program.addInstruction(instruction88);
-		MachineInstruction instruction89(Opcode::MOV, false, 8, 0, 4);
+		MachineInstruction instruction89(Opcode::MOVE, false, 8, 0, 4);
 		program.addInstruction(instruction89);
 		MachineInstruction instruction90(Opcode::JMP, true, 0, 0, 12 + 4 * half - 9);
 		program.addInstruction(instruction90);
-		MachineInstruction instruction91(Opcode::MOV, true, 4, 0, 1044);
+		MachineInstruction instruction91(Opcode::MOVE, true, 4, 0, 1044);
 		program.addInstruction(instruction91);
-		MachineInstruction instruction92(Opcode::LOADW, false, 3, 0, 4);
+		MachineInstruction instruction92(Opcode::LW, false, 3, 0, 4);
 		program.addInstruction(instruction92);
-		MachineInstruction instruction93(Opcode::LOADW, false, 2, 0, 12);
+		MachineInstruction instruction93(Opcode::LW, false, 2, 0, 12);
 		program.addInstruction(instruction93);
 		MachineInstruction instruction94(Opcode::ADD, false, 2, 3, 2);
 		program.addInstruction(instruction94);
@@ -835,21 +835,21 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction96);
 		MachineInstruction instruction97(Opcode::ADD, true, 0, 12, 2);
 		program.addInstruction(instruction97);
-		MachineInstruction instruction98(Opcode::LOADW, false, 12, 0, 0);
+		MachineInstruction instruction98(Opcode::LW, false, 12, 0, 0);
 		program.addInstruction(instruction98);
 		MachineInstruction instruction99(Opcode::SHL, true, 12, 12, half);
 		program.addInstruction(instruction99);
 		MachineInstruction instruction100(Opcode::ADD, true, 0, 4, 2);
 		program.addInstruction(instruction100);
-		MachineInstruction instruction101(Opcode::LOADW, false, 4, 0, 0);
+		MachineInstruction instruction101(Opcode::LW, false, 4, 0, 0);
 		program.addInstruction(instruction101);
 		MachineInstruction instruction102(Opcode::XOR, false, 2, 12, 4);
 		program.addInstruction(instruction102);
 		MachineInstruction instruction103(Opcode::JMP, true, 0, 0, 119 + 4 * half - 9);
 		program.addInstruction(instruction103);
-		MachineInstruction instruction104(Opcode::LOADW, false, 3, 0, 4);
+		MachineInstruction instruction104(Opcode::LW, false, 3, 0, 4);
 		program.addInstruction(instruction104);
-		MachineInstruction instruction105(Opcode::LOADW, false, 2, 0, 12);
+		MachineInstruction instruction105(Opcode::LW, false, 2, 0, 12);
 		program.addInstruction(instruction105);
 		MachineInstruction instruction106(Opcode::ADD, false, 2, 3, 2);
 		program.addInstruction(instruction106);
@@ -857,7 +857,7 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction107);
 		MachineInstruction instruction108(Opcode::CJMP, true, 0, 0, 114 + 4 * half - 9);
 		program.addInstruction(instruction108);
-		MachineInstruction instruction109(Opcode::MOV, true, 2, 0, 2064);
+		MachineInstruction instruction109(Opcode::MOVE, true, 2, 0, 2064);
 		program.addInstruction(instruction109);
 		MachineInstruction instruction110(Opcode::CMPE, false, 12, 12, 2);
 		program.addInstruction(instruction110);
@@ -875,7 +875,7 @@ TEST(cs2Bair, Collatz){
 		program.addInstruction(instruction116);
 		MachineInstruction instruction117(Opcode::JMP, true, 0, 0, 92 + 4 * half - 9);
 		program.addInstruction(instruction117);
-		MachineInstruction instruction118(Opcode::MOV, true, 2, 0, 0);
+		MachineInstruction instruction118(Opcode::MOVE, true, 2, 0, 0);
 		program.addInstruction(instruction118);
 		MachineInstruction instruction119(Opcode::ANSWER, false, 0, 0, 2);
 		program.addInstruction(instruction119);

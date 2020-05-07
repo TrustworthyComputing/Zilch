@@ -1,6 +1,0 @@
-move $r1, 1
-bnez $r1, $r1, __L1__
-    move $r1, 0
-    answer $r1
-__L1__
-answer $r1

@@ -67,7 +67,7 @@ void cs2Bair::boundaryConstraints() const{
 	pb_->addBoundaryConstraint(followingTraceVariable_.first_.flag_, 0, Algebra::zero());
 	pb_->addBoundaryConstraint(followingTraceVariable_.first_.timeStamp_, 0, Algebra::one());
 	for (size_t i = 0; i < program_.pcLength(); i++){
-		pb_->addBoundaryConstraint(followingTraceVariable_.first_.pc_[i], 0, Algebra::zero()); 
+		pb_->addBoundaryConstraint(followingTraceVariable_.first_.pc_[i], 0, Algebra::zero());
 	}
 	//for (int i = 0; i < params->numRegisters(); i++){
 	//	pb_->addBoundaryConstraint(followingTraceVariable_.first_.registers_[i], 0, Algebra::zero());
@@ -90,8 +90,7 @@ void cs2Bair::initInitialVars(){
 void cs2Bair::checkMemoryUse(){
 	for (size_t i = 0; i < program_.code().size(); ++i){
 		Opcode opcode = program_.code()[i].opcode_;
-		if (opcode == Opcode::STOREB || opcode == Opcode::STOREW ||
-			opcode == Opcode::LOADB || opcode == Opcode::LOADW){
+		if (opcode == Opcode::SW || opcode == Opcode::LW) {
 			doesProgramUsesMemory_ = true;
 			break;
 		}
@@ -136,16 +135,15 @@ void cs2Bair::copyTraceOutputValuesToTraceInput(){
 	}
 }
 
-
 void cs2Bair::createTranslationVector(){
 	Algebra::Variable::set traceFirstVariables;
 	Algebra::Variable::set traceSecondVariables;
-	
+
 	std::vector<Variable> trace1 = variablesToVector(followingTraceVariable_.first_);
 	std::vector<Variable> trace2 = variablesToVector(followingTraceVariable_.second_);
 	std::vector<Variable> memoryTrace1 = memoryVariablesToVector(memoryFollowingTraceVariables_.first_);
 	std::vector<Variable> memoryTrace2 = memoryVariablesToVector(memoryFollowingTraceVariables_.second_);
-	
+
 	traceFirstVariables.insert(trace1.begin(), trace1.end());
 	traceFirstVariables.insert(memoryTrace1.begin(), memoryTrace1.end());
 	traceSecondVariables.insert(trace2.begin(), trace2.end());
@@ -174,7 +172,6 @@ void cs2Bair::createTranslationVector(){
 	for (size_t i = 0; i < auxVars.size(); i++){
 		translation_.emplace_back(unUsed);
 	}
-	// Jenya - pretty ugly - we leave it like this for now - we'll change it as soon as I have time.
 	pb_->setNewIndicesForTranslation(translation_);
 	translation_ = pb_->getTranslationVector();
 }
@@ -231,7 +228,6 @@ void cs2Bair::generateWitness() {
 			if (j.second != Algebra::zero()){
 				usedVars.insert(j.first);
 				// cout << "var num";
-				
 			}
 			// cout << j.first.name() << ":" << j.second << " ";
 		}
@@ -255,7 +251,7 @@ void cs2Bair::generateWitness() {
 
 ConstraintSystem cs2Bair::getMemoryConstraints() const{
 	if (doesProgramUsesMemory_){
-		return pb_->constraintSystem(Opcode::MEMORY); 
+		return pb_->constraintSystem(Opcode::MEMORY);
 	}
 	return ConstraintSystem();
 }
@@ -264,7 +260,7 @@ void cs2Bair::generateMemoryWitness(){
 
     Variable::set usedMemoryVariables = pb_->constraintSystem(Opcode::MEMORY).getUsedVariables();
 	usedMemoryVariables.erase(memoryFollowingTraceVariables_.first_.timeStamp_);
-	usedMemoryVariables.erase(memoryFollowingTraceVariables_.first_.isMemOp_); 
+	usedMemoryVariables.erase(memoryFollowingTraceVariables_.first_.isMemOp_);
 	usedMemoryVariables.erase(memoryFollowingTraceVariables_.first_.isLoad_);
 	usedMemoryVariables.erase(memoryFollowingTraceVariables_.first_.value_);
 	usedMemoryVariables.erase(memoryFollowingTraceVariables_.first_.address_);
@@ -297,9 +293,7 @@ void cs2Bair::generateMemoryWitness(){
 			pb_->val(memoryFollowingTraceVariables_.second_.value_) = nextAssignment[memoryFollowingTraceVariables_.first_.value_];
 			pb_->val(memoryFollowingTraceVariables_.second_.address_) = memoryTrace[(i+1) % memoryTrace.size()].getAddress();
 			if (Algebra::one() == pb_->val(memoryFollowingTraceVariables_.first_.isMemOp_)){
-
 				memoryConstraints_->generateWitness();
-
 				if (i+1 != memoryTrace.size()){
 					GADGETLIB_ASSERT(pb_->isSatisfied(Opcode::MEMORY), "MemoryConstraints are not satisfied");
 					for (const Variable& v : usedMemoryVariables){
@@ -358,7 +352,7 @@ Algebra::Variable::set cs2Bair::getStateVariables() const {
 	retSet.insert(followingTraceVariable_.second_.flag_);
 	retSet.insert(followingTraceVariable_.first_.timeStamp_);
 	retSet.insert(followingTraceVariable_.second_.timeStamp_);
-	GADGETLIB_ASSERT(followingTraceVariable_.first_.pc_.size() == followingTraceVariable_.second_.pc_.size(), 
+	GADGETLIB_ASSERT(followingTraceVariable_.first_.pc_.size() == followingTraceVariable_.second_.pc_.size(),
 							"CS2Bair: unpacked pc should have the exact same size in both of the states");
 	for (size_t i = 0; i < followingTraceVariable_.first_.pc_.size(); i++) {
 		retSet.insert(followingTraceVariable_.first_.pc_[i]);

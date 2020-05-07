@@ -101,7 +101,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::NOT] = ALU_NOT_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::ADD] = ALU_ADD_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SUB] = ALU_SUB_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::MULL] = ALU_MULL_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::MULT] = ALU_MULT_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::UMULH] = ALU_UMULH_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SMULH] = ALU_SMULH_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::UDIV] = ALU_UDIV_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -114,8 +114,8 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::CMPGE] = ALU_CMPGE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SHL] = ALU_SHL_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SHR] = ALU_SHR_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::LOADW] = ALU_LOADW_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::STOREW] = ALU_STOREW_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::LW] = ALU_LW_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::SW] = ALU_SW_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::JMP] = ALU_JMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::ANSWER] = ALU_ANSWER_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::PRINT] = ALU_PRINT_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -132,8 +132,8 @@ void ALU_Gadget::createInternalComponents() {
     components_[Opcode::SLT] = ALU_SLT_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::SLE] = ALU_SLE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::MOV] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
-	components_[Opcode::REGMOV] = ALU_REGMOV_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::MOVE] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::REGMOVE] = ALU_REGMOV_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SECREAD] = ALU_READ_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SECSEEK] = ALU_SECSEEK_Gadget::create(pb_, inputVariables_, resultVariables_);
 }
@@ -236,8 +236,8 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::SUB:
     		components_[Opcode::SUB]->generateWitness();
     		break;
-    	case gadgetlib::Opcode::MULL:
-    		components_[Opcode::MULL]->generateWitness();
+    	case gadgetlib::Opcode::MULT:
+    		components_[Opcode::MULT]->generateWitness();
     		break;
     	case gadgetlib::Opcode::UMULH:
     		components_[Opcode::UMULH]->generateWitness();
@@ -257,8 +257,6 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::SHR:
     		components_[Opcode::SHR]->generateWitness();
     		break;
-    	case gadgetlib::Opcode::SHAR:
-    		break;
     	case gadgetlib::Opcode::CMPE:
     		components_[Opcode::CMPE]->generateWitness();
     		break;
@@ -277,11 +275,11 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::CMPGE:
     		components_[Opcode::CMPGE]->generateWitness();
     		break;
-    	case gadgetlib::Opcode::MOV:
-    		components_[Opcode::MOV]->generateWitness();
+    	case gadgetlib::Opcode::MOVE:
+    		components_[Opcode::MOVE]->generateWitness();
     		break;
-        case gadgetlib::Opcode::REGMOV:
-    		components_[Opcode::REGMOV]->generateWitness();
+        case gadgetlib::Opcode::REGMOVE:
+    		components_[Opcode::REGMOVE]->generateWitness();
     		break;
         case gadgetlib::Opcode::SECREAD:
             components_[Opcode::SECREAD]->generateWitness();
@@ -289,8 +287,6 @@ void ALU_Gadget::generateWitness(size_t i) {
         case gadgetlib::Opcode::SECSEEK:
             components_[Opcode::SECSEEK]->generateWitness();
             break;
-    	case gadgetlib::Opcode::CMOV:
-    		break;
     	case gadgetlib::Opcode::JMP:
     		components_[Opcode::JMP]->generateWitness();
     		break;
@@ -330,17 +326,11 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::RESERVED_OPCODE_24:
     		components_[Opcode::RESERVED_OPCODE_24]->generateWitness();
     		break;
-    	case gadgetlib::Opcode::RESERVED_OPCODE_25:
+    	case gadgetlib::Opcode::SW:
+    		components_[Opcode::SW]->generateWitness();
     		break;
-    	case gadgetlib::Opcode::STOREB:
-    		break;
-    	case gadgetlib::Opcode::LOADB:
-    		break;
-    	case gadgetlib::Opcode::STOREW:
-    		components_[Opcode::STOREW]->generateWitness();
-    		break;
-    	case gadgetlib::Opcode::LOADW:
-    		components_[Opcode::LOADW]->generateWitness();
+    	case gadgetlib::Opcode::LW:
+    		components_[Opcode::LW]->generateWitness();
     		break;
         case gadgetlib::Opcode::PRINT:
     		components_[Opcode::PRINT]->generateWitness();
@@ -724,29 +714,29 @@ void ALU_SUB_Gadget::generateWitness(){
 }
 
 
-ALU_MULL_Gadget::ALU_MULL_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
+ALU_MULT_Gadget::ALU_MULT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results)
 	:Gadget(pb), ALU_Component_Gadget(pb, inputs, results),
 	multPartials1_(opcodeAux1_), multPartials2_(opcodeAux2_), unpackedResult_(opcodeAux3_),
 	witnessHighBits_(opcodeAux4_), dmultPartials1_(opcodeAux5_), dmultPartials2_(opcodeAux6_){}
 
-GadgetPtr ALU_MULL_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_MULL_Gadget(pb, inputs, results));
+GadgetPtr ALU_MULT_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_MULT_Gadget(pb, inputs, results));
 	pGadget->init();
 	return pGadget;
 }
 
-void ALU_MULL_Gadget::init(){
-	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::MULL);
-	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::MULL);
-	mult_g_ = Multiplication_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, multPartials1_, multPartials2_, false, Opcode::MULL);
-	unpackResult_g_ = CompressionPacking_Gadget::create(pb_, unpackedResult_, results_.result_, PackingMode::UNPACK, Opcode::MULL);
-	dmultPack_g_ = DoubleMultPack_Gadget::create(pb_, unpackedResult_, witnessHighBits_, dmultPartials1_, dmultPartials2_, multPartials2_[0], false, Opcode::MULL);
-	packHighBits_g_ = CompressionPacking_Gadget::create(pb_, witnessHighBits_, multPartials1_[0], PackingMode::PACK, Opcode::MULL);
+void ALU_MULT_Gadget::init(){
+	unpackArg1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK, Opcode::MULT);
+	unpackArg2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK, Opcode::MULT);
+	mult_g_ = Multiplication_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, multPartials1_, multPartials2_, false, Opcode::MULT);
+	unpackResult_g_ = CompressionPacking_Gadget::create(pb_, unpackedResult_, results_.result_, PackingMode::UNPACK, Opcode::MULT);
+	dmultPack_g_ = DoubleMultPack_Gadget::create(pb_, unpackedResult_, witnessHighBits_, dmultPartials1_, dmultPartials2_, multPartials2_[0], false, Opcode::MULT);
+	packHighBits_g_ = CompressionPacking_Gadget::create(pb_, witnessHighBits_, multPartials1_[0], PackingMode::PACK, Opcode::MULT);
 }
 
-void ALU_MULL_Gadget::generateConstraints(){
+void ALU_MULT_Gadget::generateConstraints(){
 #ifdef DEBUG
-    std::cout << "generateConstraints ALU_MULL_Gadget" << '\n';
+    std::cout << "generateConstraints ALU_MULT_Gadget" << '\n';
 #endif
 	if (standAlone_){
 		unpackArg1_g_->generateConstraints();
@@ -756,18 +746,18 @@ void ALU_MULL_Gadget::generateConstraints(){
 	unpackResult_g_->generateConstraints();
 	const size_t & registerLength = tinyRAMparams()->registerLength();
 	for (size_t i = 0; i < registerLength; ++i) {
-		enforceBooleanity(witnessHighBits_[i], Opcode::MULL);
+		enforceBooleanity(witnessHighBits_[i], Opcode::MULT);
 	}
 	dmultPack_g_->generateConstraints();
 	//flag:
 	packHighBits_g_->generateConstraints();
-	pb_->addGeneralConstraint(multPartials1_[0] * (multPartials1_[0] * pInverse_ + Algebra::one()), "flag inv", Opcode::MULL);
-	pb_->addGeneralConstraint(results_.flag_ + multPartials1_[0] * pInverse_, "mull flag", Opcode::MULL);
+	pb_->addGeneralConstraint(multPartials1_[0] * (multPartials1_[0] * pInverse_ + Algebra::one()), "flag inv", Opcode::MULT);
+	pb_->addGeneralConstraint(results_.flag_ + multPartials1_[0] * pInverse_, "mull flag", Opcode::MULT);
 	// add isMemOp = 0
-	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::MULL);
+	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::MULT);
 }
 
-void ALU_MULL_Gadget::generateWitness(){
+void ALU_MULT_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
 	const size_t & registerLength = tinyRAMparams()->registerLength();
@@ -794,9 +784,9 @@ void ALU_MULL_Gadget::generateWitness(){
 	}
 
     #ifdef DEBUG
-        std::cout << "\n\nALU_MULL_Gadget witness\nALUInput MULL:\n";
+        std::cout << "\n\nALU_MULT_Gadget witness\nALUInput MULT:\n";
         inputs_.printALUInput(pb_);
-        std::cout << "ALUOutput MULL" << '\n';
+        std::cout << "ALUOutput MULT" << '\n';
         results_.printALUOutput(pb_);
         std::cout << '\n';
     #endif
@@ -2177,27 +2167,27 @@ void ALU_SLE_Gadget::generateWitness(){
 }
 
 
-ALU_STOREW_Gadget::ALU_STOREW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_SW_Gadget::ALU_SW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
-GadgetPtr ALU_STOREW_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_STOREW_Gadget(pb, inputs, results));
+GadgetPtr ALU_SW_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_SW_Gadget(pb, inputs, results));
 	pGadget->init();
 	return pGadget;
 }
 
-void ALU_STOREW_Gadget::init(){}
+void ALU_SW_Gadget::init(){}
 
-void ALU_STOREW_Gadget::generateConstraints(){
+void ALU_SW_Gadget::generateConstraints(){
 #ifdef DEBUG
-    std::cout << "generateConstraints ALU_STOREW_Gadget" << '\n';
+    std::cout << "generateConstraints ALU_SW_Gadget" << '\n';
 #endif
-	pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::STOREW);
-	pb_->addGeneralConstraint(results_.isLoadOp_, "isLoadOp = 0", Opcode::STOREW);
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::STOREW);
-	pb_->addGeneralConstraint(results_.value_ + inputs_.dest_val_, "inputs_.value_ = inputs_.dest_val", Opcode::STOREW);
+	pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::SW);
+	pb_->addGeneralConstraint(results_.isLoadOp_, "isLoadOp = 0", Opcode::SW);
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::SW);
+	pb_->addGeneralConstraint(results_.value_ + inputs_.dest_val_, "inputs_.value_ = inputs_.dest_val", Opcode::SW);
 }
 
-void ALU_STOREW_Gadget::generateWitness(){
+void ALU_SW_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
 	pb_->val(results_.isMemOp_) = Algebra::one();
@@ -2211,35 +2201,35 @@ void ALU_STOREW_Gadget::generateWitness(){
 	pb_->val(results_.flag_) = pb_->val(inputs_.flag_);
 
     #ifdef DEBUG
-        std::cout << "\n\nALU_STOREW_Gadget witness\nALUInput STOREW:\n";
+        std::cout << "\n\nALU_SW_Gadget witness\nALUInput SW:\n";
         inputs_.printALUInput(pb_);
-        std::cout << "ALUOutput STOREW" << '\n';
+        std::cout << "ALUOutput SW" << '\n';
         results_.printALUOutput(pb_);
         std::cout << '\n';
     #endif
 }
 
 
-ALU_LOADW_Gadget::ALU_LOADW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+ALU_LW_Gadget::ALU_LW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
 
-GadgetPtr ALU_LOADW_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
-	GadgetPtr pGadget(new ALU_LOADW_Gadget(pb, inputs, results));
+GadgetPtr ALU_LW_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_LW_Gadget(pb, inputs, results));
 	pGadget->init();
 	return pGadget;
 }
 
-void ALU_LOADW_Gadget::init(){}
+void ALU_LW_Gadget::init(){}
 
-void ALU_LOADW_Gadget::generateConstraints(){
+void ALU_LW_Gadget::generateConstraints(){
 #ifdef DEBUG
-    std::cout << "generateConstraints ALU_LOADW_Gadget" << '\n';
+    std::cout << "generateConstraints ALU_LW_Gadget" << '\n';
 #endif
-	pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::LOADW);
-	pb_->addGeneralConstraint(results_.isLoadOp_ + Algebra::one(), "isLoadOp = 1", Opcode::LOADW);
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::LOADW);
+	pb_->addGeneralConstraint(results_.isMemOp_ + Algebra::one(), "isMemOp = 1", Opcode::LW);
+	pb_->addGeneralConstraint(results_.isLoadOp_ + Algebra::one(), "isLoadOp = 1", Opcode::LW);
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::LW);
 }
 
-void ALU_LOADW_Gadget::generateWitness(){
+void ALU_LW_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
 	pb_->val(results_.isLoadOp_) = Algebra::one();
@@ -2256,9 +2246,9 @@ void ALU_LOADW_Gadget::generateWitness(){
         // int a = mapFieldElementToInteger(0,tinyRAMparams()->registerLength(), address);
         // std::cout << "\tLoaded " << v << " from " << a<< '\n';
 
-        std::cout << "\n\nALU_LOADW_Gadget witness\nALUInput LOADW:\n";
+        std::cout << "\n\nALU_LW_Gadget witness\nALUInput LW:\n";
         inputs_.printALUInput(pb_);
-        std::cout << "ALUOutput LOADW" << '\n';
+        std::cout << "ALUOutput LW" << '\n';
         results_.printALUOutput(pb_);
         std::cout << '\n';
     #endif
@@ -2388,8 +2378,8 @@ void ALU_MOV_Gadget::generateConstraints(){
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_MOV_Gadget" << '\n';
 #endif
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::MOV);
-	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::MOV);
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::MOVE);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::MOVE);
 }
 void ALU_MOV_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
@@ -2398,9 +2388,9 @@ void ALU_MOV_Gadget::generateWitness(){
 	pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
 
 #ifdef DEBUG
-    std::cout << "\n\nALU_MOV_Gadget witness\nALUInput MOV:\n";
+    std::cout << "\n\nALU_MOV_Gadget witness\nALUInput MOVE:\n";
     inputs_.printALUInput(pb_);
-    std::cout << "ALUOutput MOV" << '\n';
+    std::cout << "ALUOutput MOVE" << '\n';
     results_.printALUOutput(pb_);
     std::cout << '\n';
 #endif
@@ -2421,8 +2411,8 @@ void ALU_REGMOV_Gadget::generateConstraints(){
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_REGMOV_Gadget" << '\n';
 #endif
-	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::REGMOV);
-	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::REGMOV);
+	pb_->addGeneralConstraint(inputs_.flag_ + results_.flag_, "inputs_.flag = results.flag_", Opcode::REGMOVE);
+	pb_->addGeneralConstraint(inputs_.arg2_val_ + results_.result_, "results.result = inputs.arg2_val", Opcode::REGMOVE);
 }
 void ALU_REGMOV_Gadget::generateWitness(){
 	initGeneralOpcodes(pb_);
@@ -2431,9 +2421,9 @@ void ALU_REGMOV_Gadget::generateWitness(){
     pb_->val(results_.result_) = pb_->val(inputs_.arg2_val_);
 
 #ifdef DEBUG
-    std::cout << "\n\nALU_REGMOV_Gadget witness\nALUInput REGMOV:\n";
+    std::cout << "\n\nALU_REGMOV_Gadget witness\nALUInput REGMOVE:\n";
     inputs_.printALUInput(pb_);
-    std::cout << "ALUOutput REGMOV" << '\n';
+    std::cout << "ALUOutput REGMOVE" << '\n';
     results_.printALUOutput(pb_);
     std::cout << '\n';
 #endif

@@ -13,7 +13,7 @@
 #include <common/Infrastructure/Infrastructure.hpp>
 #include "../../../configs.hpp"
 
-#define NUMBER_OPCODES 46
+#define NUMBER_OPCODES 41
 #define BIN_EOF_STRING "EOF"
 
 #define ZERO_REGISTER 0
@@ -34,13 +34,11 @@
 using namespace std;
 
 
-
 /** Number of registers that the TinyRAM has (excluding PC) */
 extern int trNumRegisters;
 
 /** The bit-length of TinyRAM registers */
 extern int trRegisterLen;
-
 
 /** Numbers of registers including the program counter (used for code clarity)
  * Set to trNumRegisters + 1. */
@@ -66,7 +64,6 @@ const int trNumOpcodes = NUMBER_OPCODES;
  */
 const int trOpcodeLen = ::Infrastructure::Log2ceil(trNumOpcodes);
 
-
 /**
  * Set the various RAM parameters.
  * Must be called before using any RAM-related variables or classes.
@@ -80,8 +77,6 @@ void initTinyRAMParamsFromEnvVariables();
  * sets the state as before it was initialized
  */
 void clearTinyRAMParams();
-
-
 
 
 #endif

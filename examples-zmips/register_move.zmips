@@ -1,9 +1,9 @@
 move $r0, 23
 move $r7, 2
 add $r0, $r0, 7         # r0 = 23+7
-regmov $r2, $r2, 0      # r2 = r0
+regmove $r2, $r2, 0      # r2 = r0
 add $r2, $r2, $r0       # r2 = 30 + 30
-regmov $r1, $r1, $r7    # r1 = reg(r7) // 60
+regmove $r1, $r1, $r7    # r1 = reg(r7) // 60
 
 add $r1, $r1, $r2       # r1 = 60 + 60
 

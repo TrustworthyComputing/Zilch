@@ -207,9 +207,9 @@ private:
 };
 
 
-class ALU_MULL_Gadget : public ALU_Component_Gadget {
+class ALU_MULT_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_MULL_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	ALU_MULT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 
 	virtual void init();
 public:
@@ -232,7 +232,7 @@ private:
 	GadgetPtr dmultPack_g_;
 	GadgetPtr packHighBits_g_;
 
-	DISALLOW_COPY_AND_ASSIGN(ALU_MULL_Gadget);
+	DISALLOW_COPY_AND_ASSIGN(ALU_MULT_Gadget);
 };
 
 
@@ -683,29 +683,29 @@ private:
 };
 
 
-class ALU_STOREW_Gadget : public ALU_Component_Gadget {
+class ALU_SW_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_STOREW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	ALU_SW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
 	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
-	DISALLOW_COPY_AND_ASSIGN(ALU_STOREW_Gadget);
+	DISALLOW_COPY_AND_ASSIGN(ALU_SW_Gadget);
 };
 
 
-class ALU_LOADW_Gadget : public ALU_Component_Gadget {
+class ALU_LW_Gadget : public ALU_Component_Gadget {
 private:
-	ALU_LOADW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+	ALU_LW_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	virtual void init();
 public:
 	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
 	void generateConstraints();
 	void generateWitness();
 
-	DISALLOW_COPY_AND_ASSIGN(ALU_LOADW_Gadget);
+	DISALLOW_COPY_AND_ASSIGN(ALU_LW_Gadget);
 };
 
 
