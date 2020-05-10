@@ -125,30 +125,36 @@ bool isReg(const string s){
     return (s.size()>1) && (s[0]=='r');
 }
 
-bool isMipsReg(const string s) {
-	if (s.size() > 2) {
-		if (s[0] != '$') return false;
-		if (s[1] == 'r') {
-			return is_number(s.substr(2));
-		} else if (s[1] == 'a') {
-			return is_number(s.substr(2));
-		} else if (s[1] == 'v') {
-			return is_number(s.substr(2));
-		} else if (s.size() == 3 && s[1] == 'h' && s[2] == 'p') {
-			return true;
-		} else if (s.size() == 3 && s[1] == 's' && s[2] == 'p') {
-			return true;
-		}
-		return false;
-	} else if (s.size() == 2) {
-		return (s[0] == '$') && (s[1] == '0');
-	} else {
-		return false;
-	}
+bool isMipsReg(const string str) {
+    if (str[0] != '$') {
+        return false;
+    }
+    if (str.size() == 3) {
+        if (str == "$hp" || str == "$sp" || str == "$fp") {
+            return true;
+        }
+        string num_str = str.substr(2);
+        switch (str[1]) {
+        case 'a':
+        case 't':
+        case 's':
+        case 'v':
+            return is_number(num_str);
+        default:
+            return false;
+        }
+    } else if (str == "$zero" || str == "$0") {
+        return true;
+    } else {
+        return false;
+    }
 }
 
-bool is_number(const string& s) {
-    return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+bool is_number(const string & s) {
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
+   char * p;
+   strtol(s.c_str(), &p, 10);
+   return (*p == 0);
 }
 
 bool is_hex_notation(std::string const& s) {

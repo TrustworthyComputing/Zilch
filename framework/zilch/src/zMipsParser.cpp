@@ -80,13 +80,21 @@ string fromZMips(string instr, const string& r0 , const string& r1, const string
         if (is_number(r2) && stoi(r2) == 0) {
             return "SW " + r0 + " " + r1 + " " + r1;
         } else {
-            return "ADD " + r1 + " " + r1 + " " + r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+            if (r2[0] == '-') {
+                return "SUB " + r1 + " " + r1 + " " + r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + r2;
+            } else {
+                return "ADD " + r1 + " " + r1 + " " + r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+            }
         }
     } else if (instr == "LW") {
         if (is_number(r2) && stoi(r2) == 0) {
             return "LW " + r0 + " " + r1 + " " + r1;
         } else {
-            return "ADD " + r1 + " " + r1 + " " + r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+            if (r2[0] == '-') {
+                return "SUB " + r1 + " " + r1 + " " + r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + r2;
+            } else {
+                return "ADD " + r1 + " " + r1 + " " + r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+            }
         }
     } else if (instr == "ANSWER") {
         answer_instruction = true;
@@ -108,13 +116,17 @@ string mapMipsRegister(string& r) {
     if (r == "$zero" || r == "$0") {
         return "r"+to_string(ZERO_REGISTER);
     } else if (r == "$hp") {
-        return "r"+to_string(HEAP_REGISTER);
+        return "r"+to_string(HP_REGISTER);
     } else if (r == "$sp") {
-        return "r"+to_string(STACK_REGISTER);
+        return "r"+to_string(SP_REGISTER);
+    } else if (r == "$fp") {
+        return "r"+to_string(FP_REGISTER);
     } else if (r == "$ra") {
         return "r"+to_string(RA_REGISTER);
     } else if (r == "$v0") {
         return "r"+to_string(V0_REGISTER);
+    } else if (r == "$v1") {
+        return "r"+to_string(V1_REGISTER);
     } else if (r == "$a0") {
         return "r"+to_string(A0_REGISTER);
     } else if (r == "$a1") {
@@ -125,12 +137,16 @@ string mapMipsRegister(string& r) {
         return "r"+to_string(A3_REGISTER);
     } else if (r == "$a4") {
         return "r"+to_string(A4_REGISTER);
-    } else if (r[0] == '$' && r[1] == 'r') {
+    } else if (r[0] == '$' && r[1] == 's') {
         int reg_num = stoi(r.substr(2));
         string reg = "r" + to_string(reg_num + NUM_OF_RESERVED_REGS);
         return reg;
+    } else if (r[0] == '$' && r[1] == 't') {
+        int reg_num = stoi(r.substr(2));
+        string reg = "r" + to_string(reg_num + NUM_OF_RESERVED_REGS + NUM_OF_SAVED_REGS);
+        return reg;
     } else {
-        std::cerr << r << " : Unknown register" << endl;
+        std::cerr << r << " : not a zMIPS register" << endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -231,6 +247,9 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
         }
     }
     for (auto& l : lines) {
+        if (l.find(".text") != std::string::npos || l.find(".glob") != std::string::npos) {
+            continue;
+        }
         string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
         instr_without_comment = trim(instr_without_comment);
         instr_without_comment = instr_without_comment.substr(0, instr_without_comment.find("#")); // keep only the instruction before comment
@@ -299,6 +318,9 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
             }
         } else if (tokens.size() == 1) { // if label
             instr = tokens[0];
+            if (instr[instr.size() - 1] == ':') {
+                instr.pop_back();
+            }
         } else {
             std::cerr << instr << " : unfamiliar instruction" << endl;
             exit(EXIT_FAILURE);

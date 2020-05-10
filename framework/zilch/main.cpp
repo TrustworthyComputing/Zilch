@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) {
     /* Run prover and verifier separately */
     bool prover = args.cmd_option_exists(run_prover_prefix);
     bool verifier = args.cmd_option_exists(run_verifier_prefix);
-    if (prover == verifier && prover == true) {
+    if (prover == verifier && prover) {
         print_help(argv[0], "Cannot be both prover and verifier at the same time.");
         return EXIT_FAILURE;
     }
