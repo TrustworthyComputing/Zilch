@@ -81,7 +81,8 @@ string fromZMips(string instr, const string& r0 , const string& r1, const string
             return "SW " + r0 + " " + r1 + " " + r1;
         } else {
             if (r2[0] == '-') {
-                return "SUB " + r1 + " " + r1 + " " + r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + r2;
+                string positive_r2 = r2.substr(1);
+                return "SUB " + r1 + " " + r1 + " " + positive_r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + positive_r2;
             } else {
                 return "ADD " + r1 + " " + r1 + " " + r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
             }
@@ -91,7 +92,8 @@ string fromZMips(string instr, const string& r0 , const string& r1, const string
             return "LW " + r0 + " " + r1 + " " + r1;
         } else {
             if (r2[0] == '-') {
-                return "SUB " + r1 + " " + r1 + " " + r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + r2;
+                string positive_r2 = r2.substr(1);
+                return "SUB " + r1 + " " + r1 + " " + positive_r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + positive_r2;
             } else {
                 return "ADD " + r1 + " " + r1 + " " + r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
             }
