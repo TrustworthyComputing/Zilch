@@ -66,7 +66,7 @@ string fromZMips(string instr, const string& r0 , const string& r1, const string
     } else if (instr == "SECREAD") {
         return "SECREAD " + r0 + " " + r1 + " " + r2;
     } else if (instr == "PUBREAD") {
-        string base = "r" + to_string(MEMORY_RESERVED_REGISTER);
+        string base = "r" + to_string(MEMORY_REGISTER);
         return "LW " + r0 + " " + r0 + " " + base + "\nADD " + base + " "  + base + " 1";
     } else if (instr == "SECSEEK") {
         return "SECSEEK " + r0 + " " + r1 + " " + r2;
@@ -80,22 +80,28 @@ string fromZMips(string instr, const string& r0 , const string& r1, const string
         if (is_number(r2) && stoi(r2) == 0) {
             return "SW " + r0 + " " + r1 + " " + r1;
         } else {
+            string reg_idx = "r" + to_string(MEMORY_REGISTER);
             if (r2[0] == '-') {
                 string positive_r2 = r2.substr(1);
-                return "SUB " + r1 + " " + r1 + " " + positive_r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + positive_r2;
+                return  "SUB " + reg_idx + " " + r1 + " " + positive_r2 + "\n" +
+                        "SW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
             } else {
-                return "ADD " + r1 + " " + r1 + " " + r2 + "\nSW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+                return  "ADD " + reg_idx + " " + r1 + " " + r2 + "\n" +
+                        "SW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
             }
         }
     } else if (instr == "LW") {
         if (is_number(r2) && stoi(r2) == 0) {
             return "LW " + r0 + " " + r1 + " " + r1;
         } else {
+            string reg_idx = "r" + to_string(MEMORY_REGISTER);
             if (r2[0] == '-') {
                 string positive_r2 = r2.substr(1);
-                return "SUB " + r1 + " " + r1 + " " + positive_r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nADD " + r1 + " " + r1 + " " + positive_r2;
+                return  "SUB " + reg_idx + " " + r1 + " " + positive_r2 + "\n" +
+                        "LW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
             } else {
-                return "ADD " + r1 + " " + r1 + " " + r2 + "\nLW " + r0 + " " + r1 + " " + r1 + "\nSUB " + r1 + " " + r1 + " " + r2;
+                return  "ADD " + reg_idx + " " + r1 + " " + r2 + "\n" +
+                        "LW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
             }
         }
     } else if (instr == "ANSWER") {
@@ -141,11 +147,11 @@ string mapMipsRegister(string& r) {
         return "r"+to_string(A4_REGISTER);
     } else if (r[0] == '$' && r[1] == 's') {
         int reg_num = stoi(r.substr(2));
-        string reg = "r" + to_string(reg_num + NUM_OF_RESERVED_REGS);
+        string reg = "r" + to_string(reg_num + RESERVED_REGISTERS_NUMBER);
         return reg;
     } else if (r[0] == '$' && r[1] == 't') {
         int reg_num = stoi(r.substr(2));
-        string reg = "r" + to_string(reg_num + NUM_OF_RESERVED_REGS + NUM_OF_SAVED_REGS);
+        string reg = "r" + to_string(reg_num + RESERVED_REGISTERS_NUMBER + NUM_OF_SAVED_REGS);
         return reg;
     } else {
         std::cerr << r << " : not a zMIPS register" << endl;
@@ -167,7 +173,7 @@ std::vector<string> split_string_to_lines(const string& str) {
 
 vector<string> initPublicTape(const vector<string> public_lines) {
     vector<string> store_tape;
-    string reg = "r" + to_string(MEMORY_RESERVED_REGISTER);
+    string reg = "r" + to_string(MEMORY_REGISTER);
     for (size_t i = 0 ; i < public_lines.size() ; i++) {
         string instr1 = "MOVE " + reg + " " + reg + " " + public_lines[i];
         string instr2 = "SW " + reg + " r0 " + to_string(i);

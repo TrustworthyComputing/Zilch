@@ -39,20 +39,20 @@ void ALUInputConsistency::generateConstraints(){
 		Opcode opcode = program_.code()[i].opcode_;
 		if (Opcode::SECREAD == opcode || Opcode::SECSEEK == opcode) {
 			program_.arg2isImmediateToFalse(i);
-			arg2 = SECREAD_RESERVED_REGISTER;
+			arg2 = SECREAD_REGISTER;
 		}
 		bool arg2IsImmediate = program_.code()[i].arg2isImmediate_; //If 1 then arg2 is immediate
 		CircuitPolynomial arg2Poly;
-		if (!arg2IsImmediate) { // if not immediate -- SECREAD uses reg SECREAD_RESERVED_REGISTER DO NOT USE IN PROGRAM
+		if (!arg2IsImmediate) { // if not immediate -- SECREAD uses reg SECREAD_REGISTER DO NOT USE IN PROGRAM
 			if (Opcode::REGMOVE == opcode) {
 				// size_t new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
-				// arg2Poly = input_.registers_[new_arg2 + NUM_OF_RESERVED_REGS] + output_.arg2_val_;
+				// arg2Poly = input_.registers_[new_arg2 + RESERVED_REGISTERS_NUMBER] + output_.arg2_val_;
 			} else {
 				arg2Poly = input_.registers_[arg2] + output_.arg2_val_;
 			}
 		} else {
 			if (Opcode::REGMOVE == opcode) {
-				arg2Poly = input_.registers_[arg2 + NUM_OF_RESERVED_REGS] + output_.arg2_val_;
+				arg2Poly = input_.registers_[arg2 + RESERVED_REGISTERS_NUMBER] + output_.arg2_val_;
 			} else {
 				arg2Poly = mapIntegerToFieldElement(0, params->registerLength(), arg2) + output_.arg2_val_;
 			}
@@ -92,8 +92,8 @@ void ALUInputConsistency::generateWitness(size_t i, const vector<string>& privat
 		}
 		read_from_tape_result = stoull( private_lines[secread_cnt++] ); // read from tape
 		program_.arg2isImmediateToFalse(i);
-		arg2 = SECREAD_RESERVED_REGISTER;
-		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, REGISTER_LENGTH, read_from_tape_result) );
+		arg2 = SECREAD_REGISTER;
+		pb_->val(input_.registers_[SECREAD_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, REGISTER_LENGTH, read_from_tape_result) );
 	} else if (Opcode::SECSEEK == opcode) {
 		size_t read_from_tape_result;
 		
@@ -114,8 +114,8 @@ void ALUInputConsistency::generateWitness(size_t i, const vector<string>& privat
 		read_from_tape_result = stoull( private_lines[offset] ); // read from tape
 		// std::cout << "Read from offset " << arg1 << " value " << read_from_tape_result << '\n';
 		program_.arg2isImmediateToFalse(i);
-		arg2 = SECREAD_RESERVED_REGISTER;
-		pb_->val(input_.registers_[SECREAD_RESERVED_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, REGISTER_LENGTH, read_from_tape_result) );
+		arg2 = SECREAD_REGISTER;
+		pb_->val(input_.registers_[SECREAD_REGISTER]) = pb_->val( Algebra::mapIntegerToFieldElement(0, REGISTER_LENGTH, read_from_tape_result) );
 	}
 
 	
@@ -123,13 +123,13 @@ void ALUInputConsistency::generateWitness(size_t i, const vector<string>& privat
 	if (!arg2IsImmediate) {
 		if (Opcode::REGMOVE == opcode) {
 			size_t new_arg2 = mapFieldElementToInteger(0, 16, pb_->val(input_.registers_[arg2]));
-			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[ new_arg2 + NUM_OF_RESERVED_REGS ]);
+			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[ new_arg2 + RESERVED_REGISTERS_NUMBER ]);
 		} else {
 			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2]);
 		}
 	} else {
 		if (Opcode::REGMOVE == opcode) {
-			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2 + NUM_OF_RESERVED_REGS]);
+			pb_->val(output_.arg2_val_) = pb_->val(input_.registers_[arg2 + RESERVED_REGISTERS_NUMBER]);
 		} else {
 			pb_->val(output_.arg2_val_) = mapIntegerToFieldElement(0, params->registerLength(), program_.code()[i].arg2IdxOrImmediate_);
 		}
