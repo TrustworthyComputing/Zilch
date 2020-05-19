@@ -1,8 +1,8 @@
-secread $r0
-move $r2, $r0
-move $r1, 1
-beq $r0, $r2, __L1__
-    move $r1, 0
-    answer $r1
+secread $t0
+move $t2, $t0
+move $t1, 1
+beq $t0, $t2, __L1__
+    move $t1, 0
+    answer $t1
 __L1__
-answer $r1
+answer $t1

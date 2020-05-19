@@ -1,7 +1,7 @@
-secread $r0
-move $r1, 1
-bge $r0, $r1, __L1__
-    move $r1, 0
-    answer $r1
+secread $t0
+move $t1, 1
+bge $t0, $t1, __L1__
+    move $t1, 0
+    answer $t1
 __L1__
-answer $r1
+answer $t1

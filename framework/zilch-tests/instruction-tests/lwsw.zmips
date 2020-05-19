@@ -1,4 +1,4 @@
-secread $r0
-sw $r0, 100($zero)
-lw $r1, 100($zero)
-answer $r1
+secread $t0
+sw $t0, 100($zero)
+lw $t1, 100($zero)
+answer $t1

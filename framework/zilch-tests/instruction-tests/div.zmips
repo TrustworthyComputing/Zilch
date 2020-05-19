@@ -1,3 +1,3 @@
-secread $r0
-div $r0, $r0, 3
-answer $r0
+secread $t0
+div $t0, $t0, 3
+answer $t0
