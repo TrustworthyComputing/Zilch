@@ -3,7 +3,7 @@
  * @file
  *
  * @brief The file TinyRAMInstance.hpp contains the interface for a TinyRAM instance.
- * 
+ *
  * Main classes defined in the file:
  *     TinyRAMPartialInstance
  *     TinyRAMFullInstance
@@ -70,7 +70,7 @@ struct MachineInstruction {
 		const size_t destIdx,
 		const size_t arg1Idx,
 		const size_t arg2IdxOrImmediate);
-	
+
     MachineInstruction(
 		const string line,
 		const map<string, int> labels_map
@@ -83,10 +83,11 @@ string stringToUpper(string);
 bool isReg(const string);
 bool isMipsReg(const string);
 bool is_number(const string&);
-bool is_hex_notation(string const& s);
+bool is_hex_notation(string const &);
+string hex_str_to_int_str(string const &);
 vector<string> split(const string &s);
 string trim(const string& str, const string& whitespace = " \t");
-bool isLabel(const string &str);
+bool is_zmips_label(const string &str);
 
 class TinyRAMProgram {
 public:
@@ -114,11 +115,11 @@ public:
 	const MachineInstruction& getInstructionAtPc(const size_t pc) const { return code_[pc]; }
 	void addInstruction(const MachineInstruction& instruction) { code_.emplace_back(instruction); }
 	void addInstructionsFromFile(const string filename);
-	
+
 	map<string, int> buildLabelsMap(vector<string>& lines);
-	
+
 	void arg2isImmediateToFalse(const size_t pc);
-	
+
     size_t pcLength() const {
 		int codeSize = code_.size();
 		if (codeSize == 0){ _COMMON_FATAL("TinyRAMProgram : The code is not initialized"); };
@@ -165,4 +166,4 @@ public:
 }; // class TinyRAMProtoboardParams
 
 
-#endif 
+#endif

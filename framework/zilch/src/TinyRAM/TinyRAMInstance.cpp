@@ -15,7 +15,7 @@ MachineInstruction::MachineInstruction(const Opcode& opcode, const bool arg2isIm
 	opcode_(opcode), arg2isImmediate_(arg2isImmediate), destIdx_(destIdx), arg1Idx_(arg1Idx),
 	arg2IdxOrImmediate_(arg2IdxOrImmediate){}
 
-std::string opcodeToString(const Opcode& op){
+string opcodeToString(const Opcode& op){
     switch(op){
         case Opcode::MEMORY: return "MEMORY";
         case Opcode::NONE: return "NONE";
@@ -157,10 +157,20 @@ bool is_number(const string & s) {
    return (*p == 0);
 }
 
-bool is_hex_notation(std::string const& s) {
+bool is_hex_notation(string const& s) {
   return s.compare(0, 2, "0x") == 0
       && s.size() > 2
-      && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
+      && s.find_first_not_of("0123456789abcdefABCDEF", 2) == string::npos;
+}
+
+string hex_str_to_int_str(string const& hex_str) {
+    if (hex_str.empty()) return hex_str;
+    else if (!is_hex_notation(hex_str)) return hex_str;
+    size_t num;
+    stringstream ss;
+    ss << std::hex << hex_str;
+    ss >> num;
+    return to_string(num);
 }
 
 size_t getImmidiate(const string s){
@@ -181,10 +191,10 @@ string stringToUpper(string strToConvert) {
     return strToConvert;
 }
 
-MachineInstruction::MachineInstruction(const std::string line, const map<string, int> labels_map) {
+MachineInstruction::MachineInstruction(const string line, const map<string, int> labels_map) {
     std::regex regex{R"([\s,]+)"}; // split on space and comma
     std::sregex_token_iterator it{line.begin(), line.end(), regex, -1};
-    std::vector<std::string> words{it, {}};
+    std::vector<string> words{it, {}};
 
     if (words.size() != 4){
         std::cout<<"Bad format of line, each line must contain exactly 4 words";
@@ -203,7 +213,7 @@ MachineInstruction::MachineInstruction(const std::string line, const map<string,
 	} else {
 		arg1Idx_ = getRegNum(words[2]);
 	}
-    bool arg2isLabel = isLabel(words[3]);
+    bool arg2isLabel = is_zmips_label(words[3]);
     if (arg2isLabel) {
         arg2isImmediate_ = true;
         arg2IdxOrImmediate_ = labels_map.at(words[3]);
@@ -236,9 +246,9 @@ vector<string> split(const string &s) {
     return result;
 }
 
-string trim(const std::string& str, const std::string& whitespace) {
+string trim(const string& str, const string& whitespace) {
     const auto strBegin = str.find_first_not_of(whitespace);
-    if (strBegin == std::string::npos) {
+    if (strBegin == string::npos) {
 		return ""; // no content
 	}
     const auto strEnd = str.find_last_not_of(whitespace);
@@ -246,9 +256,9 @@ string trim(const std::string& str, const std::string& whitespace) {
     return str.substr(strBegin, strRange);
 }
 
-bool isLabel(const string &str) { // check if a string is a label
-    std::string prefix = "__";
-    std::string suffix = "__";
+bool is_zmips_label(const string &str) { // check if a string is a label
+    string prefix = "__";
+    string suffix = "__";
     bool prefix_matches = (str.substr(0, prefix.size()) == prefix);
     bool suffix_matches = false;
     if (suffix.size() < str.size()) {
@@ -264,17 +274,17 @@ bool isLabel(const string &str) { // check if a string is a label
     }
 }
 
-map<string, int> TinyRAMProgram::buildLabelsMap(vector<std::string>& lines){
+map<string, int> TinyRAMProgram::buildLabelsMap(vector<string>& lines){
     size_t instructions_cnt = 0;
     map<string, int> labels_map;
     for (auto& l : lines){
 		// std::cout << l << std::endl; // print the current instruction
-		std::string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
+		string instr_without_comment = l.substr(0, l.find(";")); // keep only the instruction before comment
 		instr_without_comment = trim(instr_without_comment);
 		l = instr_without_comment; // update instructions vector
 		if (instr_without_comment.empty()) continue; // if instruction is empty, skip it
         vector<string> splitted_line = split(instr_without_comment); // tokenize the instruction
-        if (isLabel(splitted_line[0])) { // if label starts with prefix and ends with suffix then it's a valid label
+        if (is_zmips_label(splitted_line[0])) { // if label starts with prefix and ends with suffix then it's a valid label
             // std::cout << "found label: " << splitted_line[0] << " -> " << instructions_cnt<<"\n";
             if (labels_map.find(splitted_line[0]) != labels_map.end()) { // check if key is present
                 std::cerr << "\nLabel" << splitted_line[0] << " is already defined!\n";
@@ -292,12 +302,12 @@ void TinyRAMProgram::arg2isImmediateToFalse(const size_t pc) {
 	this->code_[pc].arg2isImmediate_ = false;
 }
 
-void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
+void TinyRAMProgram::addInstructionsFromFile(const string filename) {
     ifstream ifs(filename);
     string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
-    vector<std::string> lines{it, {}};
+    vector<string> lines{it, {}};
 	// for (auto& l : lines){
 	// 	std::cout << l << std::endl; // print program as is
 	// }
@@ -306,7 +316,7 @@ void TinyRAMProgram::addInstructionsFromFile(const std::string filename) {
     for(const auto& l : lines){
 		if (l.empty()) continue; 												// if instruction is empty, skip it
 		vector<string> splitted_line = split(l); 								// tokenize the instruction
-        if (isLabel(splitted_line[0])) { 										// if this line is a label, skip it
+        if (is_zmips_label(splitted_line[0])) { 										// if this line is a label, skip it
             continue;
         } else {
             MachineInstruction instruction(l, labels_map);

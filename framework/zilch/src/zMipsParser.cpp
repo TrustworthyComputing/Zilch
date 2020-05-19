@@ -2,6 +2,8 @@
 
 using namespace std;
 
+#define DEBUG 0
+
 int labelcnt_ = 1000;
 bool answer_instruction = false;
 
@@ -11,108 +13,141 @@ string remove_extension(const string& filename) {
     return filename.substr(0, lastdot);
 }
 
-string fromZMips(string instr, const string& r0 , const string& r1, const string& r2) {
-    instr = stringToUpper(instr);
-    string zero = "$zero";
-    string zeroreg = mapMipsRegister(zero);
-    if (instr == "AND" || instr == "ANDI") {
-        return "AND " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "OR" || instr == "ORI") {
-        return "OR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "NOR" || instr == "NORI") { // TODO
-        return "NOR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "XOR" || instr == "XORI") {
-        return "XOR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "NOT") {
-        return "NOT " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "ADD" || instr == "ADDU" || instr == "ADDI" || instr == "ADDIU") {
-        return "ADD " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SUB" || instr == "SUBU" || instr == "SUBI" || instr == "SUBIU") {
-        return "SUB " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "MULT") {
-        return "MULT " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "UDIV" || instr == "DIV") {
-        return "UDIV " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "UMOD" || instr == "MOD") {
-        return "UMOD " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SLL" || instr == "SLA") {
-        return "SHL " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SRL" || instr == "SRA") {
-        return "SHR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BEQ") {
-        return "BEQ " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BNE") {
-        return "BNE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BLT") {
-        return "BLT " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BLE") {
-        return "BLE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "BGT") {
-        return "BLT " + r1 + " " + r0 + " " + r2;
-    } else if (instr == "BGE") {
-        return "BLE " + r1 + " " + r0 + " " + r2;
-    } else if (instr == "SEQ") {
-        return "SEQ " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SNE") {
-        return "SNE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SLT") {
-        return "SLT " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SLE") {
-        return "SLE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "MOVE" || instr == "LA" || instr == "LI") {
-        return "MOVE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "REGMOVE") {
-        return "REGMOVE " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SECREAD") {
-        return "SECREAD " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "PUBREAD") {
-        string base = "r" + to_string(MEMORY_REGISTER);
-        return "LW " + r0 + " " + r0 + " " + base + "\nADD " + base + " "  + base + " 1";
-    } else if (instr == "SECSEEK") {
-        return "SECSEEK " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "PUBSEEK") {
-        return "LW " + r0 + " " + r0 + " " + r1;
-    } else if (instr == "JMP" || instr == "J") {
-        return "JMP " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "JR") {
-        return "JR " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "SW") {
-        if (is_number(r2) && stoi(r2) == 0) {
-            return "SW " + r0 + " " + r1 + " " + r1;
-        } else {
-            string reg_idx = "r" + to_string(MEMORY_REGISTER);
-            if (r2[0] == '-') {
-                string positive_r2 = r2.substr(1);
-                return  "SUB " + reg_idx + " " + r1 + " " + positive_r2 + "\n" +
-                        "SW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
-            } else {
-                return  "ADD " + reg_idx + " " + r1 + " " + r2 + "\n" +
-                        "SW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
-            }
-        }
-    } else if (instr == "LW") {
-        if (is_number(r2) && stoi(r2) == 0) {
-            return "LW " + r0 + " " + r1 + " " + r1;
-        } else {
-            string reg_idx = "r" + to_string(MEMORY_REGISTER);
-            if (r2[0] == '-') {
-                string positive_r2 = r2.substr(1);
-                return  "SUB " + reg_idx + " " + r1 + " " + positive_r2 + "\n" +
-                        "LW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
-            } else {
-                return  "ADD " + reg_idx + " " + r1 + " " + r2 + "\n" +
-                        "LW " + r0 + " " + reg_idx + " " + reg_idx + "\n";
-            }
-        }
-    } else if (instr == "ANSWER") {
-        answer_instruction = true;
-        return "ANSWER " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "PRINT") {
-        return "PRINT " + r0 + " " + r1 + " " + r2;
-    } else if (instr == "PRINTLN") {
-        return "PRINTLN " + r0 + " " + r1 + " " + r2;
+string get_immediate_or_register(const string& reg_or_imm) {
+    if (reg_or_imm.empty()) {
+        return reg_or_imm;
+    } else if (is_zmips_label(reg_or_imm)) {
+        return reg_or_imm;
+    } else if (is_number(reg_or_imm)) {
+        return reg_or_imm;
+    } else if (is_hex_notation(reg_or_imm)) {
+        return hex_str_to_int_str(reg_or_imm);
     } else {
-        std::cerr << "zMIPS parser: " << instr << " was not recognized" << endl;
+        return get_native_register(reg_or_imm);
+    }
+}
+
+string zmips_to_zilch_instruction(string& op, string& dst , string& src1, string& src2) {
+    op = stringToUpper(op);
+    string zero = "$zero";
+    string zeroreg = get_native_register(zero);
+
+    if (op == "SW" || op == "LW") {
+        src1.erase(std::remove(src1.begin(), src1.end(), ')'), src1.end());
+        int pos = src1.find_first_of('(');
+        src2 = src1.substr(pos + 1);
+        src1 = src1.substr(0, pos);
+    }
+
+    if (DEBUG) {
+        std::cout << "zmips src1 : " << src1 << '\n';
+        std::cout << "zmips src2 : " << src2 << '\n';
+    }
+    src1 = get_immediate_or_register(src1);
+    src2 = get_immediate_or_register(src2);
+    if (DEBUG) {
+        std::cout << "zilch src1 : " << src1 << '\n';
+        std::cout << "zilch src2 : " << src2 << '\n';
+    }
+
+    if (op == "AND" || op == "ANDI") {
+        return "AND " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "OR" || op == "ORI") {
+        return "OR " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "NOR" || op == "NORI") {
+        return "NOR " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "XOR" || op == "XORI") {
+        return "XOR " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "NOT") {
+        return "NOT " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "ADD" || op == "ADDU" || op == "ADDI" || op == "ADDIU") {
+        return "ADD " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SUB" || op == "SUBU" || op == "SUBI" || op == "SUBIU") {
+        return "SUB " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "MULT") {
+        return "MULT " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "UDIV" || op == "DIV") {
+        return "UDIV " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "UMOD" || op == "MOD") {
+        return "UMOD " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SLL" || op == "SLA") {
+        return "SHL " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SRL" || op == "SRA") {
+        return "SHR " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "BEQ") {
+        return "BEQ " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "BNE") {
+        return "BNE " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "BLT") {
+        return "BLT " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "BLE") {
+        return "BLE " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "BGT") {
+        return "BLT " + src1 + " " + get_native_register(dst) + " " + src2;
+    } else if (op == "BGE") {
+        return "BLE " + src1 + " " + get_native_register(dst) + " " + src2;
+    } else if (op == "SEQ") {
+        return "SEQ " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SNE") {
+        return "SNE " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SLT") {
+        return "SLT " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SLE") {
+        return "SLE " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "MOVE" || op == "LA" || op == "LI") {
+        return "MOVE " + get_native_register(dst) + " " + get_native_register(dst) + " " + src1;
+    } else if (op == "REGMOVE") {
+        return "REGMOVE " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SECREAD") {
+        return "SECREAD " + get_native_register(dst) + " r0 r0";
+    } else if (op == "PUBREAD") {
+        string base = "r" + to_string(MEMORY_REGISTER);
+        return "LW " + get_native_register(dst) + " " + get_native_register(dst) + " " + base + "\nADD " + base + " "  + base + " 1";
+    } else if (op == "SECSEEK") {
+        return "SECSEEK " + get_native_register(dst) + " " + src1 + " r0";
+    } else if (op == "PUBSEEK") {
+        return "LW " + get_native_register(dst) + " " + get_native_register(dst) + " " + src1;
+    } else if (op == "JMP" || op == "J") {
+        return "JMP r0 r0 " + dst;
+    } else if (op == "JR") {
+        return "JR r0 r0 " + get_native_register(dst);
+    } else if (op == "SW") {
+        if (is_number(src1) && stoi(src1) == 0) {
+            return "SW " + get_native_register(dst) + " " + src2 + " " + src2;
+        } else {
+            string reg_idx = "r" + to_string(MEMORY_REGISTER);
+            if (src1[0] == '-') {
+                string positive_r2 = src1.substr(1);
+                return  "SUB " + reg_idx + " " + src2 + " " + positive_r2 + "\n" +
+                        "SW " + get_native_register(dst) + " " + reg_idx + " " + reg_idx + "\n";
+            } else {
+                return  "ADD " + reg_idx + " " + src2 + " " + src1 + "\n" +
+                        "SW " + get_native_register(dst) + " " + reg_idx + " " + reg_idx + "\n";
+            }
+        }
+    } else if (op == "LW") {
+        if (is_number(src1) && stoi(src1) == 0) {
+            return "LW " + get_native_register(dst) + " " + src2 + " " + src2;
+        } else {
+            string reg_idx = "r" + to_string(MEMORY_REGISTER);
+            if (src1[0] == '-') {
+                string positive_r2 = src1.substr(1);
+                return  "SUB " + reg_idx + " " + src2 + " " + positive_r2 + "\n" +
+                        "LW " + get_native_register(dst) + " " + reg_idx + " " + reg_idx + "\n";
+            } else {
+                return  "ADD " + reg_idx + " " + src2 + " " + src1 + "\n" +
+                        "LW " + get_native_register(dst) + " " + reg_idx + " " + reg_idx + "\n";
+            }
+        }
+    } else if (op == "ANSWER") {
+        answer_instruction = true;
+        return "ANSWER r0 r0 " + get_immediate_or_register(dst);
+    } else if (op == "PRINT") {
+        return "PRINT r0 r0 " + get_immediate_or_register(dst);
+    } else if (op == "PRINTLN") {
+        return "PRINTLN r0 r0 " + get_immediate_or_register(dst);
+    } else {
+        std::cerr << "zMIPS parser: " << op << " was not recognized" << endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -120,7 +155,7 @@ string fromZMips(string instr, const string& r0 , const string& r1, const string
 /**
  * Convert zmips registers to libstark
 **/
-string mapMipsRegister(string& r) {
+string get_native_register(const string& r) {
     if (r == "$zero" || r == "$0") {
         return "r"+to_string(ZERO_REGISTER);
     } else if (r == "$hp") {
@@ -171,7 +206,7 @@ std::vector<string> split_string_to_lines(const string& str) {
     return strings;
 }
 
-vector<string> initPublicTape(const vector<string> public_lines) {
+vector<string> initialize_public_tape(const vector<string> public_lines) {
     vector<string> store_tape;
     string reg = "r" + to_string(MEMORY_REGISTER);
     for (size_t i = 0 ; i < public_lines.size() ; i++) {
@@ -185,7 +220,7 @@ vector<string> initPublicTape(const vector<string> public_lines) {
     return store_tape;
 }
 
-void unrollMacros(vector<string>& lines, const string& macros_file) {
+void unroll_macros(vector<string>& lines, const string& macros_file) {
 	std::vector<string>::size_type size = lines.size();
 	ifstream ifs(macros_file);
 	Json::Reader reader;
@@ -241,7 +276,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<string> lines{it, {}};
 
-    unrollMacros(lines, macros_file);
+    unroll_macros(lines, macros_file);
 
     // Read public inputs (primaryTapeFile) to public_lines vector
     ifstream primarytapefs(primaryTapeFile);
@@ -249,7 +284,7 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
     sregex_token_iterator pub_it{public_inputs.begin(), public_inputs.end(), regex, -1};
     vector<string> public_lines{pub_it, {}};
     if (primaryTapeFile != "") {
-        vector<string> store_tape = initPublicTape(public_lines);
+        vector<string> store_tape = initialize_public_tape(public_lines);
         for (auto& l : store_tape) {
             ofs << l << "\n";
         }
@@ -270,68 +305,33 @@ string parse_zmips(const string assemblyFile, const string primaryTapeFile, cons
         l.erase(std::remove(l.begin(), l.end(), ','), l.end());
         istringstream iss(l);
         vector<string> tokens{istream_iterator<string>{iss}, istream_iterator<string>{}};
-        string instr;
-        if (tokens.size() == 4) { // if instruction
-            string imm = isMipsReg(tokens[3]) ? mapMipsRegister(tokens[3]) : tokens[3];
-            if (is_hex_notation(imm)) {
-                size_t num;
-                stringstream ss;
-                ss << std::hex << imm;
-                ss >> num;
-                imm = to_string(num);
-            }
-            string reg2;
-            if (is_number(tokens[2])) {
-                reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : tokens[2];
-            } else if (is_hex_notation(tokens[2])) {
-                size_t num;
-                stringstream ss;
-                ss << std::hex << tokens[2];
-                ss >> num;
-                reg2 = isMipsReg(tokens[2]) ? mapMipsRegister(tokens[2]) : to_string(num);
-            } else {
-                reg2 = mapMipsRegister(tokens[2]);
-            }
+        string op = tokens[0];
+        if (DEBUG) {
+            cout << tokens[0] << " - ";
+            if (tokens.size() == 2) cout << tokens[1] << endl;
+            if (tokens.size() == 3) cout << tokens[1] << " - " << tokens[2] << endl;
+            if (tokens.size() == 4) cout << tokens[1] << " - " << tokens[2] << " - " << tokens[3] << endl;
+        }
 
-            instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), reg2, imm);
-        } else if (tokens.size() == 3) { // if lw or sw
-            if (is_number(tokens[2])) {
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), tokens[2]);
-            } else if (is_hex_notation(tokens[2])) {
-                size_t num;
-                stringstream ss;
-                ss << std::hex << tokens[2];
-                ss >> num;
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), to_string(num));
-            } else if (isLabel(tokens[2])) {
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), tokens[2]);
-            } else if (stringToUpper(tokens[0].substr(0, 3)) == "CMP") {
-                instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(tokens[1]), mapMipsRegister(tokens[2]));
-            } else {
-                tokens[2].erase(std::remove(tokens[2].begin(), tokens[2].end(), ')'), tokens[2].end());
-                int pos = tokens[2].find_first_of('(');
-                string reg = tokens[2].substr(pos+1);
-                string addr = tokens[2].substr(0, pos);
-                if (is_number(addr)) {
-                    instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), addr);
-                } else {
-                    instr = fromZMips(tokens[0], mapMipsRegister(tokens[1]), mapMipsRegister(reg), mapMipsRegister(addr));
+        string instr, dst = "", src1 = "", src2 = "";
+        switch (tokens.size()) {
+            case 4:
+                src2 = tokens[3];
+            case 3:
+                src1 = tokens[2];
+            case 2:
+                dst = tokens[1];
+                instr = zmips_to_zilch_instruction(op, dst, src1, src2);
+                break;
+            case 1:
+                instr = op;
+                if (instr[instr.size() - 1] == ':') {
+                    instr.pop_back();
                 }
-            }
-        } else if (tokens.size() == 2) { // if j
-            if (tokens[0] == "jr") {
-                instr = fromZMips(tokens[0], "r0", "r0", mapMipsRegister(tokens[1]));
-            } else {
-                instr = fromZMips(tokens[0], "r0", "r0", tokens[1]);
-            }
-        } else if (tokens.size() == 1) { // if label
-            instr = tokens[0];
-            if (instr[instr.size() - 1] == ':') {
-                instr.pop_back();
-            }
-        } else {
-            std::cerr << instr << " : unfamiliar instruction" << endl;
-            exit(EXIT_FAILURE);
+                break;
+            default:
+                cout << "Tokens size : " << tokens.size() << endl;
+                exit(EXIT_FAILURE);
         }
         ofs << instr << "\n";
     }

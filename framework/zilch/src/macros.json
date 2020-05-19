@@ -7,36 +7,6 @@
         "reg1": "$x",
         "macro": "sub $x, $x, 1"
     },
-    "pubread": {
-        "reg1": "$x",
-        "macro": "pubread $x, $x, $x"
-    },
-    "secread": {
-        "reg1": "$x",
-        "macro": "secread $x, $x, $x"
-    },
-    "pubseek": {
-        "reg1": "$x",
-        "reg2": "$y",
-        "macro": "pubseek $x, $y, $y"
-    },
-    "secseek": {
-        "reg1": "$x",
-        "reg2": "$y",
-        "macro": "secseek $x, $y, $y"
-    },
-    "print": {
-        "reg1": "$x",
-        "macro": "print $x, $x, $x"
-    },
-    "println": {
-        "reg1": "$x",
-        "macro": "println $x, $x, $x"
-    },
-    "answer": {
-        "reg1": "$x",
-        "macro": "answer $x, $x, $x"
-    },
     "swap": {
         "comment_": "$z is used as intermediate. This macro swaps x with y",
         "reg1": "$z",

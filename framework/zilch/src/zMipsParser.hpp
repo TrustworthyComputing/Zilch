@@ -14,9 +14,10 @@
 using namespace std;
 
 string remove_extension(const string&);
-string fromZMips(string instr, const string&, const string&, const string&);
-string mapMipsRegister(string&);
-void unrollMacros(vector<std::string>&, const string&);
+string zmips2ZilchInstruction(string&, string&, string&, string&);
+string get_native_register(const string&);
+string get_immediate_or_register(const string&);
+void unroll_macros(vector<string>&, const string&);
 string parse_zmips(const string, const string, const string&, const bool);
 
 #endif // ZMIPS_PARSER_HPP
