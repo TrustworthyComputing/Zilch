@@ -25,25 +25,23 @@ fact: makedir fact-local fact-prover fact-verifier vickrey-local
 makedir:
 	mkdir -p ../bin/examples-api
 
-vickrey-local: 
+vickrey-local:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(ZILCH_DIR)/src -c -o ../bin/examples-api/vickrey-local.o ./vickrey-local.cpp
 	$(CC) -o ./vickrey-local.out ../bin/examples-api/vickrey-local.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
-fact-local: 
+fact-local:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(ZILCH_DIR)/src -c -o ../bin/examples-api/fact-local.o ./fact-local.cpp
 	$(CC) -o ./fact-local.out ../bin/examples-api/fact-local.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
-fact-prover: 
+fact-prover:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(ZILCH_DIR)/src -c -o ../bin/examples-api/fact-prover.o ./fact-prover.cpp
 	$(CC) -o ./fact-prover.out ../bin/examples-api/fact-prover.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
-fact-verifier: 
+fact-verifier:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -Isrc -I$(GADGETLIB3_DIR)/../. -I$(LIBSTARK_DIR)/src -I$(ALGEBRALIB_DIR)/headers -I$(FFTLIB_DIR)/src -I$(ZILCH_DIR)/src -c -o ../bin/examples-api/fact-verifier.o ./fact-verifier.cpp
 	$(CC) -o ./fact-verifier.out ../bin/examples-api/fact-verifier.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
-fact-clean:
-	$(RM) -f ./fact-*.out
-	$(RM) -f ../bin/examples-api/fact-*.o
-
-clean: fact-clean
+clean:
+	$(RM) -f *.out
 	$(RM) -rf ../bin/examples-api
+

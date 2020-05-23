@@ -21,9 +21,9 @@ using namespace std;
 // B 200
 // C 150
 // --> Winner B, pays 150
-// A 100 : key = {1, 2, 3, 4}; hash = {42890, 17020}; exp = {1, 1029, 6672, 19026, 25872, 63841, 63527, 18982, 41886, 28075, 22436, 14369, 15207, 41657, 35181, 29852, 27972, 13898, 21461, 61460, 26458, 65298} 
-// B 200: key = {2, 3, 4, 5}; hash = {12832, 28134}; exp = {2, 1546, 5667, 30893, 40463, 52241, 15891, 19270, 34736, 12550, 33405, 56366, 5181, 36401, 1815, 4018, 42408, 56981, 49402, 33225, 63340, 36678} 
-// C 150: key = {3, 4, 5, 6}; hash = {21252, 58351}; exp = {3, 2063, 12850, 63224, 9960, 55464, 23426, 7539, 22578, 64101, 1749, 6254, 4112, 54690, 7982, 3239, 58177, 41155, 23740, 27324, 23029, 55413} 
+// A 100 : key = {1, 2, 3, 4}; hash = {42890, 17020}; exp = {1, 1029, 6672, 19026, 25872, 63841, 63527, 18982, 41886, 28075, 22436, 14369, 15207, 41657, 35181, 29852, 27972, 13898, 21461, 61460, 26458, 65298}
+// B 200: key = {2, 3, 4, 5}; hash = {12832, 28134}; exp = {2, 1546, 5667, 30893, 40463, 52241, 15891, 19270, 34736, 12550, 33405, 56366, 5181, 36401, 1815, 4018, 42408, 56981, 49402, 33225, 63340, 36678}
+// C 150: key = {3, 4, 5, 6}; hash = {21252, 58351}; exp = {3, 2063, 12850, 63224, 9960, 55464, 23426, 7539, 22578, 64101, 1749, 6254, 4112, 54690, 7982, 3239, 58177, 41155, 23740, 27324, 23029, 55413}
 
 void speck_expand(uint16_t const K[KEY_LEN], uint16_t S[ROUNDS]) {
     uint16_t b = K[0];
@@ -31,7 +31,7 @@ void speck_expand(uint16_t const K[KEY_LEN], uint16_t S[ROUNDS]) {
     for (int i = 0; i < KEY_LEN - 1 ; i++) {
         a[i] = K[i + 1];
     }
-    S[0] = b;  
+    S[0] = b;
     for (int i = 0; i < ROUNDS - 1; i++) {
         R(a[i % (KEY_LEN - 1)], b, i);
         S[i + 1] = b;
@@ -63,12 +63,12 @@ void speck32_davies_meyer(uint16_t hash[2], const uint16_t msg[2], uint16_t cons
 int main(int argc, char const *argv[]) {
     srand(1);
     ofstream privtape_file("vickrey.privtape");
-    
+
     size_t participants = 3;
     std::cout << "Vickrey Auction for " << participants << " participants\n";
 
     uint16_t iv[2] = { 12, 13 };
-    
+
     uint16_t key[participants];
     uint16_t auctions[participants];
     uint16_t commits[participants][2];
@@ -76,12 +76,12 @@ int main(int argc, char const *argv[]) {
     for (size_t i = 0; i < participants; i++) {
         std::cout << "Enter bid for participant " << i << ": ";
         cin >> auctions[i];
-        key[i] = rand() % 65535; // private randomness for commitment.  
+        key[i] = rand() % 65535; // private randomness for commitment.
         std::cout << "Random string " << key[i] << "\n";
 
         uint16_t buf[2] = { key[i], auctions[i] };
         speck32_davies_meyer(commits[i], buf, iv);
-        
+
         cout << "==> Speck hash: " << commits[i][0] << " " << commits[i][1] << "\n\n";
         privtape_file << auctions[i] << '\n';
     }
@@ -97,7 +97,7 @@ int main(int argc, char const *argv[]) {
     std::cout << "Running Vickrey Auction in Zilch...\n";
 
     int ans = zilch_local_prover_verifier("./vickrey.zmips", "", "./vickrey.privtape", "../framework/zilch/src/macros.json", 60, false, false);
-    
+
     for (size_t i = 0; i < participants; i++) {
         if (auctions[i] > ans) {
             std::cout << "Executed vickrey.zmips and the winner is bidder #" << i << "!\n\n";
@@ -111,10 +111,10 @@ int main(int argc, char const *argv[]) {
                 privtape_key_file << exp[j] << '\n';
             }
             privtape_key_file.close();
-            
+
             std::cout << "Running Speck32 Davies-Meyer to verify the commitment in Zilch...\n";
 
-            int ans = zilch_local_prover_verifier("../examples-zmips/speck_DM_hash/speck32_DM_hash.zmips", "", "speck-key.privtape", "../framework/zilch/src/macros.json", 60, false, false);
+            int ans = zilch_local_prover_verifier("../examples-zmips/speck/speck32_DM_hash.zmips", "", "speck-key.privtape", "../framework/zilch/src/macros.json", 60, false, false);
             if (ans == commits[i][0]) {
                 std::cout << "Commitment verified!\n";
                 return EXIT_SUCCESS;
@@ -123,6 +123,6 @@ int main(int argc, char const *argv[]) {
             }
         }
     }
-    
+
     return EXIT_FAILURE;
 }

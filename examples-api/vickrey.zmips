@@ -1,39 +1,35 @@
-move $r5, 3
-move $r4, 2
-secread $r0
-secread $r1
+move $t5, 3
+move $t4, 2
+secread $t0
+secread $t1
 
-cmpg $r0, $r0, $r1
-cnjmp $r0, $r0, __init__
-    move $r3, $r0
-    move $r6, 0
-    move $r2, $r1
+ble $t0, $t1, __init__
+    move $t3, $t0
+    move $t6, 0
+    move $t2, $t1
 j __init_end__
-__init__
-    move $r3, $r1
-    move $r6, 1
-    move $r2, $r0
-__init_end__
+__init__:
+    move $t3, $t1
+    move $t6, 1
+    move $t2, $t0
+__init_end__:
 
-__L1__
-    secread $r0
+__L1__:
+    secread $t0
 
-    cmpg $r3, $r3, $r0
-    cjmp $r0, $r0, __check2__
-        move $r2, $r3
-        move $r3, $r0
-        move $r6, $r4
+    bgt $t3, $t0, __check2__
+        move $t2, $t3
+        move $t3, $t0
+        move $t6, $t4
         j __check3__
-    __check2__
-    cmpg $r2, $r2, $r0
-    cjmp $r0, $r0, __check3__
-        move $r2, $r0
-    __check3__
-    
-    add $r4, $r4, 1
-cmpg $r5, $r5, $r4
-cjmp $r5, $r5, __L1__
+    __check2__:
+    bgt $t2, $t0, __check3__
+        move $t2, $t0
+    __check3__:
 
-# print $r2 # bid to pay
-print $r6 # winner
-answer $r2
+    add $t4, $t4, 1
+bgt $t5, $t4, __L1__
+
+# print $t2 # bid to pay
+print $t6 # winner
+answer $t2
