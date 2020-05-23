@@ -132,7 +132,7 @@ public:
 /*************************************************************************************************/
 /*
     An abstract class to hold any additional information needed by a specific Protoboard. For
-    example a Protoboard specific to TinyRAM will have a class ArchParams which will inherit from
+    example a Protoboard specific to RAM will have a class ArchParams which will inherit from
     this class.
 */
 class ProtoboardParams {
@@ -143,26 +143,26 @@ public:
 ///*************************************************************************************************/
 ///*************************************************************************************************/
 ///****************************                                         ****************************/
-///****************************         class TinyRAMProtoboardParams   ****************************/
+///****************************         class RAMProtoboardParams   ****************************/
 ///****************************                                         ****************************/
 ///*************************************************************************************************/
 ///*************************************************************************************************/
 //
-//class TinyRAMProtoboardParams : public ProtoboardParams {
+//class RAMProtoboardParams : public ProtoboardParams {
 //private:
-//	TinyRAMArchParams archParams_;
+//	RAMArchParams archParams_;
 //	size_t opcodeWidth_;
 //	size_t timeBound_;
 //	size_t pcIncrement_;
 //public:
-//	TinyRAMProtoboardParams(unsigned int numRegisters, unsigned int registerLength,
+//	RAMProtoboardParams(unsigned int numRegisters, unsigned int registerLength,
 //		size_t opcodeWidth, size_t timeBound, size_t pcIncrement)
-//		: archParams_(TinyRAMArchParams{ numRegisters, registerLength }),
+//		: archParams_(RAMArchParams{ numRegisters, registerLength }),
 //		opcodeWidth_(opcodeWidth),
 //		timeBound_(timeBound), pcIncrement_(pcIncrement) {}
-//	TinyRAMProtoboardParams()
-//		: archParams_(TinyRAMArchParams{ 0, 0 }), opcodeWidth_(0), timeBound_(0), pcIncrement_(0) {}
-//	TinyRAMArchParams archParams() const { return archParams_; }
+//	RAMProtoboardParams()
+//		: archParams_(RAMArchParams{ 0, 0 }), opcodeWidth_(0), timeBound_(0), pcIncrement_(0) {}
+//	RAMArchParams archParams() const { return archParams_; }
 //	size_t opcodeWidth() const { return opcodeWidth_; }
 //	size_t numRegisters() const { return archParams_.numRegisters; }
 //	size_t registerLength() const { return archParams_.registerLength; }
@@ -171,7 +171,7 @@ public:
 //	size_t numOpcodes() const { return 1u << (opcodeWidth()); }
 //	size_t timeBound() const { return timeBound_; }
 //	size_t pcIncrement() const { return pcIncrement_; }
-//}; // class TinyRAMProtoboardParams
+//}; // class RAMProtoboardParams
 //
 } // namespace gadgetlib
 

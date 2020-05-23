@@ -7,8 +7,8 @@
 ALUInputConsistency::ALUInputConsistency(ProtoboardPtr pb, const TraceVariables& input, const ALUInput& output) :
 		Gadget(pb), input_(input), output_(output),
 		program_("program",
-		std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters(),
-		std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->registerLength()) {}
+		std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->numRegisters(),
+		std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->registerLength()) {}
 
 
 void ALUInputConsistency::init() {};
@@ -19,14 +19,14 @@ GadgetPtr ALUInputConsistency::create(ProtoboardPtr pb, const TraceVariables& in
 	return pGadget;
 }
 
-void ALUInputConsistency::setProgram(const TinyRAMProgram& program){
+void ALUInputConsistency::setProgram(const RAMProgram& program){
 	program_ = program;
 }
 
 
 void ALUInputConsistency::generateConstraints(){
 	GADGETLIB_ASSERT(program_.size() > 0, "ALUInputConsistency: The program should be initialized");
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	vector<CircuitPolynomial> arg1Polynomials, arg2Polynomials, destPolynomials;
 	CircuitPolynomial resArg1, resArg2, resDest;
 	vector<long> selectorToConstraint;
@@ -76,7 +76,7 @@ void ALUInputConsistency::generateConstraints(){
 
 void ALUInputConsistency::generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt) {
 	GADGETLIB_ASSERT(i < program_.size(), "ALUInputConsistency: in order to generate witness i should be less the the program size");
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	size_t arg1 = program_.code()[i].arg1Idx_;
 	size_t arg2 = program_.code()[i].arg2IdxOrImmediate_;
 	size_t dest = program_.code()[i].destIdx_;

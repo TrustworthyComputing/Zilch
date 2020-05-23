@@ -7,8 +7,8 @@
 #include "zMipsParser.hpp"
 #include "executeProtocol.hpp"
 #include "protocols/protocol.hpp"
-#include "TinyRAMtoBair/ConstraintSystemToBair/cs2Bair.hpp"
-#include "TinyRAMtoBair/RamToContraintSystem/ALU.hpp"
+#include "RAMtoBair/ConstraintSystemToBair/cs2Bair.hpp"
+#include "RAMtoBair/RamToContraintSystem/ALU.hpp"
 
 int zilch_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const size_t securityParameter = 60, bool verbose = false, bool no_proof = false);
 

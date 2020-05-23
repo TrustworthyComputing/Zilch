@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gadgetlib/protoboard.hpp>
-#include <TinyRAM/TinyRAMDefinitions.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/transitionFunction.hpp>
+#include <RAM/RAMDefinitions.hpp>
+#include <RAMtoBair/RamToContraintSystem/transitionFunction.hpp>
 
 using namespace gadgetlib;
 
@@ -35,13 +35,13 @@ namespace {
 	}
 
 
-	TEST(TinyRAMPrograms, checkCNJMP){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+	TEST(RAMPrograms, checkCNJMP){
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 
-		TinyRAMProgram program("program", trNumRegisters, trRegisterLen);
+		RAMProgram program("program", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::XOR, true, 1, 1, 1);
 		program.addInstruction(instruction1);
 		MachineInstruction instruction2(Opcode::CNJMP, true, 0, 0, 0);
@@ -136,12 +136,12 @@ namespace {
 		}
 	}
 
-	TEST(TinyRAMPrograms, checkSUBADD){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
+	TEST(RAMPrograms, checkSUBADD){
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 
-		TinyRAMProgram program("program", trNumRegisters, trRegisterLen);
+		RAMProgram program("program", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::ADD, true, 4, 4, 4);
 		program.addInstruction(instruction1);
 		MachineInstruction instruction2(Opcode::XOR, true, 1, 1, 1);
@@ -255,13 +255,13 @@ namespace {
 		EXPECT_EQ(pb->val(followingTraceVariable.second_.registers_[4]), Algebra::zero());
 	}
 		
-	TEST(TinyRAMPrograms, checkADDBorrow){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+	TEST(RAMPrograms, checkADDBorrow){
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 
-		TinyRAMProgram program("program", trNumRegisters, trRegisterLen);
+		RAMProgram program("program", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::ADD, true, 0, 0, 65535); //r0 = r0 + (2^16 -1)
 		program.addInstruction(instruction1);
 		MachineInstruction instruction2(Opcode::ADD, true, 0, 0, 1); // r0 = r0 + 1;

@@ -8,8 +8,8 @@ TraceConsistency::TraceConsistency(ProtoboardPtr pb,
 	const FollowingTraceVariables& followingTraceVariables) :
 	Gadget(pb), aluOutput_(aluOutput), followingTraceVariables_(followingTraceVariables),
 	program_("program",
-	std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters(),
-	std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->registerLength()){}
+	std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->numRegisters(),
+	std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->registerLength()){}
 
 
 void TraceConsistency::timeStampConsistency(){
@@ -325,7 +325,7 @@ GadgetPtr TraceConsistency::create(ProtoboardPtr pb,
 }
 
 
-void TraceConsistency::setProgram(const TinyRAMProgram& program){
+void TraceConsistency::setProgram(const RAMProgram& program){
 	program_ = program;
 }
 
@@ -333,7 +333,7 @@ void TraceConsistency::generateConstraints(){
 	GADGETLIB_ASSERT(aluOutput_.flag_ == followingTraceVariables_.second_.flag_, "TraceConsistency: aluOutput.flag == followingTraceVariables_.second_.flag_");
 	GADGETLIB_ASSERT(program_.size() > 0, "TraceConsistency: The program should be initialized");
 	const Algebra::FElem generator = Algebra::FElem(getGF2E_X());
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	timeStampConsistency();
 	pcConsistency();
 	registerConsistency();
@@ -343,7 +343,7 @@ void TraceConsistency::generateConstraints(){
 void TraceConsistency::generateWitness(size_t programLine){
 	GADGETLIB_ASSERT(program_.size() > 0, "TraceConsistency: The program should be initialized");
 	GADGETLIB_ASSERT(programLine < program_.size(), "TraceCosistency: programLine should be less than the program Length ");
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	const Algebra::FElem generator = Algebra::FElem(getGF2E_X());
 	timeStampWitness();
 	Opcode opcode = program_.code()[programLine].opcode_;

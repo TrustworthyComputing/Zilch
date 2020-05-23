@@ -9,7 +9,7 @@
 #include <jsoncpp/json/json.h>
 #include <boost/algorithm/string.hpp>
 
-#include "TinyRAM/TinyRAMInstance.hpp"
+#include "RAM/RAMInstance.hpp"
 
 using namespace std;
 

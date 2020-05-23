@@ -2,9 +2,9 @@
 #include <memory>
 #include <gadgetlib/protoboard.hpp>
 #include <algebraLib/variable_operators.hpp>
-#include <TinyRAM/TinyRAMDefinitions.hpp>
-#include <TinyRAM/TinyRAMInstance.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/MemoryConsraints.hpp>
+#include <RAM/RAMDefinitions.hpp>
+#include <RAM/RAMInstance.hpp>
+#include <RAMtoBair/RamToContraintSystem/MemoryConsraints.hpp>
 
 using namespace gadgetlib;
 
@@ -23,8 +23,8 @@ namespace{
 	}
 
 	TEST(Memory, constraintsCheck){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		MemoryFollowingTraceVariables traceLines;

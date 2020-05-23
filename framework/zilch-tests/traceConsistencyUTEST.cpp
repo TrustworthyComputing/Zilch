@@ -1,23 +1,23 @@
 #include <gtest/gtest.h>
 #include <memory>
-#include <TinyRAMtoBair/RamToContraintSystem/traceConsistency.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/generalPurpose.hpp>
-#include <TinyRAM/TinyRAMDefinitions.hpp>
-#include <TinyRAM/TinyRAMInstance.hpp>
+#include <RAMtoBair/RamToContraintSystem/traceConsistency.hpp>
+#include <RAMtoBair/RamToContraintSystem/generalPurpose.hpp>
+#include <RAM/RAMDefinitions.hpp>
+#include <RAM/RAMInstance.hpp>
 
 
 
 namespace{
 	TEST(ALU, traceConsistency){
 		// Initialize pb and gadget parameters
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 
 		
 		// Initialize Program
-		TinyRAMProgram program("inputConsistencyTEST", trNumRegisters, trRegisterLen);
+		RAMProgram program("inputConsistencyTEST", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::ADD, false, 2, 1, 1);
 		program.addInstruction(instruction1);
 		MachineInstruction instruction2(Opcode::ADD, false, 3, 1, 1);

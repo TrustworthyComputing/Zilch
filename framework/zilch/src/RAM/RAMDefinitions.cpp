@@ -1,4 +1,4 @@
-#include "TinyRAMDefinitions.hpp"
+#include "RAMDefinitions.hpp"
 
 
 
@@ -17,7 +17,7 @@ int trInputRegisterNum = -1;
 
 static bool trParametersInited = false;
 
-void clearTinyRAMParams(){
+void clearRAMParams(){
     trParametersInited = false;
     trNumRegisters = -1;
     trRegisterLen = -1;
@@ -33,7 +33,7 @@ void clearTinyRAMParams(){
     trInputRegisterNum = -1;
 }
 
-void initTinyRAMParams(int numRegisters, int registerLen) {
+void initRAMParams(int numRegisters, int registerLen) {
     trParametersInited = true;
 
     trNumRegisters = numRegisters;
@@ -52,7 +52,7 @@ void initTinyRAMParams(int numRegisters, int registerLen) {
     trInputRegisterNum = 0;
 }
 
-void initTinyRAMParamsFromEnvVariables() {
-    initTinyRAMParams(REGISTERS_NUMBER,
+void initRAMParamsFromEnvVariables() {
+    initRAMParams(REGISTERS_NUMBER,
                       REGISTER_LENGTH);
 }

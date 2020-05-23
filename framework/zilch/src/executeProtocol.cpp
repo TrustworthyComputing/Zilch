@@ -1,8 +1,8 @@
 #include "executeProtocol.hpp"
 
-libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const size_t t){
+libstark::BairInstance constructInstance(const RAMProgram& prog, const size_t t){
     resetALU_GadgetGlobalState();
-    shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
+    shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 
     gadgetlib::ProtoboardPtr pb_instance = Protoboard::create(archParams_);
     cs2Bair cs2bair_instance(pb_instance, prog, int(gadgetlib::POW2(t) - 1), false);
@@ -13,9 +13,9 @@ libstark::BairInstance constructInstance(const TinyRAMProgram& prog, const size_
     return libstark::BairInstance(numVars, t, move(cs2bairConstraints_), move(cs2bairMemoryCS_), cs2bair_instance.getBoundaryConstraints(), vector<Algebra::FieldElement>(numVars,Algebra::zero()));
 }
 
-libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const size_t t, const vector<string>& private_lines){
+libstark::BairWitness constructWitness(const RAMProgram& prog, const size_t t, const vector<string>& private_lines){
     resetALU_GadgetGlobalState();
-    shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
+    shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 
     gadgetlib::ProtoboardPtr pb_witness = Protoboard::create(archParams_);
     cs2Bair cs2bair_witness(pb_witness, prog, int(gadgetlib::POW2(t) - 1), true, private_lines);
@@ -27,8 +27,8 @@ libstark::BairWitness constructWitness(const TinyRAMProgram& prog, const size_t 
 
 void execute_locally(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose, bool no_proof, bool tsteps_provided) {
     //Initialize instance
-    initTinyRAMParamsFromEnvVariables();
-	TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
+    initRAMParamsFromEnvVariables();
+	RAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
     program.addInstructionsFromFile(assemblyFile);
 
     // Read from tapes
@@ -70,8 +70,8 @@ void execute_locally(const string assemblyFile, const string auxTapeFile, const 
 
 void execute_network(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose, const string& session) {    
     //Initialize instance
-    initTinyRAMParamsFromEnvVariables();
-    TinyRAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
+    initRAMParamsFromEnvVariables();
+    RAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
     program.addInstructionsFromFile(assemblyFile);
     
     const auto bairInstance = constructInstance(program, t);

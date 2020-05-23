@@ -4,7 +4,7 @@
 #include <gadgetlib/gadget.hpp>
 #include <gadgetlib/protoboard.hpp>
 #include "generalPurpose.hpp"
-#include "TinyRAM/TinyRAMInstance.hpp"
+#include "RAM/RAMInstance.hpp"
 using gadgetlib::Gadget;
 using gadgetlib::ProtoboardPtr;
 
@@ -15,9 +15,9 @@ private:
 	TransitionFunction(ProtoboardPtr pb,
 					const FollowingTraceVariables& followingTraceVariable,
 					const MemoryFollowingTraceVariables& memoryFollowingTraceVariables,
-					const TinyRAMProgram& program);
+					const RAMProgram& program);
 
-	TinyRAMProgram program_;
+	RAMProgram program_;
 	FollowingTraceVariables followingTraceVariable_;
 	MemoryFollowingTraceVariables memoryFollowingTraceVariables_;
 	TraceVariables inputTraceLine_;
@@ -37,7 +37,7 @@ public:
 	static GadgetPtr create(ProtoboardPtr pb,
 							const FollowingTraceVariables& followingTraceVariable,
 							const MemoryFollowingTraceVariables& memoryFollowingTraceVariables,
-							const TinyRAMProgram& program);
+							const RAMProgram& program);
 	void generateConstraints();
 	void generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt);
 	

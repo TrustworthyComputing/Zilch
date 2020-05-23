@@ -9,8 +9,8 @@ inline bool file_exists(const string& name) {
 int zilch_local_prover_verifier(const string assemblyFile, const string primaryTapeFile, const string auxTapeFile, const string& macros_file, const size_t securityParameter, bool verbose, bool no_proof) {
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
-    initTinyRAMParamsFromEnvVariables();
-	TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
+    initRAMParamsFromEnvVariables();
+	RAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
     program.addInstructionsFromFile(asmFile);
     std::remove(asmFile.c_str());
     // Read private inputs (auxTapeFile) to private_lines vector
@@ -46,8 +46,8 @@ int zilch_prover(const string assemblyFile, const string primaryTapeFile, const 
     }
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
-    initTinyRAMParamsFromEnvVariables();
-    TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
+    initRAMParamsFromEnvVariables();
+    RAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
     program.addInstructionsFromFile(asmFile);
     std::remove(asmFile.c_str());
     const auto bairInstance = constructInstance(program, t);
@@ -77,8 +77,8 @@ bool zilch_verifier(const string assemblyFile, const string primaryTapeFile, con
     }
     string asmFile = parse_zmips(assemblyFile, primaryTapeFile, macros_file, false);
     //Initialize instance
-    initTinyRAMParamsFromEnvVariables();
-    TinyRAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
+    initRAMParamsFromEnvVariables();
+    RAMProgram program(asmFile, REGISTERS_NUMBER, trRegisterLen);
     program.addInstructionsFromFile(asmFile);
     std::remove(asmFile.c_str());
     const auto bairInstance = constructInstance(program, t);

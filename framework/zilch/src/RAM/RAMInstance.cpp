@@ -1,4 +1,4 @@
-#include "TinyRAMInstance.hpp"
+#include "RAMInstance.hpp"
 #include <string>
 #include <iostream>
 #include <regex>
@@ -227,7 +227,7 @@ MachineInstruction::MachineInstruction(const string line, const map<string, int>
     }
 }
 
-void TinyRAMProgram::print() const {
+void RAMProgram::print() const {
     for (const auto& line: code_) {
         line.print();
     }
@@ -274,7 +274,7 @@ bool is_zmips_label(const string &str) { // check if a string is a label
     }
 }
 
-map<string, int> TinyRAMProgram::buildLabelsMap(vector<string>& lines){
+map<string, int> RAMProgram::buildLabelsMap(vector<string>& lines){
     size_t instructions_cnt = 0;
     map<string, int> labels_map;
     for (auto& l : lines){
@@ -298,11 +298,11 @@ map<string, int> TinyRAMProgram::buildLabelsMap(vector<string>& lines){
     return labels_map;
 }
 
-void TinyRAMProgram::arg2isImmediateToFalse(const size_t pc) {
+void RAMProgram::arg2isImmediateToFalse(const size_t pc) {
 	this->code_[pc].arg2isImmediate_ = false;
 }
 
-void TinyRAMProgram::addInstructionsFromFile(const string filename) {
+void RAMProgram::addInstructionsFromFile(const string filename) {
     ifstream ifs(filename);
     string content((std::istreambuf_iterator<char>(ifs)),std::istreambuf_iterator<char>());
     regex regex{R"([\n]+)"}; 													// split to lines

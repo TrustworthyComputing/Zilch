@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <gadgetlib/protoboard.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/ALU.hpp>
-#include <TinyRAM/TinyRAMDefinitions.hpp>
-#include <TinyRAM/TinyRAMInstance.hpp>
+#include <RAMtoBair/RamToContraintSystem/ALU.hpp>
+#include <RAM/RAMDefinitions.hpp>
+#include <RAM/RAMInstance.hpp>
 
 #define ROUNDS 10
 #define BitsPerFElem Algebra::ExtensionDegree 
@@ -13,8 +13,8 @@ using namespace gadgetlib;
 namespace {
 	TEST(ALU, XOR_TEST){
 		// Initialize pb and gadget parameters
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -46,8 +46,8 @@ namespace {
 
 	TEST(ALU, AND_TEST){
 		// Initialize pb and gadget parameters
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -97,8 +97,8 @@ namespace {
 
 	TEST(ALU, OR_TEST){
 		// Initialize the parameters
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -144,8 +144,8 @@ namespace {
 	}
 
 	TEST(ALU, NOT_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -174,8 +174,8 @@ namespace {
 	}
 
 	TEST(ALU, ADD_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -210,8 +210,8 @@ namespace {
 	}
 
 	TEST(ALU, SUB_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -234,8 +234,8 @@ namespace {
 	}
 
 	TEST(ALU, MULT_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -258,8 +258,8 @@ namespace {
 	}
 
 	TEST(ALU, UMULH_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -283,8 +283,8 @@ namespace {
 	}
 
 	TEST(ALU, SMULH_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -309,8 +309,8 @@ namespace {
 	}
 
 	TEST(ALU, UDIV_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -333,8 +333,8 @@ namespace {
 	}
 
 	TEST(ALU, UMOD_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -357,8 +357,8 @@ namespace {
 	}
 	
 	TEST(ALU, CMPE_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -380,8 +380,8 @@ namespace {
 	}
 
 	TEST(ALU, CMPA_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -402,8 +402,8 @@ namespace {
 	}
 
 	TEST(ALU, CMPAE_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -425,8 +425,8 @@ namespace {
 	}
 
 	TEST(ALU, CMPG_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -449,8 +449,8 @@ namespace {
 	}
 
 	TEST(ALU, CMPGE_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -473,8 +473,8 @@ namespace {
 	}
 
 	TEST(ALU, SHL_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -496,8 +496,8 @@ namespace {
 	}
 
 	TEST(ALU, SHR_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -519,8 +519,8 @@ namespace {
 	}
 
 	TEST(ALU, SW_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -545,8 +545,8 @@ namespace {
 
 
 	TEST(ALU, LW_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;
@@ -570,8 +570,8 @@ namespace {
 	}
 
 	TEST(ALU, ROM_TEST){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		ALUInput aluInput;

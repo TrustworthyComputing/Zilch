@@ -169,7 +169,7 @@ class DivisorPolynomial : public UnivariatePolynomialInterface {
 
 ////an interface with some extra properties used in the cs2BREX reduction. Currently seems needed because of some circular class relations:
 //// Polynomial Node holds SelectorSum field, and SelectorSum used to hold CircuitPolynomial vector, before this interface was written
-//class TinyRAMPolynomialInterface : public PolynomialInterface{
+//class RAMPolynomialInterface : public PolynomialInterface{
 //
 //	virtual std::string asString() const;
 //	virtual Variable::set getUsedVariables() const;

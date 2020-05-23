@@ -7,7 +7,7 @@
 
 
 
-TransitionFunction::TransitionFunction(ProtoboardPtr pb, const FollowingTraceVariables& followingTraceVariable, const MemoryFollowingTraceVariables& memoryFollowingTraceVariables, const TinyRAMProgram& program) :
+TransitionFunction::TransitionFunction(ProtoboardPtr pb, const FollowingTraceVariables& followingTraceVariable, const MemoryFollowingTraceVariables& memoryFollowingTraceVariables, const RAMProgram& program) :
 		Gadget(pb),
         program_(program),
         followingTraceVariable_(followingTraceVariable),
@@ -18,7 +18,7 @@ TransitionFunction::TransitionFunction(ProtoboardPtr pb, const FollowingTraceVar
 		aluOutput(followingTraceVariable.second_.flag_, memoryFollowingTraceVariables_.first_.isMemOp_,memoryFollowingTraceVariables_.first_.address_,
 		memoryFollowingTraceVariables_.first_.isLoad_, memoryFollowingTraceVariables_.first_.value_){}
 
-GadgetPtr TransitionFunction::create(ProtoboardPtr pb, const FollowingTraceVariables& followingTraceVariable, const MemoryFollowingTraceVariables& memoryFollowingTraceVariables, const TinyRAMProgram& program) {
+GadgetPtr TransitionFunction::create(ProtoboardPtr pb, const FollowingTraceVariables& followingTraceVariable, const MemoryFollowingTraceVariables& memoryFollowingTraceVariables, const RAMProgram& program) {
 	GadgetPtr pGadget(new TransitionFunction(pb, followingTraceVariable, memoryFollowingTraceVariables,program));
 	pGadget->init();
 	return pGadget;
@@ -59,7 +59,7 @@ void TransitionFunction::generateWitness(size_t i, const vector<string>& private
 	(::std::dynamic_pointer_cast<TraceConsistency>(traceConsistency_g_))->generateWitness(codeLineNumber);
 
 	// Update Memory Info
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	MemoryInfo memInfo;
 	memInfo.updateSerialNumber(i);
 	Opcode opcode = program_.code()[codeLineNumber].opcode_;

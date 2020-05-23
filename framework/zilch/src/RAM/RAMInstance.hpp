@@ -1,12 +1,12 @@
-/************************************** TinyRAMInstance.hpp **************************************/
+/************************************** RAMInstance.hpp **************************************/
 /**
  * @file
  *
- * @brief The file TinyRAMInstance.hpp contains the interface for a TinyRAM instance.
+ * @brief The file RAMInstance.hpp contains the interface for a RAM instance.
  *
  * Main classes defined in the file:
- *     TinyRAMPartialInstance
- *     TinyRAMFullInstance
+ *     RAMPartialInstance
+ *     RAMFullInstance
  */
   /***********************************************************************************************/
 
@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 #include <cstdint>
-#include "TinyRAM/TinyRAMDefinitions.hpp"
+#include "RAM/RAMDefinitions.hpp"
 #include "common/Utils/ErrorHandling.hpp"
 #include <algorithm>
 #include <math.h>
@@ -51,11 +51,11 @@ struct RAMArchParams {
 /*************************************************************************************************/
 /*************************************************************************************************/
 /****************************                                         ****************************/
-/****************************         class TinyRAMProgram            ****************************/
+/****************************         class RAMProgram            ****************************/
 /****************************                                         ****************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
-/// A data object which holds a TinyRAM code and auxiliary information.
+/// A data object which holds a RAM code and auxiliary information.
 struct MachineInstruction {
 	Opcode opcode_ = Opcode::ANSWER;
 	bool arg1isImmediate_ = true;
@@ -89,7 +89,7 @@ vector<string> split(const string &s);
 string trim(const string& str, const string& whitespace = " \t");
 bool is_zmips_label(const string &str);
 
-class TinyRAMProgram {
+class RAMProgram {
 public:
 	typedef vector<MachineInstruction> RAMMachineCode;
 private:
@@ -97,12 +97,12 @@ private:
 	RAMArchParams archParams_;
 	RAMMachineCode code_;
 public:
-	TinyRAMProgram(const string& name,
+	RAMProgram(const string& name,
 		const RAMArchParams& archParams,
 		const RAMMachineCode& code) :
 		name_(name), archParams_(archParams), code_(code) {}
 
-	TinyRAMProgram(const string& name,
+	RAMProgram(const string& name,
 		size_t numRegisters,
 		size_t wordSize) :
 		name_(name), archParams_(RAMArchParams{ numRegisters, wordSize }) {
@@ -122,7 +122,7 @@ public:
 
     size_t pcLength() const {
 		int codeSize = code_.size();
-		if (codeSize == 0){ _COMMON_FATAL("TinyRAMProgram : The code is not initialized"); };
+		if (codeSize == 0){ _COMMON_FATAL("RAMProgram : The code is not initialized"); };
 		if (codeSize == 1) { return 1; }
 		return  gadgetlib::Log2ceiled(codeSize);
 	}
@@ -135,24 +135,24 @@ public:
 /*************************************************************************************************/
 /*************************************************************************************************/
 /****************************                                         ****************************/
-/****************************         class TinyRAMProtoboardParams   ****************************/
+/****************************         class RAMProtoboardParams   ****************************/
 /****************************                                         ****************************/
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-class TinyRAMProtoboardParams : public gadgetlib::ProtoboardParams {
+class RAMProtoboardParams : public gadgetlib::ProtoboardParams {
 private:
 	RAMArchParams archParams_;
 	size_t opcodeWidth_;
 	size_t timeBound_;
 	size_t pcIncrement_;
 public:
-	TinyRAMProtoboardParams(size_t numRegisters, size_t registerLength,
+	RAMProtoboardParams(size_t numRegisters, size_t registerLength,
 		size_t opcodeWidth, size_t timeBound, size_t pcIncrement)
 		: archParams_(RAMArchParams{ numRegisters, registerLength }),
 		opcodeWidth_(opcodeWidth),
 		timeBound_(timeBound), pcIncrement_(pcIncrement) {}
-	TinyRAMProtoboardParams()
+	RAMProtoboardParams()
 		: archParams_(RAMArchParams{ 0, 0 }), opcodeWidth_(0), timeBound_(0), pcIncrement_(0) {}
 	RAMArchParams archParams() const { return archParams_; }
 	size_t opcodeWidth() const { return opcodeWidth_; }
@@ -163,7 +163,7 @@ public:
 	size_t numOpcodes() const { return 1u << (opcodeWidth()); }
 	size_t timeBound() const { return timeBound_; }
 	size_t pcIncrement() const { return pcIncrement_; }
-}; // class TinyRAMProtoboardParams
+}; // class RAMProtoboardParams
 
 
 #endif

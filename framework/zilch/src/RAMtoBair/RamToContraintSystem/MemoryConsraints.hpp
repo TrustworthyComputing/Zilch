@@ -3,7 +3,7 @@
 
 #include <gadgetlib/gadget.hpp>
 #include <gadgetlib/protoboard.hpp>
-#include "TinyRAMtoBair/RamToContraintSystem/generalPurpose.hpp"
+#include "RAMtoBair/RamToContraintSystem/generalPurpose.hpp"
 
 
 

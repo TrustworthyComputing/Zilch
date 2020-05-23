@@ -1,6 +1,6 @@
 #include "MemoryConsraints.hpp"
 #include <algebraLib/variable_operators.hpp>
-#include "TinyRAMtoBair/RamToContraintSystem/ALU.hpp"
+#include "RAMtoBair/RamToContraintSystem/ALU.hpp"
 
 
 

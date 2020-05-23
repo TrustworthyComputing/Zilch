@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
 #include <gadgetlib/protoboard.hpp>
 #include <fstream>
-#include <TinyRAM/TinyRAMDefinitions.hpp>
-#include <TinyRAM/TinyRAMInstance.hpp>
+#include <RAM/RAMDefinitions.hpp>
+#include <RAM/RAMInstance.hpp>
 
-#include <TinyRAMtoBair/ConstraintSystemToBair/cs2Bair.hpp>
+#include <RAMtoBair/ConstraintSystemToBair/cs2Bair.hpp>
 #include <languages/Bair/BairInstance.hpp>
 #include <languages/Bair/BairWitness.hpp>
 #include <languages/Bair/BairWitnessChecker.hpp>
 #include <languages/Acsp/AcspWitnessChecker.hpp>
 #include <reductions/BairToAcsp/BairToAcsp.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/ALU.hpp> //for prngseed, remove later
+#include <RAMtoBair/RamToContraintSystem/ALU.hpp> //for prngseed, remove later
 #include "protocols/Ali/verifier.hpp"
 #include "protocols/Ali/prover.hpp"
 
@@ -25,8 +25,8 @@ namespace{
 
 
 #if 0
-	TinyRAMProgram getProgram(unsigned int programNumber, int aux_param){
-		TinyRAMProgram program("program", trNumRegisters, trRegisterLen);
+	RAMProgram getProgram(unsigned int programNumber, int aux_param){
+		RAMProgram program("program", trNumRegisters, trRegisterLen);
 		if (programNumber == 0){
 			MachineInstruction instruction1(Opcode::XOR, false, 2, 1, 1);
 			program.addInstruction(instruction1);
@@ -85,7 +85,7 @@ namespace{
 	}
 #endif
 
-void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::ProtoboardPtr)> initWitnessMem, const int transcript_len_log = 3) {
+void testProg(const RAMProgram & prog, std::function<void(gadgetlib::ProtoboardPtr)> initWitnessMem, const int transcript_len_log = 3) {
     resetALU_GadgetGlobalState();
     vector<string> runtimeArgs;// = ::Configuration::getInstance().getRandomArgs();
 	int flags = 1|4;
@@ -94,11 +94,11 @@ void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::Protobo
 	//won't pass on to the PCP proof constructions phase.
 	//Any case we get here some (lots of) memory that is passed on and I'm not sure why (Michael)
     // Init PB
-    initTinyRAMParamsFromEnvVariables();
-    std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen,
+    initRAMParamsFromEnvVariables();
+    std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen,
                 trOpcodeLen, 16, 1));
     //
-    // Reduce TinyRAM to Bair instance
+    // Reduce RAM to Bair instance
     //
     gadgetlib::ProtoboardPtr pb_instance = Protoboard::create(archParams_);
     // Init cs2Bair
@@ -118,7 +118,7 @@ void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::Protobo
             cs2bair_instance.getBoundaryConstraints(),
             std::vector<Algebra::FieldElement>(numVars,Algebra::zero()));
     //
-    // Reduce TinyRAM to Bair witness
+    // Reduce RAM to Bair witness
     //
     gadgetlib::ProtoboardPtr pb_witness = Protoboard::create(archParams_); //replace with pb_instance ?
     if (initWitnessMem != nullptr) initWitnessMem(pb_witness);
@@ -142,14 +142,14 @@ void testProg(const TinyRAMProgram & prog, std::function<void(gadgetlib::Protobo
 	//To only run TinyRam To Constraint system reduction use 1 as second parameter rather than 4
 
 TEST(cs2Bair, Collatz){
-	initTinyRAMParamsFromEnvVariables();
+	initRAMParamsFromEnvVariables();
     vector<string> runtimeArgs;// = ::Configuration::getInstance().getRandomArgs();
 	int aux_param = 3;
 	if (runtimeArgs.size() >= 3){
 		aux_param = stoi(runtimeArgs[2]);
 	}
 
-	TinyRAMProgram program("3n+1", REGISTERS_NUMBER, trRegisterLen);
+	RAMProgram program("3n+1", REGISTERS_NUMBER, trRegisterLen);
 	MachineInstruction instruction0(Opcode::MOVE, true, 8, 0, aux_param);
     program.addInstruction(instruction0);
 	MachineInstruction instruction1(Opcode::CMPE, true, 0, 8, 1);
@@ -196,7 +196,7 @@ TEST(cs2Bair, Collatz){
 		}
 		cout << endl;
 
-		TinyRAMProgram program("coNPsubsetsum", 5, trRegisterLen);
+		RAMProgram program("coNPsubsetsum", 5, trRegisterLen);
 		MachineInstruction instruction0(Opcode::MOVE, true, 0, 0, 1);
 		program.addInstruction(instruction0);
 		/*label=L1*/MachineInstruction instruction1(Opcode::CMPE, true, 0, 0, (1 << how_many) & 0xffff);
@@ -267,7 +267,7 @@ TEST(cs2Bair, Collatz){
 		}
 		cout << endl;
 
-		TinyRAMProgram p("MEMcoNPsubsetsum", 10, trRegisterLen);
+		RAMProgram p("MEMcoNPsubsetsum", 10, trRegisterLen);
 		//std::vector< MachineInstruction* > m(4*half + 76); //no need, emplace_back?
 
 		srand(seed); rand();
@@ -386,7 +386,7 @@ TEST(cs2Bair, Collatz){
 		}
 		cout << endl;
 
-		gadgetlib::TinyRAMProgram program("sharpPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
+		gadgetlib::RAMProgram program("sharpPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
 		MachineInstruction instruction0(Opcode::MOVE, true, 8, 0, 0);
 		program.addInstruction(instruction0);
 		MachineInstruction instruction1(Opcode::MOVE, true, 7, 0, target_sum);
@@ -526,7 +526,7 @@ TEST(cs2Bair, Collatz){
 		}
 		cout << endl;
 
-		TinyRAMProgram p("nondetMEMcoNPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
+		RAMProgram p("nondetMEMcoNPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
 
 		srand(seed); rand();
 		for (int i = 0; i < 2 * half; i++) {
@@ -651,7 +651,7 @@ TEST(cs2Bair, Collatz){
 		}
 		cout << endl;
 
-		TinyRAMProgram program("ccompilerMEMcoNPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
+		RAMProgram program("ccompilerMEMcoNPsubsetsum", REGISTERS_NUMBER, trRegisterLen);
 		srand(seed); rand();
 		for (int i = 0; i < 2 * half; i++) {
 			program.addInstruction(MachineInstruction(Opcode::MOVE, true, 9, 0, (int16_t)((rand() >> cut) - (RAND_MAX >> (cut + 1)))));

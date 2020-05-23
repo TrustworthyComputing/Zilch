@@ -4,7 +4,7 @@
 #include <gadgetlib/gadget.hpp>
 #include <gadgetlib/protoboard.hpp>
 #include "generalPurpose.hpp"
-#include "TinyRAM/TinyRAMInstance.hpp"
+#include "RAM/RAMInstance.hpp"
 using gadgetlib::Gadget;
 using gadgetlib::ProtoboardPtr;
 
@@ -14,7 +14,7 @@ class TraceConsistency : public Gadget{
 private:
 	ALUOutput aluOutput_;
 	FollowingTraceVariables followingTraceVariables_;
-	TinyRAMProgram program_;
+	RAMProgram program_;
 
 	TraceConsistency(ProtoboardPtr pb,
 					const ALUOutput& aluOutput,
@@ -33,7 +33,7 @@ public:
 	static GadgetPtr create(ProtoboardPtr pb,
 							const ALUOutput& aluOutput,
 							const FollowingTraceVariables& followingTraceVariables);
-	void setProgram(const TinyRAMProgram& program);
+	void setProgram(const RAMProgram& program);
 	void generateConstraints();
 	void generateWitness(size_t programLine);
 

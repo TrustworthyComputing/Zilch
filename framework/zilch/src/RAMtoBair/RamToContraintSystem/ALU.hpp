@@ -3,7 +3,7 @@
 #include "generalPurpose.hpp"
 #include <gadgetlib/gadget.hpp>
 #include <gadgetlib/infrastructure.hpp>
-#include "TinyRAM/TinyRAMInstance.hpp"
+#include "RAM/RAMInstance.hpp"
 
 
 using namespace gadgetlib;
@@ -39,7 +39,7 @@ extern size_t ROMSIZE;
 /**
  * The function resetALU_GadgetGlobalState() is
  * a hacked added by Michael (2018-02-14),
- * after finding the reason tests involving reductions from TinyRAM to Bair
+ * after finding the reason tests involving reductions from RAM to Bair
  * behave differently if executed alone, or after other tests executing this reduction.
  * Technically, they had a big probability to fail.
  * It was found the reduction has some global variables (?!?).
@@ -67,7 +67,7 @@ public:
 protected:
 	ALU_Component_Gadget(const ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), inputs_(inputs), results_(results) {}
 
-	typedef ::std::shared_ptr<const TinyRAMProtoboardParams> TRParamsPtr;
+	typedef ::std::shared_ptr<const RAMProtoboardParams> TRParamsPtr;
 	const TRParamsPtr tinyRAMparams() const;
 	// external variables
 
@@ -83,7 +83,7 @@ public:
 	static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables);
 	void generateConstraints();
 	void generateWitness(size_t i);
-	void setProgram(const TinyRAMProgram& program);
+	void setProgram(const RAMProgram& program);
 	//void applyConstraintsToPB();
 
 private:
@@ -92,7 +92,7 @@ private:
 	void createInternalComponents();
 
 	//internal variables
-	TinyRAMProgram program_;
+	RAMProgram program_;
 	GadgetPtr 	unpackArg1_g_, unpackArg2_g_;  //Putting these here rather than in internal gadgets so booleanity checks will not be done separately for each pc value
 	// externals
 	const ALUInput inputVariables_;

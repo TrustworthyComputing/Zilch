@@ -30,7 +30,7 @@ UnpackedWord opcodeAux5_(REGISTER_LENGTH, "opcodeAux5_");
 UnpackedWord opcodeAux6_(REGISTER_LENGTH, "opcodeAux6_");
 UnpackedWord opcodeAux7_(REGISTER_LENGTH, "opcodeAux7_");
 
-//lame, move all to TinyRAMProtoboardParams?
+//lame, move all to RAMProtoboardParams?
 size_t prngseed;
 bool standAlone_ = false;
 bool found_answer_ = false;
@@ -70,7 +70,7 @@ void initGeneralOpcodes(ProtoboardPtr pb){
 }
 
 const ALU_Component_Gadget::TRParamsPtr ALU_Component_Gadget::tinyRAMparams() const {
-	return std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	return std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 }
 
 GadgetPtr ALU_Gadget::create(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables) {
@@ -82,8 +82,8 @@ GadgetPtr ALU_Gadget::create(ProtoboardPtr pb, const ALUInput& inputVariables, c
 ALU_Gadget::ALU_Gadget(ProtoboardPtr pb, const ALUInput& inputVariables, const ALUOutput& resultVariables) :
     Gadget(pb),
 	program_("program",
-	std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters(),
-	std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->registerLength()),
+	std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->numRegisters(),
+	std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->registerLength()),
     inputVariables_(inputVariables),
     resultVariables_(resultVariables){}
 
@@ -138,12 +138,12 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::SECSEEK] = ALU_SECSEEK_Gadget::create(pb_, inputVariables_, resultVariables_);
 }
 
-void ALU_Gadget::setProgram(const TinyRAMProgram& program){
+void ALU_Gadget::setProgram(const RAMProgram& program){
 	program_ = program;
 }
 
 
-set<Opcode> getUsedOpcodes(const TinyRAMProgram& program){
+set<Opcode> getUsedOpcodes(const RAMProgram& program){
 	set<Opcode> retVal;
 	for (auto inst : program.code()) {
 		retVal.insert(inst.opcode_);
@@ -151,7 +151,7 @@ set<Opcode> getUsedOpcodes(const TinyRAMProgram& program){
 	return retVal;
 }
 
-map<Opcode, Polynomial> getRelevantConstraints(const TinyRAMProgram& program, const size_t& constraintIndex, const ProtoboardPtr& pb){
+map<Opcode, Polynomial> getRelevantConstraints(const RAMProgram& program, const size_t& constraintIndex, const ProtoboardPtr& pb){
 	map<Opcode, Polynomial> retVal;
 	set<Opcode> opcodes = getUsedOpcodes(program);
 	for (auto opcode : opcodes) {
@@ -162,7 +162,7 @@ map<Opcode, Polynomial> getRelevantConstraints(const TinyRAMProgram& program, co
 	return retVal;
 }
 
-size_t getMaxConstraintNum(const TinyRAMProgram& program,const ProtoboardPtr& pb){
+size_t getMaxConstraintNum(const RAMProgram& program,const ProtoboardPtr& pb){
 	set<Opcode> opcodes = getUsedOpcodes(program);
 	size_t retVal = 0;
 	for (const auto& opcode : opcodes) {

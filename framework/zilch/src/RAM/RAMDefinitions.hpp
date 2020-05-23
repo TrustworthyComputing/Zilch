@@ -1,8 +1,8 @@
 #ifndef RAM_DEFINITIONS_HPP
 #define RAM_DEFINITIONS_HPP
-/************************************************************************TinyRAMDefinitions.hpp****************************************/
+/************************************************************************RAMDefinitions.hpp****************************************/
 /** @file
- * Basic definitions of parameters and constants for TinyRAM, together with data types needed in the reductions from TinyRAM.
+ * Basic definitions of parameters and constants for RAM, together with data types needed in the reductions from RAM.
  * It also contains functions for creating input instances for the RAMParams constructor.
  **/
 
@@ -41,10 +41,10 @@ enum Registers {
 using namespace std;
 
 
-/** Number of registers that the TinyRAM has (excluding PC) */
+/** Number of registers that the RAM has (excluding PC) */
 extern int trNumRegisters;
 
-/** The bit-length of TinyRAM registers */
+/** The bit-length of RAM registers */
 extern int trRegisterLen;
 
 /** Numbers of registers including the program counter (used for code clarity)
@@ -76,14 +76,14 @@ const int trOpcodeLen = ::Infrastructure::Log2ceil(trNumOpcodes);
  * Must be called before using any RAM-related variables or classes.
  * Must not be called more than once.
  */
-void initTinyRAMParams(int numRegisters, int registerLen);
-void initTinyRAMParamsFromEnvVariables();
+void initRAMParams(int numRegisters, int registerLen);
+void initRAMParamsFromEnvVariables();
 
 /**
- * Clears the TinyRAM params
+ * Clears the RAM params
  * sets the state as before it was initialized
  */
-void clearTinyRAMParams();
+void clearRAMParams();
 
 
 #endif

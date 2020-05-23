@@ -15,12 +15,12 @@ using libstark::ConstraintSys;
 /*************************************************************************************************/
 /*************************************************************************************************/
 
-cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness) :
+cs2Bair::cs2Bair(ProtoboardPtr pb, const RAMProgram& program, const int transcriptLen, bool constructWitness) :
     pb_(pb),
 	program_(program),
     transcript_len(transcriptLen),
 	doesProgramUsesMemory_(false),
-	followingTraceVariable_(program.pcLength(), std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters()),
+	followingTraceVariable_(program.pcLength(), std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->numRegisters()),
 	memoryFollowingTraceVariables_(followingTraceVariable_.first_.timeStamp_, followingTraceVariable_.second_.timeStamp_)
     {
 		this->init();
@@ -32,13 +32,13 @@ cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int tran
         }
 }
 
-cs2Bair::cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& private_lines) :
+cs2Bair::cs2Bair(ProtoboardPtr pb, const RAMProgram& program, const int transcriptLen, bool constructWitness, const vector<string>& private_lines) :
     pb_(pb),
 	program_(program),
     private_lines_(private_lines),
     transcript_len(transcriptLen),
 	doesProgramUsesMemory_(false),
-	followingTraceVariable_(program.pcLength(), std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters()),
+	followingTraceVariable_(program.pcLength(), std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->numRegisters()),
 	memoryFollowingTraceVariables_(followingTraceVariable_.first_.timeStamp_, followingTraceVariable_.second_.timeStamp_)
     {
 		this->init();
@@ -63,7 +63,7 @@ void cs2Bair::init() {
 }
 
 void cs2Bair::boundaryConstraints() const{
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	pb_->addBoundaryConstraint(followingTraceVariable_.first_.flag_, 0, Algebra::zero());
 	pb_->addBoundaryConstraint(followingTraceVariable_.first_.timeStamp_, 0, Algebra::one());
 	for (size_t i = 0; i < program_.pcLength(); i++){
@@ -78,7 +78,7 @@ void cs2Bair::initInitialVars(){
 	pb_->val(followingTraceVariable_.first_.flag_) = Algebra::zero();
 	pb_->val(followingTraceVariable_.first_.timeStamp_) = Algebra::one();
 	int pcLength = program_.pcLength();
-	int numRegisters = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params())->numRegisters();
+	int numRegisters = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params())->numRegisters();
 	for (int i = 0; i < pcLength; i++){
 		pb_->val(followingTraceVariable_.first_.pc_[i]) = Algebra::zero();
 	}
@@ -101,7 +101,7 @@ std::vector<Variable> cs2Bair::variablesToVector(TraceVariables traceVariables){
 	std::vector<Variable> v;
 	v.emplace_back(traceVariables.flag_);
 	v.emplace_back(traceVariables.timeStamp_);
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	for (size_t i = 0; i < traceVariables.pc_.size(); i++){
 		v.emplace_back(traceVariables.pc_[i]);
 	}
@@ -125,7 +125,7 @@ std::vector<Variable> cs2Bair::memoryVariablesToVector(MemoryTraceVariables trac
 void cs2Bair::copyTraceOutputValuesToTraceInput(){
 	pb_->val(followingTraceVariable_.first_.timeStamp_) = pb_->val(followingTraceVariable_.second_.timeStamp_);
 	pb_->val(followingTraceVariable_.first_.flag_) = pb_->val(followingTraceVariable_.second_.flag_);
-	::std::shared_ptr<const TinyRAMProtoboardParams> params = std::dynamic_pointer_cast<const TinyRAMProtoboardParams>(pb_->params());
+	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	int pcLength = program_.pcLength();
 	for (int i = 0; i < pcLength; i++){
 		pb_->val(followingTraceVariable_.first_.pc_[i]) = pb_->val(followingTraceVariable_.second_.pc_[i]);

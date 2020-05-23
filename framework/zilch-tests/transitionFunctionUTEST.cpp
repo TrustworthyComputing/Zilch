@@ -2,10 +2,10 @@
 #include <memory>
 #include <gadgetlib/protoboard.hpp>
 #include <gadgetlib/gadget.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/generalPurpose.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/transitionFunction.hpp>
-#include <TinyRAM/TinyRAMDefinitions.hpp>
-#include <TinyRAM/TinyRAMInstance.hpp>
+#include <RAMtoBair/RamToContraintSystem/generalPurpose.hpp>
+#include <RAMtoBair/RamToContraintSystem/transitionFunction.hpp>
+#include <RAM/RAMDefinitions.hpp>
+#include <RAM/RAMInstance.hpp>
 using namespace gadgetlib;
 
 
@@ -15,14 +15,14 @@ namespace {
 	size_t secread_cnt = 0;
 
 	TEST(ALU, transitionFunction){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen,
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen,
 			trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 
 		
 		// Init program
-		TinyRAMProgram program("program", trNumRegisters, trRegisterLen);
+		RAMProgram program("program", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::XOR, false, 2, 1, 1);
 		program.addInstruction(instruction1);
 		MachineInstruction instruction2(Opcode::AND, false, 3, 2, 2);

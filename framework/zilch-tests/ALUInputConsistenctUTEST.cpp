@@ -2,9 +2,9 @@
 #include <memory>
 #include <gadgetlib/protoboard.hpp>
 #include <gadgetlib/gadget.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/generalPurpose.hpp>
-#include <TinyRAMtoBair/RamToContraintSystem/ALUInputConsistency.hpp>
-#include <TinyRAM/TinyRAMDefinitions.hpp>
+#include <RAMtoBair/RamToContraintSystem/generalPurpose.hpp>
+#include <RAMtoBair/RamToContraintSystem/ALUInputConsistency.hpp>
+#include <RAM/RAMDefinitions.hpp>
 
 #define ROUNDS 10
 
@@ -16,14 +16,14 @@ namespace {
 	
 	TEST(ALU, inputConsistencyTEST){
 		//Initialize pb and gadget parameters
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		TraceVariables traceVariables(trRegisterLen,trNumRegisters);
 		ALUInput aluInput;
 		
 		// Initialize Program
-		TinyRAMProgram program("inputConsistencyTEST", trNumRegisters, trRegisterLen);
+		RAMProgram program("inputConsistencyTEST", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::ADD, false, 1, 2, 3);
 		program.addInstruction(instruction1);
 		MachineInstruction instruction2(Opcode::MULT, false, 0, 1, 2);

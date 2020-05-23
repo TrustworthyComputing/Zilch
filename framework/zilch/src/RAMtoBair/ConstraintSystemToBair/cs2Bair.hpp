@@ -2,8 +2,8 @@
 #define _COMMON_CONSTRAINTSLIB2_CONSTRAINTSYSTEMTOBair_cs2Bair_HPP_
 
 #include "gadgetlib/common_use.hpp"
-#include "TinyRAMtoBair/RamToContraintSystem/transitionFunction.hpp"
-#include "TinyRAMtoBair/RamToContraintSystem/transitionFunction.hpp"
+#include "RAMtoBair/RamToContraintSystem/transitionFunction.hpp"
+#include "RAMtoBair/RamToContraintSystem/transitionFunction.hpp"
 #include <languages/Bair/ConstraintsSys.hpp>
 #include <languages/Bair/BairWitness.hpp>
 #include <languages/Bair/BairInstance.hpp>
@@ -24,7 +24,7 @@ class cs2Bair{
 private:
 	// Input Variables
 	ProtoboardPtr pb_;
-	TinyRAMProgram program_;
+	RAMProgram program_;
 	
 	// private tapefile
 	const vector<string> private_lines_;
@@ -66,8 +66,8 @@ private:
     VariableAssignment vectorToAssignment(const std::vector<Algebra::FieldElement>& vec)const;
 
 public:
-	cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, int transcriptLen, bool constructWitness);
-	cs2Bair(ProtoboardPtr pb, const TinyRAMProgram& program, int transcriptLen, bool constructWitness, const vector<string>& private_lines);
+	cs2Bair(ProtoboardPtr pb, const RAMProgram& program, int transcriptLen, bool constructWitness);
+	cs2Bair(ProtoboardPtr pb, const RAMProgram& program, int transcriptLen, bool constructWitness, const vector<string>& private_lines);
 
 	ConstraintSystem getConstraints() const { return pb_->constraintSystem(Opcode::NONE); }
 	ConstraintSystem getMemoryConstraints() const;

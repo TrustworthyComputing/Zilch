@@ -2,7 +2,7 @@
 #include "executeProtocol.hpp"
 #include "argParser.hpp"
 #include "zMipsParser.hpp"
-#include "TinyRAMtoBair/RamToContraintSystem/ALU.hpp"
+#include "RAMtoBair/RamToContraintSystem/ALU.hpp"
 
 
 #if REGISTER_LENGTH == 16

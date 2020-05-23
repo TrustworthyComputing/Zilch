@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <algorithm>
-#include "TinyRAMtoBair/RamToContraintSystem/generalPurpose.hpp"
-#include "TinyRAM/TinyRAMDefinitions.hpp"
-#include "TinyRAM/TinyRAMInstance.hpp"
+#include "RAMtoBair/RamToContraintSystem/generalPurpose.hpp"
+#include "RAM/RAMDefinitions.hpp"
+#include "RAM/RAMInstance.hpp"
 #include <gadgetlib/common_use.hpp>
 
 
@@ -12,8 +12,8 @@
 namespace{
 
 	TEST(generalPurpose, memoryInfoCompare){
-		initTinyRAMParamsFromEnvVariables();
-		std::shared_ptr<const TinyRAMProtoboardParams> archParams_(make_shared<const TinyRAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
+		initRAMParamsFromEnvVariables();
+		std::shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(trNumRegisters, trRegisterLen, trOpcodeLen, 16, 1));
 		ProtoboardPtr pb = Protoboard::create(archParams_);
 		
 		// Add mapping between FieldElement and degree
@@ -71,8 +71,8 @@ namespace{
 		EXPECT_EQ(memoryInfoToSort[4], f);
 	}
 
-	TEST(generalPurpose, checkPCLengthValuesFromTinyRAMProgram){
-		TinyRAMProgram program("program", trNumRegisters, trRegisterLen);
+	TEST(generalPurpose, checkPCLengthValuesFromRAMProgram){
+		RAMProgram program("program", trNumRegisters, trRegisterLen);
 		MachineInstruction instruction1(Opcode::ADD, true, 1, 1, 1); //r1 = r1 + 1;
 		program.addInstruction(instruction1);
 		EXPECT_EQ(program.size(), 1);

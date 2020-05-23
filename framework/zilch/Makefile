@@ -25,7 +25,7 @@ $(TARGET): buildrepo $(OBJS)
 #	@echo 'Create Zilch library'
 	ar -r $(TARGET) $(OBJS)
 
-$(OBJDIR)/%.o: %.$(SRCEXT) src/TinyRAM/TinyRAMDefinitions.hpp ../../configs.hpp
+$(OBJDIR)/%.o: %.$(SRCEXT) src/RAM/RAMDefinitions.hpp ../../configs.hpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCFLAGS) -c -o "$@" "$<"
 
 clean:
