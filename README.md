@@ -65,10 +65,10 @@ __Note:__ If the public tape is in the same directory as the zMIPS assembly file
 
 
 ## zMIPS ISA
-In [zMIPS.md](https://github.com/TrustworthyComputing/Zilch/blob/master/zMIPS.md) we elaborate on the zMIPS ISA.
+In [zMIPS.md](https://github.com/TrustworthyComputing/Zilch/tree/master/examples-zmips/zMIPS.md) we elaborate on the zMIPS ISA.
 
 
-At the assembler level, our labels are alphanumeric tags that begin and end by a double underscore (e.g., `__example_label__`), while inside Zilch these labels are converted to instruction numbers. 
+At the assembler level, our labels are alphanumeric tags that begin and end by a double underscore (e.g., `__example_label__`), while inside Zilch these labels are converted to instruction numbers.
 
 
 ### zMIPS examples
