@@ -12,9 +12,9 @@
         "reg1": "$z",
         "reg2": "$x",
         "reg3": "$y",
-        "macro" : "move $z, $z, $x
-                move $x, $x, $y
-                move $y, $y, $z"
+        "macro" : "move $z, $x
+                move $x, $y
+                move $y, $z"
     },
     "min": {
         "reg1": "$x",
@@ -22,10 +22,22 @@
         "reg3": "$z",
         "uses_label" : "true",
         "macro" : "blt $y, $z, __min_label__
-                move $x, $x, $z
+                move $x, $z
                 j __end_min_label__
                 __min_label__
-                move $x, $x, $y
+                move $x, $y
                 __end_min_label__"
-        }
+    },
+    "max": {
+        "reg1": "$x",
+        "reg2": "$y",
+        "reg3": "$z",
+        "uses_label" : "true",
+        "macro" : "blt $y, $z, __min_label__
+                move $x, $y
+                j __end_min_label__
+                __min_label__
+                move $x, $z
+                __end_min_label__"
+    }
 }
