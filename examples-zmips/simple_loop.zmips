@@ -1,7 +1,8 @@
-move $r0, $r0, 100      # $r0 = 100
-move $r1, $r1, 0        # $r1 = 0
-__loop__
-    add $r0, $r0, 5     # $r0 += 5
-    add $r1, $r1, 1     # $r1 += 1
-bne $r1, 7, __loop__    # if ($r1 != 7) then jump to __loop__
-answer $r0              # return $r0 // 135
+move $t0, 100      # $t0 = 100
+move $t1, 0        # $t1 = 0
+move $t2, 7
+__loop__:
+    add $t0, $t0, 5     # $t0 += 5
+    add $t1, $t1, 1     # $t1 += 1
+bne $t1, $t2, __loop__    # if ($t1 != 7) then jump to __loop__
+answer $t0              # return $t0 // 135

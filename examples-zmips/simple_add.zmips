@@ -1,8 +1,7 @@
-move $r2, 13
-addi $r2, $r2, 7
-move $r1, 12
-dec $r1
-sub $r1, $r1, 1
-sll $r1, $r1, 1
-addu $r3, $r1, $r2
-answer $r3
+move $t2, 13
+addi $t2, $t2, 7
+move $t1, 12
+subu $t1, $t1, 1
+sll $t1, $t1, 1
+add $t3, $t1, $t2
+answer $t3

@@ -1,10 +1,10 @@
-secread $r0             ; r0 is filled with a private value from auxiliary tape (e.g. p = 17)
-secread $r1             ; r1 is filled with a private value from auxiliary tape (e.g. q = 11)
-sub $r2, $r0, 1         ; p - 1 = 16
-sub $r3, $r1, 1         ; q - 1 = 10
-mult $r4, $r2, $r3      ; phi(n) = (p - 1) * (q - 1) = 160
-secread $r2             ; r2 is filled with a private value from auxiliary tape (e.g. d = 23)
-pubread $r3             ; public e = 7
-mult $r5, $r2, $r3      ; compute d * e
-mod $r5, $r5, $r4       ; compute (d * e) mod phi(n)
-answer $r5              ; answer should be 1
+secread $t0             # r0 is filled with a private value from auxiliary tape (e.g. p = 17)
+secread $t1             # r1 is filled with a private value from auxiliary tape (e.g. q = 11)
+sub $t2, $t0, 1         # p - 1 = 16
+sub $t3, $t1, 1         # q - 1 = 10
+mult $t4, $t2, $t3      # phi(n) = (p - 1) * (q - 1) = 160
+secread $t2             # r2 is filled with a private value from auxiliary tape (e.g. d = 23)
+pubread $t3             # public e = 7
+mult $t5, $t2, $t3      # compute d * e
+mod $t5, $t5, $t4       # compute (d * e) mod phi(n)
+answer $t5              # answer should be 1

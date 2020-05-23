@@ -1,13 +1,13 @@
-# pubread $r6 # db total entries
-# pubread $r2 # key
-move $r6, 6 # db total entries
-move $r2, 3 # key
-__L1__
-    secread $r3
-    secread $r4
-    bne $r3, $r2, __L2__
-        answer $r4
-    __L2__
-    add $r1, $r1, 1
-bgt $r6, $r1, __L1__
-answer $r7
+# pubread $t6 # db total entries
+# pubread $t2 # key
+move $t6, 6 # db total entries
+move $t2, 3 # key
+__L1__:
+    secread $t3
+    secread $t4
+    bne $t3, $t2, __L2__
+        answer $t4
+    __L2__:
+    add $t1, $t1, 1
+bgt $t6, $t1, __L1__
+answer $t7

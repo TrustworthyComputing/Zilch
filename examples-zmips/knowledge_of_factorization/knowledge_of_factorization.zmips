@@ -1,9 +1,9 @@
-secread $r1             ; $r1 is filled with a private value from auxiliary tape (e.g. 3)
-secread $r2             ; $r2 is filled with a private value from auxiliary tape (e.g. 5)
-move $r11, 1            ; $r11 = 1
-mult $r3, $r1, $r2      ; $r3 = $r1 * $r2
-pubread $r5             ; $r5 is filled with a public value from primary tape (e.g. 15)
-beq $r3, $r5, __end__   ; if (r3 == 15) then jump to __end__ (pc = 7)
-    move $r11, 0        ; $r11 = 0
-__end__
-answer $r11             ; return $r11 // $return (r1 * $r2 == 15)
+secread $t1             # $t1 is filled with a private value from auxiliary tape (e.g. 3)
+secread $t2             # $t2 is filled with a private value from auxiliary tape (e.g. 5)
+move $t4, 1             # $t4 = 1
+mult $t3, $t1, $t2      # $t3 = $t1 * $t2
+pubread $t5             # $t5 is filled with a public value from primary tape (e.g. 15)
+beq $t3, $t5, __end__   # if (r3 == 15) then jump to __end__ (pc = 7)
+    move $t4, 0         # $t4 = 0
+__end__:
+answer $t4              # return $t4 // $teturn (r1 * $t2 == 15)

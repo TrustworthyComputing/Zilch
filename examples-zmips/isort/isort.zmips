@@ -1,42 +1,42 @@
-pubread $r6
-move $r7, 1000
+pubread $t6
+move $hp, 1000
 
-__L1__
-ble $r6, $r1, __L2__
-secread $r4
-sw $r4, $r1($r7)
-add $r1, $r1, 1
-j __L1__
-__L2__
-move $r1, 1
-__L3__
-ble $r6, $r1, __L4__
-    lw $r5, $r1($r7)
-    sub $r2, $r1, 1
-    lw $r3, $r2($r7)
-    __L5__
-    blt $r2, $r0, __L6__
-    lw $r3, $r2($r7)
-    ble $r3, $r5, __L6__
-        add $r15, $r2, 1
-        sw $r3, $r15($r7)
-        sub $r2, $r2, 1
+__L1__:
+ble $t6, $t1, __L2__
+    secread $t4
+    sw $t4, $t1($hp)
+    add $t1, $t1, 1
+    j __L1__
+__L2__:
+move $t1, 1
+__L3__:
+ble $t6, $t1, __L4__
+    lw $t5, $t1($hp)
+    sub $t2, $t1, 1
+    lw $t3, $t2($hp)
+    __L5__:
+    blt $t2, $t0, __L6__
+    lw $t3, $t2($hp)
+    ble $t3, $t5, __L6__
+        add $t4, $t2, 1
+        sw $t3, $t4($hp)
+        sub $t2, $t2, 1
     j __L5__
     __L6__
-    add $r19, $r2, 1
-    sw $r5, $r19($r7)
-    add $r1, $r1, 1
-    j $r0, $r0, __L3__
-__L4__
+    add $t4, $t2, 1
+    sw $t5, $t4($hp)
+    add $t1, $t1, 1
+    j __L3__
+__L4__:
 
-# move $r1, 0
-# __L9__
-# ble $r6, $r1, __L10__
-# lw $r23, $r1($r7)
-# print $r23
-# add $r1, $r1, 1
-# j __L9__
-# __L10__
+move $t1, 0
+__L9__:
+ble $t6, $t1, __L10__
+    lw $t4, $t1($hp)
+    print $t4
+    add $t1, $t1, 1
+    j __L9__
+__L10__:
 
-lw $r23, $r22($r7)
-answer $r23
+lw $t4, $zero($hp)
+answer $t4

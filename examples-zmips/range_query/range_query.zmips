@@ -1,11 +1,11 @@
-# pubread $r1
-# pubread $r2
-move $r1, 12000
-move $r2, 20000
-secread $r3
-blt $r3, $r1, __L1__
-blt $r2, $r3, __L1__
-move $r5, 1
-answer $r5
-__L1__
-answer $r6
+# pubread $t1
+# pubread $t2
+move $t1, 12000
+move $t2, 20000
+secread $t3
+blt $t3, $t1, __L1__
+blt $t2, $t3, __L1__
+move $t5, 1
+answer $t5
+__L1__:
+answer $t6

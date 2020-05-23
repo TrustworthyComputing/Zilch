@@ -1,14 +1,15 @@
-move $r8, $r0, 3
-__loop__
-beq $r8, 1, __loop_end__
-add $r9, $r9, 1
-and $r7, $r8, 1
-beq $r7, 0, __is_zero__
-sll $r7, $r8, 1
-add $r7, $r7, $r8
-add $r8, $r7, 1
-__is_zero__
-srl $r8, $r8, 1
-j __loop__
-__loop_end__
-answer $r9, $r9, $r9
+move $t8, 3
+move $t1, 1
+__loop__:
+beq $t8, $t1, __loop_end__
+    add $t9, $t9, 1
+    and $t7, $t8, 1
+    beq $t7, $zero, __is_zero__
+    sll $t7, $t8, 1
+    add $t7, $t7, $t8
+    add $t8, $t7, 1
+    __is_zero__:
+    srl $t8, $t8, 1
+    j __loop__
+__loop_end__:
+answer $t9

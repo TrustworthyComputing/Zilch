@@ -1,13 +1,13 @@
-pubread $r0             ; consume next word from public tape and store it to r0
-print $r0
+pubread $t0             # consume next word from public tape and store it to t0
+print $t0
 
-secread $r1             ; consume next word from auxiliary tape and store it to r1
-print $r1
+secread $t1             # consume next word from auxiliary tape and store it to t1
+print $t1
 
-pubseek $r0, 3          ; read the 4th word from the public tape and store it to r0
-print $r0
+pubseek $t0, 3          # read the 4th word from the public tape and store it to t0
+print $t0
 
-secseek $r1, 3          ; read the 4th word from the auxiliary tape and store it to r1
-print $r1
+secseek $t1, 3          # read the 4th word from the auxiliary tape and store it to t1
+print $t1
 
-answer $r0
+answer $t0

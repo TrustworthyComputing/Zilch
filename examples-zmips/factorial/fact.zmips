@@ -1,9 +1,9 @@
-# pubread $r3 
-move $r3, 5
-move $r1, 1
-move $r2, 1
-__L1__
-    mult $r1, $r1, $r2
-    add $r2, $r2, 1
-bge $r3, $r2, __L1__
-answer $r1
+# pubread $t3
+move $t3, 5
+move $t1, 1
+move $t2, 1
+__L1__:
+    mult $t1, $t1, $t2
+    add $t2, $t2, 1
+bge $t3, $t2, __L1__
+answer $t1

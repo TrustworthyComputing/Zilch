@@ -1,90 +1,90 @@
-move $r4, 21
+move $t4, 21
 # read key
-secread $r3
-secread $r0
-secread $r1
-secread $r2
+secread $t3
+secread $t0
+secread $t1
+secread $t2
 # read pt
-secread $r10
-secread $r11
-__L1__
-    srl $r5, $r11, 7
-    sll $r6, $r11, 9
-    or $r6, $r5, $r6
-    add $r11, $r6, $r10
-    xor $r11, $r11, $r3
-    srl $r5, $r10, 14
-    sll $r6, $r10, 2
-    or $r6, $r5, $r6
-    xor $r10, $r6, $r11
-    
-    srl $r5, $r0, 7
-    sll $r6, $r0, 9
-    or $r0, $r5, $r6
-    add $r0, $r0, $r3
-    xor $r0, $r0, $r9
-    sll $r5, $r3, 2
-    srl $r6, $r3, 14
-    or $r3, $r5, $r6
-    xor $r3, $r3, $r0
-    
-    
-    srl $r5, $r11, 7
-    sll $r6, $r11, 9
-    or $r6, $r5, $r6
-    add $r11, $r6, $r10
-    xor $r11, $r11, $r3
-    srl $r5, $r10, 14
-    sll $r6, $r10, 2
-    or $r6, $r5, $r6
-    xor $r10, $r6, $r11
-    
-    srl $r5, $r1, 7
-    sll $r6, $r1, 9
-    or $r1, $r5, $r6
-    add $r1, $r1, $r3
-    add $r8, $r9, 1
-    xor $r1, $r1, $r8
-    sll $r5, $r3, 2
-    srl $r6, $r3, 14
-    or $r3, $r5, $r6
-    xor $r3, $r3, $r1
-    
-    
-    srl $r5, $r11, 7
-    sll $r6, $r11, 9
-    or $r6, $r5, $r6
-    add $r11, $r6, $r10
-    xor $r11, $r11, $r3
-    srl $r5, $r10, 14
-    sll $r6, $r10, 2
-    or $r6, $r5, $r6
-    xor $r10, $r6, $r11
-    
-    srl $r5, $r2, 7
-    sll $r6, $r2, 9
-    or $r2, $r5, $r6
-    add $r2, $r2, $r3
-    add $r8, $r9, 2
-    xor $r2, $r2, $r8
-    sll $r5, $r3, 2
-    srl $r6, $r3, 14
-    or $r3, $r5, $r6
-    xor $r3, $r3, $r2
-    
-    add $r9, $r9, 3
-bgt $r4, $r9, __L1__
+secread $t10
+secread $t11
+__L1__:
+    srl $t5, $t11, 7
+    sll $t6, $t11, 9
+    or $t6, $t5, $t6
+    add $t11, $t6, $t10
+    xor $t11, $t11, $t3
+    srl $t5, $t10, 14
+    sll $t6, $t10, 2
+    or $t6, $t5, $t6
+    xor $t10, $t6, $t11
 
-srl $r5, $r11, 7
-sll $r6, $r11, 9
-or $r6, $r5, $r6
-add $r11, $r6, $r10
-xor $r11, $r11, $r3
-srl $r5, $r10, 14
-sll $r6, $r10, 2
-or $r6, $r5, $r6
-xor $r10, $r6, $r11
+    srl $t5, $t0, 7
+    sll $t6, $t0, 9
+    or $t0, $t5, $t6
+    add $t0, $t0, $t3
+    xor $t0, $t0, $t9
+    sll $t5, $t3, 2
+    srl $t6, $t3, 14
+    or $t3, $t5, $t6
+    xor $t3, $t3, $t0
 
-print $r10
-print $r11
-answer $r11
+
+    srl $t5, $t11, 7
+    sll $t6, $t11, 9
+    or $t6, $t5, $t6
+    add $t11, $t6, $t10
+    xor $t11, $t11, $t3
+    srl $t5, $t10, 14
+    sll $t6, $t10, 2
+    or $t6, $t5, $t6
+    xor $t10, $t6, $t11
+
+    srl $t5, $t1, 7
+    sll $t6, $t1, 9
+    or $t1, $t5, $t6
+    add $t1, $t1, $t3
+    add $t8, $t9, 1
+    xor $t1, $t1, $t8
+    sll $t5, $t3, 2
+    srl $t6, $t3, 14
+    or $t3, $t5, $t6
+    xor $t3, $t3, $t1
+
+
+    srl $t5, $t11, 7
+    sll $t6, $t11, 9
+    or $t6, $t5, $t6
+    add $t11, $t6, $t10
+    xor $t11, $t11, $t3
+    srl $t5, $t10, 14
+    sll $t6, $t10, 2
+    or $t6, $t5, $t6
+    xor $t10, $t6, $t11
+
+    srl $t5, $t2, 7
+    sll $t6, $t2, 9
+    or $t2, $t5, $t6
+    add $t2, $t2, $t3
+    add $t8, $t9, 2
+    xor $t2, $t2, $t8
+    sll $t5, $t3, 2
+    srl $t6, $t3, 14
+    or $t3, $t5, $t6
+    xor $t3, $t3, $t2
+
+    add $t9, $t9, 3
+bgt $t4, $t9, __L1__
+
+srl $t5, $t11, 7
+sll $t6, $t11, 9
+or $t6, $t5, $t6
+add $t11, $t6, $t10
+xor $t11, $t11, $t3
+srl $t5, $t10, 14
+sll $t6, $t10, 2
+or $t6, $t5, $t6
+xor $t10, $t6, $t11
+
+print $t10
+print $t11
+answer $t11

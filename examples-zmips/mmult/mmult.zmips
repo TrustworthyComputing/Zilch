@@ -1,41 +1,41 @@
-move $r10, 2 # N = 2
-__L1__
-    mult $r4, $r1, $r10 # i*N
-    move $r2, 0
-    __L2__
-        sw $r0, $r2($r4)    # res[i*N+j] = 0;
-        move $r3, 0
-        __L3__
-            add $r5, $r4, $r3   # mat1[i*N + k]
-            secseek $r6, $r5
-            mult $r7, $r3, $r10 # k*N
-            add $r9, $r7, $r2   # mat2[k*N+j];
-            secseek $r8, $r9
-            mult $r6, $r6, $r8  # mat1[i*N+k] * mat2[k*N+j];
-            
-            add $r2, $r2, $r4
-            loadw $r7, $r4($r2)     # res[i*N+j]
-            add $r6, $r6, $r7       # res[i*N+j] += mat1[i*N+k] * mat2[k*N+j];
-            storew $r6, $r4($r2)
-            sub $r2, $r2, $r4
-            add $r3, $r3, 1
-        blt $r3, $r10, __L3__
-        add $r2, $r2, 1
-    blt $r2, $r10, __L2__
-    add $r1, $r1, 1
-blt $r1, $r10, __L1__
+move $t10, 2 # N = 2
+__L1__:
+    mult $t4, $t1, $t10 # i*N
+    move $t2, 0
+    __L2__:
+        sw $t0, $t2($t4)    # res[i*N+j] = 0;
+        move $t3, 0
+        __L3__:
+            add $t5, $t4, $t3   # mat1[i*N + k]
+            secseek $t6, $t5
+            mult $t7, $t3, $t10 # k*N
+            add $t9, $t7, $t2   # mat2[k*N+j];
+            secseek $t8, $t9
+            mult $t6, $t6, $t8  # mat1[i*N+k] * mat2[k*N+j];
+
+            add $t2, $t2, $t4
+            loadw $t7, $t4($t2)     # res[i*N+j]
+            lw $t6, $t6, $t7       # res[i*N+j] += mat1[i*N+k] * mat2[k*N+j];
+            sw $t6, $t4($t2)
+            sub $t2, $t2, $t4
+            add $t3, $t3, 1
+        blt $t3, $t10, __L3__
+        add $t2, $t2, 1
+    blt $t2, $t10, __L2__
+    add $t1, $t1, 1
+blt $t1, $t10, __L1__
 
 ## Print results
-# move $r1, 0
-# __L4__
-#     move $r2, 0
-#     __L5__
-#         mult $r4, $r1, $r10  # i*N
-#         lw $r0, $r2($r4)    # res[i*N+j]
-#         print $r0
-#         add $r2, $r2, 1
-#     blt $r2, $r10, __L5__
-#     add $r1, $r1, 1
-# blt $r1, $r10, __L4__
+# move $t1, 0
+# __L4__:
+#     move $t2, 0
+#     __L5__:
+#         mult $t4, $t1, $t10  # i*N
+#         lw $t0, $t2($t4)    # res[i*N+j]
+#         print $t0
+#         add $t2, $t2, 1
+#     blt $t2, $t10, __L5__
+#     add $t1, $t1, 1
+# blt $t1, $t10, __L4__
 
-answer $r0
+answer $t0

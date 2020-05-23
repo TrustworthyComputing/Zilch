@@ -1,19 +1,19 @@
-move $r4, 27
-secread $r2
-secread $r3
-__L1__
-    srl $r5, $r3, 8
-    sll $r6, $r3, 24
-    or $r6, $r5, $r6
-    add $r3, $r6, $r2
-    secread $r7
-    xor $r3, $r3, $r7
-    srl $r5, $r2, 29
-    sll $r6, $r2, 3
-    or $r6, $r5, $r6
-    xor $r2, $r6, $r3
-    add $r1, $r1, 1
-bgt $r4, $r1, __L1__
-print $r2
-print $r3
-answer $r3
+move $t4, 27
+secread $t2
+secread $t3
+__L1__:
+    srl $t5, $t3, 8
+    sll $t6, $t3, 24
+    or $t6, $t5, $t6
+    add $t3, $t6, $t2
+    secread $t7
+    xor $t3, $t3, $t7
+    srl $t5, $t2, 29
+    sll $t6, $t2, 3
+    or $t6, $t5, $t6
+    xor $t2, $t6, $t3
+    add $t1, $t1, 1
+bgt $t4, $t1, __L1__
+print $t2
+print $t3
+answer $t3
