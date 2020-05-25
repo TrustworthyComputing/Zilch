@@ -1,0 +1,3 @@
+[submodule "ZeroJava-compiler"]
+	path = ZeroJava-compiler
+	url = git@github.com:TrustworthyComputing/ZeroJava-compiler.git
