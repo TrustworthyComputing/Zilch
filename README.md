@@ -1,6 +1,10 @@
-# The Zilch Framework [![License MIT][badge-license]](LICENSE) [![Build Status](https://travis-ci.com/TrustworthyComputing/Zilch.svg?token=gZwZQ8qzAHzETuTPZFp7&branch=master)](https://travis-ci.com/TrustworthyComputing/Zilch)
+<h1 align="center">The Zilch Framework</h1>
+<p align="center">
+    <a href="https://travis-ci.com/TrustworthyComputing/Zilch"><img src="https://travis-ci.com/TrustworthyComputing/Zilch.svg?token=gZwZQ8qzAHzETuTPZFp7&branch=master"></a>
+    <a href="https://github.com/TrustworthyComputing/Zilch/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+</p>
+<h4 align="center">A Framework for Building Zero-Knowledge Proofs for any Application</h4>
 
-## A Framework for Building Zero-Knowledge Proofs for any Application
 
 ### Overview
 Zilch is a framework that implements _Scalable_ and _Transparent_ (no need for trusted setup) _ARguments_ of _Knowledge_ (STARKs).
@@ -19,23 +23,33 @@ __Disclaimer:__ The code is _academic grade_, meant for academic peer review and
 
 ### Compilation
 
-##### Dependencies:
+#### Zilch Dependencies:
 * OpenMP (https://en.wikipedia.org/wiki/OpenMP)
-* googletest (https://github.com/google/googletest) `apt-get install libgtest-dev`
+* libcrypto (https://wiki.openssl.org/index.php/Main_Page) `apt install libssl-dev`
 * libboost (https://www.boost.org/) `apt install libboost-all-dev`
 * libjson (https://github.com/open-source-parsers/jsoncpp) `apt install libjsoncpp-dev`
+* googletest (https://github.com/google/googletest) `apt-get install libgtest-dev`
 
+For the ZeroJava compiler dependencies refer to the [ZeroJava repository]().
+
+#### Build Zilch
 ```
-git clone https://github.com/TrustworthyComputing/Zilch
-cd Zilch
-make -j8
-make zilch-tests -j8
+$ git clone --recursive https://github.com/TrustworthyComputing/Zilch
+$ cd Zilch
+$ make -j8
+$ make zilch-tests -j8
 ```
 
 To verify the installation type `./zilch-tests`.
 
+#### Build the ZeroJava Compiler
 
-### Execution:
+```
+$ cd ZeroJava-compiler
+$ mvn package
+```
+
+### Execution
 
 ```
 $ ./zilch --asm <zMIPS assembly file path> [--tsteps <trace length log_2>] [--security <security parameter]> [--pubtape <primaryTapeFile>] [--auxtape <auxTapeFile>] [--verifier | --prover] [--address <address:port_number>]
@@ -162,11 +176,7 @@ And then the prover to connect to port `2324`:
 ```
 
 
-
-
-### ![alt text][twc-logo] An open-source project by Trustworthy Computing Group
-
-
-[twc-logo]: ./logos/twc.png
-
-[badge-license]: https://img.shields.io/badge/license-MIT-green.svg?style=flat-square
+<p align="center">
+    <img src="./logos/twc.png" height="10%" width="10%">
+</p>
+<h4 align="center">Trustworthy Computing Group</h4>
