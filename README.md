@@ -1,9 +1,5 @@
-<h1 align="center">The Zilch Framework</h1>
-<p align="center">
-    <a href="https://travis-ci.com/TrustworthyComputing/Zilch"><img src="https://travis-ci.com/TrustworthyComputing/Zilch.svg?token=gZwZQ8qzAHzETuTPZFp7&branch=master"></a>
-    <a href="https://github.com/TrustworthyComputing/Zilch/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-</p>
-<h4 align="center">A Framework for Building Zero-Knowledge Proofs for any Application</h4>
+<h1 align="center">The Zilch Framework <a href="https://github.com/TrustworthyComputing/Zilch/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a> </h1>
+<h3 align="center">A Framework for Building Zero-Knowledge Proofs for any Application</h3>
 
 
 ### Overview
