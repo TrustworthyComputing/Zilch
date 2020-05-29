@@ -1,5 +1,5 @@
 <h1 align="center">The Zilch Framework <a href="https://github.com/TrustworthyComputing/Zilch/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a> </h1>
-<h3 align="center">A Framework for Building Zero-Knowledge Proofs for any Application</h3>
+<h3 align="center">A Framework for Deploying Transparent Zero Knowledge Proofs</h3>
 
 
 ### Overview
