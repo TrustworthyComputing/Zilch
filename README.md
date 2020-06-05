@@ -173,6 +173,6 @@ And then the prover to connect to port `2324`:
 
 
 <p align="center">
-    <img src="./logos/twc.png" height="10%" width="10%">
+    <img src="./logos/twc.png" height="20%" width="20%">
 </p>
 <h4 align="center">Trustworthy Computing Group</h4>
