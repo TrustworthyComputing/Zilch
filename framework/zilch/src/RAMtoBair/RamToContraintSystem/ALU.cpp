@@ -2284,7 +2284,13 @@ void ALU_ANSWER_Gadget::generateWitness(){
         answer_ = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
 
         libstark::specsPrinter specs("Results of " + zmips_filename_, true);
-        specs.addLine("Answer (decimal)", to_string(answer_));
+        if (answer_ & (1 << REGISTER_LENGTH - 1)) { // check if negative
+            int mask = (1 << REGISTER_LENGTH - 1) - 1;
+            int negative_answer = ~mask | answer_;
+            specs.addLine("Answer (decimal)", to_string(negative_answer) );
+        } else {
+            specs.addLine("Answer (decimal)", to_string(answer_));
+        }
         specs.addLine(to_string(REGISTER_LENGTH) + "-bit answer", std::bitset<REGISTER_LENGTH>(answer_).to_string());
         specs.addLine("Timesteps required", to_string(max_timestep));
         specs.print();
@@ -2319,8 +2325,13 @@ void ALU_PRINT_Gadget::generateWitness() {
 	initGeneralOpcodes(pb_);
 	initMemResult(pb_, results_);
     size_t reg = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
-    std::cout << "Print: " << reg << endl;
-
+    if (reg & (1 << REGISTER_LENGTH - 1)) { // check if negative
+        int mask = (1 << REGISTER_LENGTH - 1) - 1;
+        int negative_reg = ~mask | reg;
+        std::cout << "Print: " << negative_reg << endl;
+    } else {
+        std::cout << "Print: " << reg << endl;
+    }
     #ifdef DEBUG
         std::cout << "\n\nALU_PRINT_Gadget witness\nALUInput PRINT:\n";
         inputs_.printALUInput(pb_);
@@ -2350,7 +2361,13 @@ void ALU_PRINTLN_Gadget::generateWitness() {
 	initMemResult(pb_, results_);
     size_t reg = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
     if (reg > 0) {
-        std::cout << "Print: " << reg << endl << endl;
+        if (reg & (1 << REGISTER_LENGTH - 1)) { // check if negative
+            int mask = (1 << REGISTER_LENGTH - 1) - 1;
+            int negative_reg = ~mask | reg;
+            std::cout << "Print: " << negative_reg << endl << endl;
+        } else {
+            std::cout << "Print: " << reg << endl << endl;
+        }
     } else {
         std::cout << endl;
     }
