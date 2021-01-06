@@ -85,6 +85,14 @@ void printHeader(void) {
     cout << endl << " /____|_|_|\\___|_| |_|" << RESET << endl << endl;
 }
 
+string getPathName(const string& s) {
+   char sep = '/';
+   size_t i = s.rfind(sep, s.length());
+   if (i != string::npos) {
+      return(s.substr(0, i));
+   }
+   return("");
+}
 
 int main(int argc, char *argv[]) {
     /* Parse arguments */
@@ -121,8 +129,12 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
     } else {
+        string pathfile = getPathName(assemblyFile);
         string rawname = assemblyFile.substr(0, assemblyFile.find_last_of("."));
-        if (file_exists(rawname+".pubtape")) {
+        if (file_exists(pathfile+"/pubtape.txt")) {
+            primaryTapeFile = pathfile+"/pubtape.txt";
+            std::cout << "No primary tape file is given, using " << primaryTapeFile << '\n';
+        } else if (file_exists(rawname+".pubtape")) {
             primaryTapeFile = rawname+".pubtape";
             std::cout << "No primary tape file is given, using " << primaryTapeFile << '\n';
         }
@@ -135,8 +147,12 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
     } else {
+        string pathfile = getPathName(assemblyFile);
         string rawname = assemblyFile.substr(0, assemblyFile.find_last_of("."));
-        if (file_exists(rawname+".auxtape")) {
+        if (file_exists(pathfile+"/auxtape.txt")) {
+            auxTapeFile = pathfile+"/auxtape.txt";
+            std::cout << "No private tape file is given, using " << auxTapeFile << '\n';
+        } else if (file_exists(rawname+".auxtape")) {
             auxTapeFile = rawname+".auxtape";
             std::cout << "No private tape file is given, using " << auxTapeFile << '\n';
         }
