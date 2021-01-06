@@ -58,6 +58,7 @@ string opcodeToString(const Opcode& op){
         case Opcode::SW: return "SW";
         case Opcode::LW: return "LW";
         case Opcode::ANSWER: return "ANSWER";
+        case Opcode::ERROR: return "ERROR";
         case Opcode::PRINT: return "PRINT";
         case Opcode::PRINTLN: return "PRINTLN";
         case Opcode::NUM_OPCODES: return "NUM_OPCODES";
@@ -102,6 +103,7 @@ Opcode opcodeFromString(const string op){
 	if(op == "SECREAD") return Opcode::SECREAD;
 	if(op == "SECSEEK") return Opcode::SECSEEK;
     if(op == "ANSWER") return Opcode::ANSWER;
+    if(op == "ERROR") return Opcode::ERROR;
 	if(op == "CMPE") return Opcode::CMPE;
 	if(op == "CMPNE") return Opcode::CMPNE;
 	if(op == "CMPA") return Opcode::CMPA;

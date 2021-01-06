@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <cstring>
+#include <string>
 #include <map>
 #include <set>
 
@@ -13,7 +14,7 @@ namespace CryptoCommitment{
 
 struct hashDigest_t{
     char buffer[128/8];
-    
+
     std::string toString()const;
     friend std::ostream& operator<<(std::ostream& os, const hashDigest_t& hd);
 };
@@ -27,8 +28,8 @@ bool operator<(const hashDigest_t& a, const hashDigest_t& b);
 typedef std::vector<hashDigest_t> path_t;
 
 //hashes 64 bytes from src into 32 bytes in dst
-void hash(void const* const src, void * const dst); 
-hashDigest_t hash(void const* const src); 
+void hash(void const* const src, void * const dst);
+hashDigest_t hash(void const* const src);
 
 const short logBytesPerHash = 4;
 
@@ -72,13 +73,13 @@ public:
     void addEntry(const size_t idx, const hashDigest_t& data);
     void deleteEntry(const size_t idx);
     const hashDigest_t& readData(const size_t idx)const;
-    
+
     //idx is the index of a pair of hashes
     hashDigest_t hashPair(const size_t idx)const;
-    
+
     //calculates the next layer, with merging received data, for verification
     SparceMerkleLayer calculateNextLayer(const SparceMerkleLayer& recieved)const;
-    
+
     std::vector<hashDigest_t> toVector()const;
     std::set<size_t> getIndices()const;
 private:
@@ -90,7 +91,7 @@ public:
     //construct empty sparse tree
     // It is expected src_logLen is in bytes.
     SparceMerkleTree(const short src_logLen);
-    
+
     //De serialization
     void DeSerialize(const std::set<size_t>& queriedIndices, const std::vector<hashDigest_t>& serializedSubtree);
 
@@ -99,10 +100,10 @@ public:
 
     bool hasData(const size_t idx)const;
     const hashDigest_t& readData(const size_t idx)const;
-    
+
     //Serialization
     std::vector<hashDigest_t> toVector()const;
-    
+
     //used to get expected results length
     std::vector< std::pair<short,size_t> > getSerializationMapping(const std::set<size_t>& queriedIndices)const;
 private:

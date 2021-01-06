@@ -20,7 +20,7 @@
 #include <gadgetlib/infrastructure.hpp>
 #include <algebraLib/CircuitPolynomial.hpp>
 
-#define NUMBER_OPCODES 41
+#define NUMBER_OPCODES 42
 
 #define ASSERT_CONSTRAINTS_SATISFIED(pb) \
     ASSERT_TRUE(pb->isSatisfied(PrintOptions::DBG_PRINT_IF_NOT_SATISFIED))

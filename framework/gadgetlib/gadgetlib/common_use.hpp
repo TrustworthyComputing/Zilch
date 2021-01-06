@@ -68,8 +68,9 @@ enum class Opcode : int {
 	CMPGE = 38,
 	CJMP = 39,
 	CNJMP = 40,
+	ERROR = 41,
 
-	NUM_OPCODES = 41
+	NUM_OPCODES = 42
 }; // enum Opcode
 // Check NUMBER_OPCODES
 

@@ -118,6 +118,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::SW] = ALU_SW_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::JMP] = ALU_JMP_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::ANSWER] = ALU_ANSWER_Gadget::create(pb_, inputVariables_, resultVariables_);
+	components_[Opcode::ERROR] = ALU_ERROR_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::PRINT] = ALU_PRINT_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::PRINTLN] = ALU_PRINTLN_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CJMP] = ALU_CJMP_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -338,8 +339,11 @@ void ALU_Gadget::generateWitness(size_t i) {
         case gadgetlib::Opcode::PRINTLN:
     		components_[Opcode::PRINTLN]->generateWitness();
     		break;
-    	case gadgetlib::Opcode::ANSWER:
-    		components_[Opcode::ANSWER]->generateWitness();
+    	case gadgetlib::Opcode::ERROR:
+    		components_[Opcode::ERROR]->generateWitness();
+            break;
+        case gadgetlib::Opcode::ANSWER:
+            components_[Opcode::ANSWER]->generateWitness();
     		return; //break;
     	case gadgetlib::Opcode::NUM_OPCODES:
     		break;
@@ -2301,6 +2305,48 @@ void ALU_ANSWER_Gadget::generateWitness(){
         std::cout << "\n\nALU_ANSWER_Gadget witness\nALUInput ANSWER:\n";
         inputs_.printALUInput(pb_);
         std::cout << "ALUOutput ANSWER" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_ERROR_Gadget::ALU_ERROR_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
+
+GadgetPtr ALU_ERROR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_ERROR_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+void ALU_ERROR_Gadget::init(){}
+void ALU_ERROR_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_ERROR_Gadget" << '\n';
+#endif
+    found_answer_ = false;
+}
+
+void ALU_ERROR_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	if (!found_answer_) {
+        found_answer_ = true;
+		if (Algebra::one() == program_output) {
+            program_output = pb_->val(inputs_.arg2_val_);
+        }
+        answer_ = mapFieldElementToInteger(0, EXTDIM, pb_->val(inputs_.arg2_val_));
+
+        libstark::specsPrinter specs("Results of " + zmips_filename_, true);
+        specs.addLine("Runtime Exception", to_string(answer_));
+        specs.addLine("Timesteps required", to_string(max_timestep));
+        specs.print();
+        std::cout << "\n";
+	}
+
+    #ifdef DEBUG
+        std::cout << "\n\nALU_ERROR_Gadget witness\nALUInput ERROR:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput ERROR" << '\n';
         results_.printALUOutput(pb_);
         std::cout << '\n';
     #endif

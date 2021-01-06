@@ -93,7 +93,7 @@ void TraceConsistency::pcConsistency(){
 		if (opcode == Opcode::JMP || opcode == Opcode::JR){
 			//pcPoly = pcPoly + ((pcPacked + aluOutput_.result_) * selector_i);
 			selectorToConstraint[i] = 0;
-		} else if (opcode == Opcode::ANSWER){
+		} else if (opcode == Opcode::ANSWER || opcode == Opcode::ERROR){
 			//pcPoly = pcPoly + ((pcPacked + prevPcPacked) * selector_i);
 			selectorToConstraint[i] = 1;
 		} else if (opcode == Opcode::CJMP){
@@ -199,6 +199,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::CMPGE:
 					case Opcode::SW:
 					case Opcode::ANSWER:
+					case Opcode::ERROR:
 					case Opcode::PRINT:
 					case Opcode::PRINTLN:
 						selectorToConstraint[j] = 1;
@@ -301,6 +302,7 @@ void TraceConsistency::registersWitness(size_t programLine){
 			case Opcode::CMPGE:
 			case Opcode::SW:
 			case Opcode::ANSWER:
+			case Opcode::ERROR:
 			case Opcode::PRINT:
 			case Opcode::PRINTLN:
 				pb_->val(regiSecond) = pb_->val(regiFirst);
@@ -383,7 +385,7 @@ void TraceConsistency::generateWitness(size_t programLine){
 			std::cout<<"Trace Consistency: unfamiliar instruction";
 			throw("Trace Consistency: unfamiliar instruction");
 		}
-	} else if (opcode == Opcode::ANSWER) {
+	} else if (opcode == Opcode::ANSWER || opcode == Opcode::ERROR) {
 		pcWitness(programLine);
 	} else {
 		pcWitness(programLine + 1);
