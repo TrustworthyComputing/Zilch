@@ -142,7 +142,7 @@ string zmips_to_zilch_instruction(string& op, string& dst , string& src1, string
     } else if (op == "ANSWER") {
         answer_instruction = true;
         return "ANSWER r0 r0 " + get_immediate_or_register(dst);
-    } else if (op == "ERROR") {
+    } else if (op == "ERROR" || op == "EXIT") {
         return "ERROR r0 r0 " + get_immediate_or_register(dst);
     } else if (op == "PRINT") {
         return "PRINT r0 r0 " + get_immediate_or_register(dst);
