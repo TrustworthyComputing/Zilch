@@ -101,7 +101,7 @@ string zmips_to_zilch_instruction(string& op, string& dst , string& src1, string
     } else if (op == "SECREAD") {
         return "SECREAD " + get_native_register(dst) + " r0 r0";
     } else if (op == "PUBREAD") {
-        string base = "r" + to_string(MEMORY_REGISTER);
+        string base = "r" + to_string(PUBREAD_REGISTER);
         return "LW " + get_native_register(dst) + " " + get_native_register(dst) + " " + base + "\nADD " + base + " "  + base + " 1";
     } else if (op == "SECSEEK") {
         return "SECSEEK " + get_native_register(dst) + " " + src1 + " r0";
@@ -210,7 +210,7 @@ std::vector<string> split_string_to_lines(const string& str) {
 
 vector<string> initialize_public_tape(const vector<string> public_lines) {
     vector<string> store_tape;
-    string reg = "r" + to_string(MEMORY_REGISTER);
+    string reg = "r" + to_string(PUBREAD_REGISTER);
     for (size_t i = 0 ; i < public_lines.size() ; i++) {
         string instr1 = "MOVE " + reg + " " + reg + " " + public_lines[i];
         string instr2 = "SW " + reg + " r0 " + to_string(i);

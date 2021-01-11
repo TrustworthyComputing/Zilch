@@ -19,6 +19,7 @@
 
 enum Registers {
     ZERO_REGISTER = 0,
+    PUBREAD_REGISTER,
     SECREAD_REGISTER,
     MEMORY_REGISTER,
     HP_REGISTER,
