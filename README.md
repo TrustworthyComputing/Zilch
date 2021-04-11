@@ -71,19 +71,14 @@ The flags below enable verification over the network; if neither is enabled, the
 ```
 see examples below on how to use the flags.
 
-__Note:__ If the public tape is in the same directory as the zMIPS assembly file and has the same name but has the `.pubtape` extension, the flag `--pubtape` may be omitted. The same applies for the private tape with the extension `.auxtape`. For instance the command `./zilch --asm ./example.zmips --pubtape example.pubtape --auxtape example.auxtape` is the same as `./zilch --asm ./example.zmips`, since Zilch automatically locates the tapes that end with `.pubtape` and `.auxtape` extensions.
-
-
-## zMIPS ISA
-In [zMIPS.md](https://github.com/TrustworthyComputing/Zilch/tree/master/examples-zmips/zMIPS.md) we elaborate on the zMIPS ISA.
-
-
-At the assembler level, our labels are alphanumeric tags that begin and end by a double underscore (e.g., `__example_label__`), while inside Zilch these labels are converted to instruction numbers.
+__Note:__ Zilch automatically detects the private and public tapes if they are in the same directory as the zMIPS assembly file and they are named `pubtape.txt` and `auxtape.txt`.
 
 
 ### zMIPS examples
+
 In the [examples-zmips](examples-zmips) directory we include various zMIPS examples.
 
+At the assembler level, our labels are alphanumeric tags that begin and end by a double underscore (e.g., `__example_label__`), while inside Zilch these labels are converted to instruction numbers.
 
 For instance, below is the zMIPS code to compute the factorial of 5:
 ```
@@ -99,8 +94,7 @@ answer $t1
 
 
 ### User-defined Macros
-In [macros.json](https://github.com/TrustworthyComputing/Zilch/blob/master/framework/zilch/src/macros.json) the user can define her own custom zMIPS macro-instructions.
-
+In [macros.json](https://github.com/TrustworthyComputing/Zilch/blob/master/framework/zilch/src/macros.json) we define custom macro-instructions based on existing zMIPS instructions.
 For instance, we have defined `inc` and `min` macro-instructions as shown below :
 ```
 "inc": {
@@ -133,7 +127,7 @@ The `min` macro-instruction uses three registers and also labels:
 ```
 
 
-### An example for read instruction:
+### An example for read instructions:
 Primary tape is filled with `1, 2, 3, 4, ...`, while aux tape contains `101, 102, 103, 104, ...`.
 ```
 pubread $t0             ; consume next word from public tape and store it to r0
@@ -154,8 +148,7 @@ In order to execute the above program, simply run `./zilch --asm ./examples-zmip
 
 
 
-
-## Over the Network Verification:
+### Over the Network Verification:
 The default behavior (without flags `--address`, `--verifier`, `--prover`) of the `zilch` executable results in a local execution.
 In order to enable over the network verification first the verifier should be executed (`--verifier` flag) and then the prover (`--prover` flag).
 The verifier acts as a server waiting for the prover to connect, executes and prints and returns its decision to the prover.
