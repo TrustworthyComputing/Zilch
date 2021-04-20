@@ -13,9 +13,15 @@ The [front-end](https://github.com/TrustworthyComputing/ZeroJava-compiler) consi
 The [back-end](https://github.com/TrustworthyComputing/Zilch) translates the zMIPS assembly instructions to arithmetic circuits and generates ZKPs for verifying the evaluation of these circuits.
 The back-end builds upon the ZKP constructions of the [zkSTARK](https://eprint.iacr.org/2018/046) library, and extends the programming model of libSTARK to the zMIPS abstract machine.
 
-
 __Disclaimer:__ The code is _academic grade_, meant for academic peer review and evaluation. It very likely contains _serious security flaws_.
 
+
+### Cite this work
+If you find our work useful, please cite our publication [(author's version pdf)](https://eprint.iacr.org/2020/1155.pdf):
+```
+D. Mouris and N. G. Tsoutsos, "Zilch: A Framework for Deploying Transparent Zero-Knowledge Proofs,"
+in IEEE Transactions on Information Forensics and Security (TIFS), 2021, DOI: 10.1109/TIFS.2021.3074869
+```
 
 ### Compilation
 
