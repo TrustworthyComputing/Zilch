@@ -17,7 +17,7 @@ __Disclaimer:__ The code is _academic grade_, meant for academic peer review and
 
 
 ### Cite this work
-If you find our work useful, please cite our publication [(author's version pdf)](https://eprint.iacr.org/2020/1155.pdf):
+If you find our work useful, please cite our publication ([IEEE Xplore](https://ieeexplore.ieee.org/document/9410618), [Cryptology ePrint Archive](https://eprint.iacr.org/2020/1155.pdf)):
 ```
 D. Mouris and N. G. Tsoutsos, "Zilch: A Framework for Deploying Transparent Zero-Knowledge Proofs,"
 in IEEE Transactions on Information Forensics and Security (TIFS), 2021, DOI: 10.1109/TIFS.2021.3074869
