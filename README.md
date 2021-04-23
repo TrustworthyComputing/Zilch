@@ -13,7 +13,7 @@ The [front-end](https://github.com/TrustworthyComputing/ZeroJava-compiler) consi
 The [back-end](https://github.com/TrustworthyComputing/Zilch) translates the zMIPS assembly instructions to arithmetic circuits and generates ZKPs for verifying the evaluation of these circuits.
 The back-end builds upon the ZKP constructions of the [zkSTARK](https://eprint.iacr.org/2018/046) library, and extends the programming model of libSTARK to the zMIPS abstract machine.
 
-__Disclaimer:__ The code is _academic grade_, meant for academic peer review and evaluation.
+__Disclaimer:__ The code is _academic grade_, meant for academic peer review and evaluation. The authors have tested the code with `Ubuntu 20.04`.
 
 
 ### Cite this work
@@ -26,13 +26,13 @@ in IEEE Transactions on Information Forensics and Security (TIFS), 2021, DOI: 10
 ### Compilation
 
 #### Zilch Dependencies:
-* OpenMP (https://en.wikipedia.org/wiki/OpenMP)
+* OpenMP (https://en.wikipedia.org/wiki/OpenMP) `apt install g++`
 * libcrypto (https://wiki.openssl.org/index.php/Main_Page) `apt install libssl-dev`
 * libboost (https://www.boost.org/) `apt install libboost-all-dev`
 * libjson (https://github.com/open-source-parsers/jsoncpp) `apt install libjsoncpp-dev`
 * googletest (https://github.com/google/googletest) `apt-get install libgtest-dev`
 
-For the ZeroJava compiler dependencies refer to the [ZeroJava repository]().
+For the ZeroJava compiler dependencies refer to the [ZeroJava repository](https://github.com/TrustworthyComputing/ZeroJava-compiler).
 
 #### Build Zilch
 ```
