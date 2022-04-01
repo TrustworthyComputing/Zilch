@@ -48,7 +48,8 @@ To verify the installation type `./zilch-tests`.
 
 ```
 $ cd ZeroJava-compiler
-$ mvn initialize package
+$ mvn initialize
+$ mvn package
 ```
 
 ### Execution
